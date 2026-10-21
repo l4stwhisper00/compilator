@@ -321,9 +321,48 @@
         }
         .ai-header-left { display: flex; align-items: center; gap: 10px; }
         .ai-header-left i { color: var(--accent); font-size: 20px; }
-        .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; }
-        .ai-header .settings-btn:hover { color: var(--text-primary); }
+        
+        /* Контейнер для кнопок в шапке */
+        #ai-header-buttons { display: flex; gap: 10px; align-items: center; }
+        .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
+        .ai-header .settings-btn:hover { color: var(--accent); }
 
+        /* ЭКРАН ПОДКЛЮЧЕНИЯ (ОНБОРДИНГ) */
+        .ai-onboarding { padding: 25px 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
+        .ai-onboarding h3 { font-size: 18px; color: var(--text-primary); text-align: center; margin-bottom: 5px; }
+        .ai-onboarding p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; text-align: center; }
+        
+        /* БЛОК ПРЕДУПРЕЖДЕНИЯ */
+        .warning-box {
+            background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 8px;
+            padding: 12px; display: flex; gap: 10px; align-items: flex-start;
+            margin: 5px 0;
+        }
+        .warning-box i { color: var(--error); font-size: 20px; margin-top: 2px; }
+        .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
+        .warning-box strong { color: var(--error); text-transform: uppercase; }
+
+        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
+        .ai-onboarding .provider-buttons a {
+            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
+            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .ai-onboarding .provider-buttons .qwen-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .qwen-btn:hover { background: var(--accent); color: #111; }
+        
+        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
+        .ai-onboarding .input-group input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
+        }
+        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
+        .ai-onboarding .connect-btn {
+            background: var(--accent); color: #111; border: none; border-radius: 8px;
+            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
+        }
+        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
+        
         /* ЧАТ */
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
@@ -335,7 +374,7 @@
             font-size: 12px; color: var(--error); font-weight: 600;
         }
 
-        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: none; gap: 10px; }
         .ai-input-area input {
             flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px;
             padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px;
@@ -351,8 +390,8 @@
         /* Настройки ИИ (Шестеренка) */
         .ai-settings { padding: 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
         .ai-settings label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .ai-settings input, .ai-settings select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
-        .ai-settings input:focus, .ai-settings select:focus { border-color: var(--accent); }
+        .ai-settings input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
+        .ai-settings input:focus { border-color: var(--accent); }
         .ai-settings .save-btn { background: var(--accent); color: #111; margin-top: 10px; justify-content: center; }
         .ai-settings .logout-btn { background: transparent; color: var(--error); border: 1px solid var(--error); margin-top: 10px; justify-content: center; }
         .ai-settings .logout-btn:hover { background: rgba(255, 82, 82, 0.1); }
@@ -471,7 +510,7 @@ print("Итоговая цена:", itog)
     </footer>
 
     <!-- Кнопка вызова ИИ -->
-    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
+    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник (Qwen)">
         <i class="ph-fill ph-robot"></i>
     </button>
 
@@ -482,19 +521,73 @@ print("Итоговая цена:", itog)
                 <i class="ph-fill ph-robot"></i>
                 ИИ-Наставник
             </div>
+            <!-- Кнопки управления (скрыты до подключения) -->
+            <div id="ai-header-buttons" style="display: none;">
+                <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата">
+                    <i class="ph ph-trash"></i>
+                </button>
+                <button class="settings-btn" onclick="toggleAISettings()" title="Настройки API">
+                    <i class="ph ph-gear"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
+        <div id="ai-onboarding" class="ai-onboarding">
+            <h3>Подключение ИИ-Наставника</h3>
+            <p>ИИ помогает разобраться в коде и подсказывает, где ошибка. Выбери сервис, получи ключ и вставь его ниже.</p>
+            
+            <!-- ПРЕДУПРЕЖДЕНИЕ ОБ ОБЩИХ КОМПЬЮТЕРАХ -->
+            <div class="warning-box">
+                <i class="ph-fill ph-warning-circle"></i>
+                <div>
+                    <strong>ВАЖНО!</strong><br>
+                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
+                </div>
+            </div>
+
+            <div class="provider-buttons">
+                <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" class="qwen-btn">
+                    <i class="ph ph-brain"></i> Получить ключ Qwen
+                </a>
+            </div>
+
+            <div class="input-group">
+                <label>Вставь полученный ключ сюда:</label>
+                <input type="password" id="onboarding-key" placeholder="sk-...">
+            </div>
+            
+            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
         </div>
 
         <!-- ЧАТ -->
-        <div class="ai-messages" id="ai-messages">
-            <div class="message ai">
+        <div class="ai-messages" id="ai-messages" style="display: none;">
+            <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
             </div>
         </div>
 
         <div class="ai-input-area" id="ai-input-area">
             <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+        </div>
+
+        <!-- Настройки API -->
+        <div class="ai-settings" id="ai-settings">
+            <label>API URL (Endpoint):
+                <input type="text" id="ai-api-url" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions">
+            </label>
+            <label>API Ключ (Token):
+                <input type="password" id="ai-api-key" placeholder="sk-...">
+            </label>
+            <label>Модель:
+                <input type="text" id="ai-model" placeholder="qwen3-coder-plus">
+            </label>
+            
+            <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
+            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
         </div>
     </div>
 
@@ -504,22 +597,126 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ KEYLESS AI ---
-        const KEYLESS_AI_URL = "https://keylessai.thryx.workers.dev/v1/chat/completions";
-        const KEYLESS_AI_MODEL = "gpt-4o"; // Можно попробовать другие модели, например "claude-3-5-sonnet-latest"
+        // --- НАСТРОЙКИ QWEN ---
+        const QWEN_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+        const QWEN_MODEL = "qwen3-coder-plus";
 
-        // --- ЛОГИКА ЧАТА ---
+        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display === 'flex') {
                 panel.style.display = 'none';
             } else {
                 panel.style.display = 'flex';
-                document.getElementById('ai-input').focus();
-                scrollToAIBottom();
+                checkAIConnection();
             }
         }
 
+        function checkAIConnection() {
+            const savedKey = localStorage.getItem('ai_api_key');
+            const onboarding = document.getElementById('ai-onboarding');
+            const messages = document.getElementById('ai-messages');
+            const inputArea = document.getElementById('ai-input-area');
+            const headerBtns = document.getElementById('ai-header-buttons');
+            const settings = document.getElementById('ai-settings');
+
+            settings.style.display = 'none';
+
+            if (savedKey) {
+                onboarding.style.display = 'none';
+                messages.style.display = 'flex';
+                inputArea.style.display = 'flex';
+                headerBtns.style.display = 'flex'; // Показываем кнопки
+                document.getElementById('ai-input').focus();
+                scrollToAIBottom();
+            } else {
+                onboarding.style.display = 'flex';
+                messages.style.display = 'none';
+                inputArea.style.display = 'none';
+                headerBtns.style.display = 'none';
+            }
+        }
+
+        // Очистка чата
+        function clearAIChat() {
+            const msgs = document.getElementById('ai-messages');
+            // Оставляем только приветственное сообщение
+            const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
+            msgs.innerHTML = welcomeHTML;
+            scrollToAIBottom();
+        }
+
+        function connectFromOnboarding() {
+            const key = document.getElementById('onboarding-key').value.trim();
+            if (!key) {
+                alert("Пожалуйста, вставь ключ!");
+                return;
+            }
+
+            if (!key.startsWith('sk-')) {
+                alert("Неизвестный формат ключа. Ключ Qwen (DashScope) должен начинаться на sk-.");
+                return;
+            }
+
+            localStorage.setItem('ai_provider', 'qwen');
+            localStorage.setItem('ai_api_url', QWEN_URL);
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_model', QWEN_MODEL);
+
+            checkAIConnection();
+        }
+
+        function toggleAISettings() {
+            const settings = document.getElementById('ai-settings');
+            const inputArea = document.getElementById('ai-input-area');
+            const messages = document.getElementById('ai-messages');
+            
+            if (settings.style.display === 'flex') {
+                settings.style.display = 'none';
+                inputArea.style.display = 'flex';
+                messages.style.display = 'flex';
+            } else {
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || QWEN_URL;
+                document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || QWEN_MODEL;
+
+                settings.style.display = 'flex';
+                inputArea.style.display = 'none';
+                messages.style.display = 'none';
+            }
+        }
+
+        function saveAISettings() {
+            const url = document.getElementById('ai-api-url').value.trim();
+            const key = document.getElementById('ai-api-key').value.trim();
+            const model = document.getElementById('ai-model').value.trim();
+            
+            if (!url || !key || !model) {
+                alert("Заполни все поля!");
+                return;
+            }
+
+            localStorage.setItem('ai_api_url', url);
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_model', model);
+            
+            toggleAISettings();
+            checkAIConnection();
+            alert("Настройки сохранены!");
+        }
+
+        function logoutAI() {
+            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
+                localStorage.removeItem('ai_provider');
+                localStorage.removeItem('ai_api_url');
+                localStorage.removeItem('ai_api_key');
+                localStorage.removeItem('ai_model');
+                toggleAISettings();
+                checkAIConnection();
+            }
+        }
+
+        // --- ЛОГИКА ЧАТА ---
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
@@ -536,6 +733,15 @@ print("Итоговая цена:", itog)
         }
 
         async function sendToAI() {
+            const apiUrl = localStorage.getItem('ai_api_url') || QWEN_URL;
+            const apiKey = localStorage.getItem('ai_api_key');
+            const model = localStorage.getItem('ai_model') || QWEN_MODEL;
+
+            if (!apiKey) {
+                alert("Сначала подключи ИИ!");
+                return;
+            }
+
             const input = document.getElementById('ai-input');
             const text = input.value.trim();
             if (!text) return;
@@ -566,14 +772,14 @@ ${errorText}`;
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
 
             try {
-                const response = await fetch(KEYLESS_AI_URL, {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
-                        // Ключ авторизации не нужен!
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: KEYLESS_AI_MODEL,
+                        model: model,
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: text }
