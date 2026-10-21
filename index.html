@@ -11,7 +11,6 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     
@@ -22,11 +21,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
-    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ --- */
         :root {
             --bg-body: #0b0b0e;
             --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
@@ -42,7 +39,6 @@
             --success: #6a8759;
             --error: #ff5252;
             
-            /* Синтаксис PyCharm */
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
             --syn-number: #61afef;
@@ -100,7 +96,6 @@
             --syn-variable: #e0def4;
         }
 
-        /* --- БАЗОВАЯ СТРУКТУРА --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -120,7 +115,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- HEADER --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
@@ -148,7 +142,6 @@
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
 
-        /* --- MAIN LAYOUT --- */
         main {
             display: flex;
             flex: 1;
@@ -181,7 +174,6 @@
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
-        /* --- РЕДАКТОР КОДА --- */
         .editor-container { flex: 1; position: relative; overflow: hidden; }
 
         .CodeMirror {
@@ -193,7 +185,6 @@
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
 
-        /* Яркий курсор */
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
 
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
@@ -207,7 +198,6 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
-        /* --- ПОДСКАЗКИ (ОКРУГЛЫЕ, БЕЗ КУБИКОВ) --- */
         .CodeMirror-hints {
             background: var(--bg-surface) !important;
             border: 1px solid var(--border) !important;
@@ -225,17 +215,17 @@
             cursor: pointer !important;
             transition: background 0.1s, color 0.1s;
         }
-        /* Активный элемент: просто заливается цветом, без жестких рамок */
         li.CodeMirror-hint-active {
             background: var(--accent) !important;
             color: #111 !important; 
             font-weight: 600;
         }
 
-        /* --- ТЕРМИНАЛ --- */
+        /* --- ТЕРМИНАЛ (ИСПРАВЛЕН БАГ С ВЫСОТОЙ) --- */
         .console-wrapper {
             flex: 1; background: var(--console-bg);
             display: flex; flex-direction: column; position: relative;
+            min-height: 0; /* ВАЖНО: заставляет flexbox работать со скроллом */
         }
 
         .console-topbar {
@@ -252,12 +242,12 @@
             font-family: 'Fira Code', monospace; font-size: 14px;
             color: var(--text-primary); overflow-y: auto; white-space: pre-wrap;
             line-height: 1.6;
+            min-height: 0; /* ВАЖНО: позволяет тексту скроллиться, а не вылезать за края */
         }
 
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
-        /* Поле ввода в терминале */
         #terminal-input-container {
             display: none; align-items: center; padding: 12px 20px;
             background: rgba(0, 0, 0, 0.4); border-top: 1px solid var(--border);
@@ -271,7 +261,6 @@
             font-size: 14px; outline: none; caret-color: var(--accent);
         }
 
-        /* --- FOOTER --- */
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -369,6 +358,12 @@ print("Итоговая цена:", itog)
         let pyodideReady = false;
         let pyodide;
 
+        // Умный скролл вниз
+        function scrollToBottom() {
+            const output = document.getElementById('output');
+            output.scrollTop = output.scrollHeight;
+        }
+
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
@@ -390,6 +385,20 @@ print("Итоговая цена:", itog)
                         }
                     }
                 }
+            });
+
+            // --- АВТОСОХРАНЕНИЕ КОДА ---
+            const savedCode = localStorage.getItem('python_ide_code');
+            if (savedCode) {
+                editor.setValue(savedCode);
+            }
+
+            let saveTimeout;
+            editor.on("change", function() {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    localStorage.setItem('python_ide_code', editor.getValue());
+                }, 500);
             });
 
             setTimeout(() => editor.refresh(), 100);
@@ -427,16 +436,15 @@ print("Итоговая цена:", itog)
                     stdout: (text) => {
                         const output = document.getElementById('output');
                         output.innerText += text + "\n";
-                        output.scrollTop = output.scrollHeight;
+                        scrollToBottom();
                     },
                     stderr: (text) => {
                         const output = document.getElementById('output');
                         output.innerHTML += `<span class="output-error">${text}</span>\n`;
-                        output.scrollTop = output.scrollHeight;
+                        scrollToBottom();
                     }
                 });
 
-                // Настройка ввода прямо в терминале (требует netlify.toml)
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
@@ -445,22 +453,23 @@ print("Итоговая цена:", itog)
                             
                             container.style.display = 'flex';
                             inputField.focus();
+                            
+                            // Прокручиваем вниз, чтобы пользователь увидел вопрос программы
+                            setTimeout(scrollToBottom, 10);
 
                             inputField.onkeydown = (e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
                                     const val = inputField.value;
                                     
-                                    // Выводим в консоль то, что ввел пользователь (как в обычном терминале)
                                     const output = document.getElementById('output');
                                     output.innerText += "> " + val + "\n";
-                                    output.scrollTop = output.scrollHeight;
+                                    scrollToBottom();
                                     
                                     inputField.value = '';
                                     container.style.display = 'none';
                                     inputField.onkeydown = null;
                                     
-                                    // \n критически важен, чтобы Pyodide не завис
                                     resolve(val + "\n"); 
                                 }
                             };
@@ -504,7 +513,7 @@ print("Итоговая цена:", itog)
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
             } finally {
                 runBtn.disabled = false;
-                outputDiv.scrollTop = outputDiv.scrollHeight;
+                scrollToBottom();
                 editor.refresh();
             }
         }
