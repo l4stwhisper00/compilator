@@ -12,7 +12,6 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <!-- Убрали тему dracula, так как рисуем свою -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -25,34 +24,30 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ (СВЕЧЕНИЕ, БЛЮР, PYCHARM SYNTAX) --- */
-        
-        /* Тёмная тема (Deep Black / PyCharm Darcula) */
+        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ --- */
         :root {
             --bg-body: #0b0b0e;
             --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
-            --bg-panel: rgba(22, 22, 28, 0.75); /* Полупрозрачный для блюра */
+            --bg-panel: rgba(22, 22, 28, 0.75);
             --bg-surface: #18181f;
             --bg-surface-hover: #272732;
-            --text-primary: #a9b7c6; /* Классический цвет текста PyCharm */
+            --text-primary: #a9b7c6;
             --text-secondary: #767e8c;
-            --accent: #cc7832; /* Оранжевый акцент PyCharm */
+            --accent: #cc7832;
             --accent-hover: #e08b47;
             --border: rgba(255, 255, 255, 0.08);
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
             
-            /* Цвета синтаксиса Dark */
-            --syn-keyword: #cc7832;   /* Оранжевый (def, if, print) */
-            --syn-string: #6a8759;    /* Зелёный строки */
-            --syn-number: #6897bb;    /* Голубой числа */
-            --syn-comment: #808080;   /* Серый комменты */
-            --syn-def: #ffc66d;       /* Желтый функции */
-            --syn-builtin: #8888c6;   /* Фиолетовый встроенные */
+            --syn-keyword: #cc7832;
+            --syn-string: #6a8759;
+            --syn-number: #6897bb;
+            --syn-comment: #808080;
+            --syn-def: #ffc66d;
+            --syn-builtin: #8888c6;
         }
 
-        /* Светлая тема (IntelliJ Light) */
         [data-theme="light"] {
             --bg-body: #f2f4f8;
             --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
@@ -68,7 +63,6 @@
             --success: #00a000;
             --error: #d00000;
 
-            /* Цвета синтаксиса Light */
             --syn-keyword: #0033b3;
             --syn-string: #067d17;
             --syn-number: #1750eb;
@@ -77,7 +71,6 @@
             --syn-builtin: #7a3e9d;
         }
 
-        /* Неоновая тема (Cyberpunk Synthwave) */
         [data-theme="neon"] {
             --bg-body: #05000a;
             --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
@@ -93,13 +86,12 @@
             --success: #00f0ff;
             --error: #ff007f;
 
-            /* Цвета синтаксиса Neon */
-            --syn-keyword: #ff007f; /* Ярко-розовый */
-            --syn-string: #00f0ff;  /* Голубой */
-            --syn-number: #f1fa8c;  /* Желтый */
-            --syn-comment: #6272a4; /* Сине-серый */
-            --syn-def: #bd93f9;     /* Фиолетовый */
-            --syn-builtin: #8be9fd; /* Бирюзовый */
+            --syn-keyword: #ff007f;
+            --syn-string: #00f0ff;
+            --syn-number: #f1fa8c;
+            --syn-comment: #6272a4;
+            --syn-def: #bd93f9;
+            --syn-builtin: #8be9fd;
         }
 
         /* --- БАЗОВАЯ СТРУКТУРА --- */
@@ -108,7 +100,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
-            background-image: var(--glow-bg); /* Свечение на фоне */
+            background-image: var(--glow-bg);
             color: var(--text-primary);
             height: 100vh;
             display: flex;
@@ -122,12 +114,11 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- HEADER (Шапка) --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
             background: var(--bg-panel);
-            backdrop-filter: blur(12px); /* Блюр шапки */
+            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             z-index: 10;
@@ -148,25 +139,23 @@
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button.run-btn { background: var(--accent); color: #fff; border: none; box-shadow: 0 0 10px rgba(204, 120, 50, 0.3); }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(204, 120, 50, 0.5); }
-        [data-theme="neon"] button.run-btn { box-shadow: 0 0 15px rgba(255, 0, 127, 0.5); }
 
-        /* --- РАБОЧАЯ ОБЛАСТЬ (С Отступами и Блюром) --- */
         main {
             display: flex;
             flex: 1;
-            padding: 16px; /* Отступы по краям */
-            gap: 16px;     /* Отступ между редактором и терминалом */
+            padding: 16px;
+            gap: 16px;
             height: calc(100vh - 56px - 30px);
         }
 
         .panel {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
             background: var(--bg-panel);
-            backdrop-filter: blur(16px); /* Блюр панелей */
+            backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-radius: 12px; /* Закругленные углы */
+            border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Легкая тень/свечение */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
 
@@ -183,11 +172,21 @@
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
-        /* --- РЕДАКТОР CODEMIRROR --- */
+        /* --- ИСПРАВЛЕНИЕ БАГА С ВЫСОТОЙ РЕДАКТОРА --- */
+        /* Обертка для CodeMirror */
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
         .CodeMirror {
-            height: 100% !important; font-family: 'Fira Code', monospace;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            height: 100% !important; 
+            font-family: 'Fira Code', monospace;
             font-size: 15px; line-height: 1.6;
-            background: transparent !important; /* Прозрачный фон, чтобы работал блюр */
+            background: transparent !important;
         }
 
         .CodeMirror-gutters {
@@ -195,7 +194,6 @@
             border-right: 1px solid var(--border) !important;
         }
 
-        /* Кастомная подсветка синтаксиса (PyCharm Style) */
         .cm-s-custom.CodeMirror { color: var(--text-primary); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
         .cm-s-custom .cm-string { color: var(--syn-string); }
@@ -206,7 +204,6 @@
         .cm-s-custom .cm-variable { color: var(--text-primary); }
         .cm-s-custom .cm-operator { color: var(--text-primary); }
 
-        /* --- ПОДСКАЗКИ (AUTOCOMPLETE) --- */
         .CodeMirror-hints {
             background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
             border-radius: 8px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
@@ -216,7 +213,6 @@
         .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 15px !important; cursor: pointer !important; }
         li.CodeMirror-hint-active { background: var(--accent) !important; color: #fff !important; }
 
-        /* --- КОНСОЛЬ ВЫВОДА --- */
         .console-wrapper {
             flex: 1; background: var(--console-bg);
             display: flex; flex-direction: column; position: relative;
@@ -241,7 +237,6 @@
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
-        /* Поле ввода в терминале */
         #terminal-input-container {
             display: none; align-items: center; padding: 12px 20px;
             background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border);
@@ -252,7 +247,6 @@
             font-size: 14px; outline: none;
         }
 
-        /* --- FOOTER --- */
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -293,14 +287,15 @@
     </header>
 
     <main>
-        <!-- ЛЕВАЯ ПАНЕЛЬ -->
         <div class="panel">
             <div class="panel-header">
                 <div class="tab">
                     <i class="ph ph-file-py"></i> main.py
                 </div>
             </div>
-            <textarea id="code-editor">
+            <!-- Обертка для редактора (ИСПРАВЛЕНИЕ) -->
+            <div class="editor-container">
+                <textarea id="code-editor">
 # Добро пожаловать! Пиши код здесь.
 # Нажми Ctrl+Enter для запуска.
 # Подсказки: начни писать и нажми Ctrl+Space.
@@ -310,10 +305,10 @@ def greet(name):
 
 user_name = input("Введи свое имя: ")
 greet(user_name)
-            </textarea>
+                </textarea>
+            </div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ -->
         <div class="panel">
             <div class="panel-header">
                 <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
@@ -354,7 +349,6 @@ greet(user_name)
         let resolveInput = null;
 
         window.onload = function() {
-            // Используем кастомную тему "custom", чтобы наши CSS-правила сработали
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
                 theme: "custom", 
@@ -375,6 +369,16 @@ greet(user_name)
                         }
                     }
                 }
+            });
+
+            // ИСПРАВЛЕНИЕ БАГА: Принудительно обновляем размеры редактора после загрузки страницы
+            setTimeout(() => {
+                editor.refresh();
+            }, 100);
+
+            // ИСПРАВЛЕНИЕ БАГА: Обновляем редактор при изменении размера окна
+            window.addEventListener('resize', () => {
+                editor.refresh();
             });
 
             let timeout;
@@ -414,7 +418,6 @@ greet(user_name)
         };
 
         function changeTheme(theme) {
-            // Просто меняем атрибут, CSS-переменные сами перекрасят и сайт, и редактор
             document.body.setAttribute('data-theme', theme);
         }
 
@@ -480,6 +483,9 @@ greet(user_name)
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
             }
             outputDiv.scrollTop = outputDiv.scrollHeight;
+            
+            // Обновляем редактор после запуска на всякий случай
+            editor.refresh();
         }
     </script>
 </body>
