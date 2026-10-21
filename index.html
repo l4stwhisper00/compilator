@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyWeb IDE | Professional Python Environment</title>
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Иконки -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- CodeMirror (Редактор) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
+
+    <!-- Pyodide (Движок Python) -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
+    <style>
+        /* --- ЦВЕТОВЫЕ СХЕМЫ (ТЕМЫ) --- */
+        :root {
+            /* Тёмная (по умолчанию) */
+            --bg-body: #0f111a;
+            --bg-surface: #1a1d27;
+            --bg-surface-hover: #232736;
+            --bg-editor: #282a36;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #2d3748;
+            --success: #10b981;
+            --error: #ef4444;
+            --console-bg: #0b0e14;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f1f5f9;
+            --bg-editor: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --success: #059669;
+            --error: #dc2626;
+            --console-bg: #f1f5f9;
+        }
+
+        [data-theme="neon"] {
+            --bg-body: #09090b;
+            --bg-surface: #18181b;
+            --bg-surface-hover: #27272a;
+            --bg-editor: #18181b;
+            --text-primary: #d8b4fe;
+            --text-secondary: #a78bfa;
+            --accent: #d946ef;
+            --accent-hover: #c026d3;
+            --border: #3b0764;
+            --success: #22d3ee;
+            --error: #f43f5e;
+            --console-bg: #09090b;
+        }
+
+        /* --- БАЗОВЫЕ СТИЛИ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.3s;
+        }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ (HEADER) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: 50px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        .logo i { color: var(--accent); font-size: 20px; }
+
+        .controls { display: flex; gap: 12px; align-items: center; }
+
+        /* Стилизация кнопок и селектов */
+        button, select {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-surface-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover, select:hover {
+            border-color: var(--accent);
+            background: var(--bg-surface);
+        }
+
+        button.run-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+        }
+        button.run-btn:hover { background: var(--accent-hover); }
+
+        /* --- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ --- */
+        main {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 75px); /* 50px header + 25px footer */
+        }
+
+        /* Панели (Редактор и Консоль) */
+        .panel {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .panel-left {
+            border-right: 1px solid var(--border);
+        }
+
+        /* Заголовки панелей (Вкладки) */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 15px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-editor);
+            color: var(--text-primary);
+            padding: 0 15px;
+            height: 100%;
+            border-right: 1px solid var(--border);
+            border-top: 2px solid var(--accent);
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Настройки CodeMirror */
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Fira Code', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* --- КОНСОЛЬ ВЫВОДА --- */
+        .console-wrapper {
+            flex: 1;
+            background: var(--console-bg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-topbar {
+            display: flex;
+            gap: 6px;
+            padding: 10px 15px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        #output {
+            flex: 1;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #e2e8f0;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .output-success { color: var(--success); }
+        .output-error { color: var(--error); }
+
+        /* --- НИЖНЯЯ ПАНЕЛЬ (STATUS BAR) --- */
+        footer {
+            height: 25px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #py-status.loading { color: #f59e0b; }
+        #py-status.ready { color: var(--success); }
+
+        /* --- АДАПТИВ --- */
+        @media (max-width: 768px) {
+            main { flex-direction: column; }
+            .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <header>
+        <div class="logo">
+            <i class="ph ph-terminal-window"></i>
+            PyWeb IDE
+        </div>
+        <div class="controls">
+            <select id="theme-select" onchange="changeTheme(this.value)">
+                <option value="dark">🌙 Dark</option>
+                <option value="light">☀️ Light</option>
+                <option value="neon">🦄 Neon</option>
+            </select>
+            <button onclick="clearOutput()">
+                <i class="ph ph-trash"></i> Очистить
+            </button>
+            <button class="run-btn" onclick="runPython()">
+                <i class="ph-fill ph-play"></i> Запустить (Ctrl+Enter)
+            </button>
+        </div>
+    </header>
+
+    <!-- РАБОЧАЯ ОБЛАСТЬ -->
+    <main>
+        <!-- ЛЕВАЯ ПАНЕЛЬ: РЕДАКТОР -->
+        <div class="panel panel-left">
+            <div class="panel-header">
+                <div class="tab">
+                    <i class="ph ph-file-py"></i> main.py
+                </div>
+            </div>
+            <textarea id="code-editor">
+# Привет! Это твоя профессиональная среда.
+# Начни писать код и нажми Ctrl+Space для подсказок.
+# Для запуска нажми Ctrl+Enter.
+
+import math
+
+def calculate_circle_area(radius):
+    return math.pi * (radius ** 2)
+
+r = float(input("Введите радиус круга: "))
+area = calculate_circle_area(r)
+print(f"Площадь круга: {area:.2f}")
+            </textarea>
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ: КОНСОЛЬ -->
+        <div class="panel">
+            <div class="panel-header">
+                <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
+            </div>
+            <div class="console-wrapper">
+                <div class="console-topbar">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                </div>
+                <pre id="output">Ожидание запуска кода...</pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ -->
+    <footer>
+        <div class="status-left">
+            <span class="status-item" id="py-status">
+                <i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...
+            </span>
+        </div>
+        <div class="status-right">
+            <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
+            <span class="status-item">UTF-8</span>
+            <span class="status-item">Python 3</span>
+        </div>
+    </footer>
+
+    <script>
+        let editor;
+        let pyodideReady = false;
+        let pyodide;
+
+        // Инициализация CodeMirror
+        window.onload = function() {
+            editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+                mode: "python",
+                theme: "dracula",
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete", // Вызов подсказок
+                    "Ctrl-Enter": function() { runPython(); },
+                    "Cmd-Enter": function() { runPython(); } // Для Mac
+                }
+            });
+
+            // Автоматический вызов подсказок при вводе букв (задержка 300мс)
+            let timeout;
+            editor.on("inputRead", function(cm, change) {
+                if (change.text[0].match(/[a-zA-Z_]/)) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        cm.showHint({ hint: CodeMirror.pythonHint, completeSingle: false });
+                    }, 300);
+                }
+            });
+
+            // Обновление координат курсора в нижней панели
+            editor.on("cursorActivity", function(cm) {
+                let pos = cm.getCursor();
+                document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
+            });
+
+            initPyodide();
+        };
+
+        // Переключение тем
+        function changeTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            if (theme === 'light') {
+                editor.setOption("theme", "default");
+            } else if (theme === 'neon') {
+                // Для неона используем темную тему редактора + CSS фильтр
+                editor.setOption("theme", "dracula");
+            } else {
+                editor.setOption("theme", "dracula");
+            }
+        }
+
+        // Очистка консоли
+        function clearOutput() {
+            document.getElementById('output').innerText = "";
+        }
+
+        // Инициализация Pyodide
+        async function initPyodide() {
+            try {
+                pyodide = await loadPyodide({
+                    stdout: (text) => {
+                        document.getElementById('output').innerText += text + "\n";
+                    },
+                    stderr: (text) => {
+                        let out = document.getElementById('output');
+                        out.innerHTML += `<span class="output-error">${text}</span>\n`;
+                    }
+                });
+
+                // Вшиваем поддержку input()
+                pyodide.runPython(`
+import builtins
+def custom_input(prompt=""):
+    import js
+    return js.prompt(prompt)
+builtins.input = custom_input
+                `);
+
+                const status = document.getElementById('py-status');
+                status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
+                status.className = "status-item ready";
+                pyodideReady = true;
+            } catch (error) {
+                console.error("Ошибка Pyodide:", error);
+                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
+            }
+        }
+
+        // Запуск кода
+        async function runPython() {
+            if (!pyodideReady) {
+                alert("Подожди, Python загружается...");
+                return;
+            }
+
+            clearOutput();
+            const code = editor.getValue();
+            
+            document.getElementById('output').innerHTML += '<span style="color: var(--text-secondary);">$ python main.py</span>\n\n';
+
+            try {
+                await pyodide.runPythonAsync(code);
+                document.getElementById('output').innerHTML += '\n\n<span class="output-success">[Процесс завершен с кодом 0]</span>';
+            } catch (error) {
+                document.getElementById('output').innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
