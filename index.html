@@ -24,28 +24,30 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ --- */
+        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ И СИНТАКСИС PYCHARM --- */
         :root {
             --bg-body: #0b0b0e;
             --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
             --bg-panel: rgba(22, 22, 28, 0.75);
             --bg-surface: #18181f;
             --bg-surface-hover: #272732;
-            --text-primary: #a9b7c6;
+            --text-primary: #a9b7c6; /* PyCharm Text */
             --text-secondary: #767e8c;
-            --accent: #cc7832;
+            --accent: #cc7832; /* PyCharm Orange */
             --accent-hover: #e08b47;
             --border: rgba(255, 255, 255, 0.08);
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
             
-            --syn-keyword: #cc7832;
-            --syn-string: #6a8759;
-            --syn-number: #6897bb;
-            --syn-comment: #808080;
-            --syn-def: #ffc66d;
-            --syn-builtin: #8888c6;
+            /* Цвета синтаксиса Dark */
+            --syn-keyword: #cc7832;   /* if, def, in, return */
+            --syn-string: #6a8759;    /* "текст" */
+            --syn-number: #6897bb;    /* 123, 4.5 */
+            --syn-comment: #808080;   /* # коммент */
+            --syn-def: #ffc66d;       /* Имя функции после def */
+            --syn-builtin: #8888c6;   /* print, input */
+            --syn-variable: #a9b7c6;  /* Обычные переменные */
         }
 
         [data-theme="light"] {
@@ -69,6 +71,7 @@
             --syn-comment: #8c8c8c;
             --syn-def: #00627a;
             --syn-builtin: #7a3e9d;
+            --syn-variable: #1f1f1f;
         }
 
         [data-theme="neon"] {
@@ -92,9 +95,10 @@
             --syn-comment: #6272a4;
             --syn-def: #bd93f9;
             --syn-builtin: #8be9fd;
+            --syn-variable: #e0def4;
         }
 
-        /* --- БАЗОВАЯ СТРУКТУРА --- */
+        /* --- БАЗА --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -106,7 +110,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: background 0.4s, color 0.4s;
+            transition: background 0.4s;
         }
 
         ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -114,6 +118,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* --- HEADER --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
@@ -137,9 +142,11 @@
         }
 
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         button.run-btn { background: var(--accent); color: #fff; border: none; box-shadow: 0 0 10px rgba(204, 120, 50, 0.3); }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(204, 120, 50, 0.5); }
 
+        /* --- MAIN LAYOUT --- */
         main {
             display: flex;
             flex: 1;
@@ -172,47 +179,54 @@
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
-        /* --- ИСПРАВЛЕНИЕ БАГА С ВЫСОТОЙ РЕДАКТОРА --- */
-        /* Обертка для CodeMirror */
-        .editor-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
+        /* --- РЕДАКТОР КОДА --- */
+        .editor-container { flex: 1; position: relative; overflow: hidden; }
 
         .CodeMirror {
-            position: absolute;
-            top: 0; bottom: 0; left: 0; right: 0;
-            height: 100% !important; 
-            font-family: 'Fira Code', monospace;
-            font-size: 15px; line-height: 1.6;
-            background: transparent !important;
+            position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+            height: 100% !important; font-family: 'Fira Code', monospace;
+            font-size: 15px; line-height: 1.6; background: transparent !important;
         }
 
-        .CodeMirror-gutters {
-            background: transparent !important;
-            border-right: 1px solid var(--border) !important;
-        }
+        .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
+        .CodeMirror-linenumber { color: var(--text-secondary) !important; }
 
-        .cm-s-custom.CodeMirror { color: var(--text-primary); }
+        /* Подсветка синтаксиса (в точности PyCharm) */
+        .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
+        .cm-s-custom .cm-operator { color: var(--syn-variable); }
         .cm-s-custom .cm-string { color: var(--syn-string); }
         .cm-s-custom .cm-number { color: var(--syn-number); }
         .cm-s-custom .cm-comment { color: var(--syn-comment); font-style: italic; }
         .cm-s-custom .cm-def { color: var(--syn-def); }
         .cm-s-custom .cm-builtin { color: var(--syn-builtin); }
-        .cm-s-custom .cm-variable { color: var(--text-primary); }
-        .cm-s-custom .cm-operator { color: var(--text-primary); }
+        .cm-s-custom .cm-variable { color: var(--syn-variable); }
+        .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
+        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК (КАК В PYCHARM) --- */
         .CodeMirror-hints {
-            background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
-            border-radius: 8px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
-            font-family: 'Fira Code', monospace !important; font-size: 14px !important;
-            padding: 6px 0 !important; z-index: 1000 !important;
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--accent) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6) !important;
+            font-family: 'Fira Code', monospace !important;
+            font-size: 14px !important;
+            padding: 6px 0 !important;
+            z-index: 1000 !important;
         }
-        .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 15px !important; cursor: pointer !important; }
-        li.CodeMirror-hint-active { background: var(--accent) !important; color: #fff !important; }
+        .CodeMirror-hint {
+            color: var(--text-primary) !important;
+            padding: 8px 15px !important;
+            cursor: pointer !important;
+            transition: background 0.1s;
+        }
+        li.CodeMirror-hint-active {
+            background: var(--accent) !important;
+            color: #fff !important;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+        }
 
+        /* --- КОНСОЛЬ --- */
         .console-wrapper {
             flex: 1; background: var(--console-bg);
             display: flex; flex-direction: column; position: relative;
@@ -237,6 +251,7 @@
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
+        /* Поле ввода в терминале */
         #terminal-input-container {
             display: none; align-items: center; padding: 12px 20px;
             background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border);
@@ -244,9 +259,10 @@
         #terminal-input {
             flex: 1; background: transparent; border: none;
             color: var(--text-primary); font-family: 'Fira Code', monospace;
-            font-size: 14px; outline: none;
+            font-size: 14px; outline: none; caret-color: var(--accent);
         }
 
+        /* --- FOOTER --- */
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -280,7 +296,7 @@
             <button onclick="clearOutput()">
                 <i class="ph ph-trash"></i> Очистить
             </button>
-            <button class="run-btn" onclick="runPython()">
+            <button id="run-btn" class="run-btn" onclick="runPython()">
                 <i class="ph-fill ph-play"></i> Запустить (Ctrl+Enter)
             </button>
         </div>
@@ -293,18 +309,15 @@
                     <i class="ph ph-file-py"></i> main.py
                 </div>
             </div>
-            <!-- Обертка для редактора (ИСПРАВЛЕНИЕ) -->
             <div class="editor-container">
                 <textarea id="code-editor">
-# Добро пожаловать! Пиши код здесь.
-# Нажми Ctrl+Enter для запуска.
-# Подсказки: начни писать и нажми Ctrl+Space.
+x = int(input("Введи число товаров: "))
+y = int(input("Введи цену товара: "))
+a = float(input("Введи скидку на товар без %: "))
 
-def greet(name):
-    print(f"Привет, {name}!")
-
-user_name = input("Введи свое имя: ")
-greet(user_name)
+z = a / 100
+itog = x * y * z
+print("Итоговая цена:", itog)
                 </textarea>
             </div>
         </div>
@@ -338,7 +351,6 @@ greet(user_name)
             <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
             <span class="status-item">UTF-8</span>
             <span class="status-item">Python 3</span>
-            <span class="status-item" style="opacity: 0.7;">© 2024 Твое Имя</span>
         </div>
     </footer>
 
@@ -371,19 +383,13 @@ greet(user_name)
                 }
             });
 
-            // ИСПРАВЛЕНИЕ БАГА: Принудительно обновляем размеры редактора после загрузки страницы
-            setTimeout(() => {
-                editor.refresh();
-            }, 100);
+            setTimeout(() => editor.refresh(), 100);
+            window.addEventListener('resize', () => editor.refresh());
 
-            // ИСПРАВЛЕНИЕ БАГА: Обновляем редактор при изменении размера окна
-            window.addEventListener('resize', () => {
-                editor.refresh();
-            });
-
+            // Автоподсказки
             let timeout;
             editor.on("inputRead", function(cm, change) {
-                if (change.text[0].match(/[a-zA-Z_]/)) {
+                if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => {
                         cm.showHint({ hint: CodeMirror.pythonHint, completeSingle: false });
@@ -396,6 +402,7 @@ greet(user_name)
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
             });
 
+            // Обработка ввода в терминале
             document.getElementById('terminal-input').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const value = this.value;
@@ -406,6 +413,7 @@ greet(user_name)
                     
                     this.value = '';
                     document.getElementById('terminal-input-container').style.display = 'none';
+                    document.getElementById('run-btn').disabled = false; // Включаем кнопку обратно
                     
                     if (resolveInput) {
                         resolveInput(value);
@@ -440,12 +448,17 @@ greet(user_name)
                     }
                 });
 
+                // Исправление бага I/O Error: используем асинхронный stdin с блокировкой
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
                             resolveInput = resolve;
                             const container = document.getElementById('terminal-input-container');
                             const inputField = document.getElementById('terminal-input');
+                            
+                            // Блокируем кнопку запуска, пока ждем ввод
+                            document.getElementById('run-btn').disabled = true;
+                            
                             container.style.display = 'flex';
                             inputField.focus();
                         });
@@ -468,7 +481,9 @@ greet(user_name)
                 return;
             }
 
+            // Сбрасываем зависшие состояния ввода
             document.getElementById('terminal-input-container').style.display = 'none';
+            document.getElementById('run-btn').disabled = true;
             resolveInput = null;
 
             const outputDiv = document.getElementById('output');
@@ -481,11 +496,12 @@ greet(user_name)
                 outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
             } catch (error) {
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
+            } finally {
+                // Включаем кнопку в любом случае (даже если программа упала)
+                document.getElementById('run-btn').disabled = false;
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+                editor.refresh();
             }
-            outputDiv.scrollTop = outputDiv.scrollHeight;
-            
-            // Обновляем редактор после запуска на всякий случай
-            editor.refresh();
         }
     </script>
 </body>
