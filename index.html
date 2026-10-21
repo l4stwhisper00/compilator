@@ -4,20 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO для Яндекса и поисковиков -->
     <title>Питон в браузере | Онлайн-компилятор Python для уроков</title>
     <meta name="description" content="Удобный онлайн-компилятор Python прямо в браузере. Создан для уроков информатики. Поддержка ввода данных, умные подсказки, смена тем оформления.">
-    <meta name="keywords" content="python, питон, онлайн компилятор, python в браузере, информатика, программирование, уроки">
     
-    <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Иконки (Phosphor Icons) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- CodeMirror (Редактор) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
@@ -29,54 +24,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
-    <!-- Pyodide (Движок Python) -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ЦВЕТОВЫЕ СХЕМЫ (ТЕМЫ) --- */
+        /* --- ПРОФЕССИОНАЛЬНЫЕ ЦВЕТОВЫЕ СХЕМЫ --- */
+        
+        /* Тёмная тема (Tokyo Night) */
         :root {
-            --bg-body: #0f111a;
-            --bg-surface: #1a1d27;
-            --bg-surface-hover: #232736;
-            --bg-editor: #282a36;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent: #38bdf8;
-            --accent-hover: #0ea5e9;
-            --border: #2d3748;
-            --success: #10b981;
-            --error: #ef4444;
-            --console-bg: #0b0e14;
+            --bg-body: #1a1b26;
+            --bg-surface: #16161e;
+            --bg-surface-hover: #292e42;
+            --bg-editor: #1a1b26;
+            --text-primary: #c0caf5;
+            --text-secondary: #565f89;
+            --accent: #7aa2f7;
+            --accent-hover: #2ac3de;
+            --border: #292e42;
+            --success: #9ece6a;
+            --error: #f7768e;
+            --console-bg: #16161e;
         }
 
+        /* Светлая тема (GitHub Light) */
         [data-theme="light"] {
-            --bg-body: #f8fafc;
+            --bg-body: #f6f8fa;
             --bg-surface: #ffffff;
-            --bg-surface-hover: #f1f5f9;
+            --bg-surface-hover: #eaeef2;
             --bg-editor: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --border: #e2e8f0;
-            --success: #059669;
-            --error: #dc2626;
-            --console-bg: #f1f5f9;
+            --text-primary: #1f2328;
+            --text-secondary: #656d76;
+            --accent: #0969da;
+            --accent-hover: #0550ae;
+            --border: #d0d7de;
+            --success: #1a7f37;
+            --error: #cf222e;
+            --console-bg: #f6f8fa;
         }
 
+        /* Неоновая тема (Cyberpunk / Synthwave) */
         [data-theme="neon"] {
-            --bg-body: #09090b;
-            --bg-surface: #18181b;
-            --bg-surface-hover: #27272a;
-            --bg-editor: #18181b;
-            --text-primary: #d8b4fe;
-            --text-secondary: #a78bfa;
-            --accent: #d946ef;
-            --accent-hover: #c026d3;
-            --border: #3b0764;
-            --success: #22d3ee;
-            --error: #f43f5e;
-            --console-bg: #09090b;
+            --bg-body: #0d0b14;
+            --bg-surface: #16111f;
+            --bg-surface-hover: #241b33;
+            --bg-editor: #0d0b14;
+            --text-primary: #e0def4;
+            --text-secondary: #6e6a86;
+            --accent: #ff007f;
+            --accent-hover: #ff3399;
+            --border: #2a1b3d;
+            --success: #00f0ff;
+            --error: #ff007f;
+            --console-bg: #090710;
         }
 
         /* --- БАЗОВЫЕ СТИЛИ --- */
@@ -94,7 +92,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -102,7 +100,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- ВЕРХНЯЯ ПАНЕЛЬ (HEADER) --- */
+        /* --- HEADER --- */
         header {
             display: flex;
             justify-content: space-between;
@@ -192,29 +190,37 @@
             border-right: 1px solid var(--border);
             border-top: 2px solid var(--accent);
             font-family: 'Fira Code', monospace;
+            font-size: 13px;
         }
 
+        /* Переопределяем фон CodeMirror под наши темы */
         .CodeMirror {
             height: 100% !important;
             font-family: 'Fira Code', monospace;
             font-size: 15px;
             line-height: 1.6;
+            background: var(--bg-editor) !important;
+        }
+        
+        .cm-s-dracula .CodeMirror-gutters {
+            background: var(--bg-editor) !important;
+            border-right: 1px solid var(--border) !important;
         }
 
-        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК (DARK AUTOCOMPLETE) --- */
+        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК --- */
         .CodeMirror-hints {
             background: var(--bg-surface) !important;
             border: 1px solid var(--border) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+            border-radius: 6px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
             font-family: 'Fira Code', monospace !important;
             font-size: 14px !important;
-            padding: 5px 0 !important;
+            padding: 4px 0 !important;
             z-index: 1000 !important;
         }
         .CodeMirror-hint {
             color: var(--text-primary) !important;
-            padding: 6px 15px !important;
+            padding: 6px 12px !important;
             cursor: pointer !important;
         }
         li.CodeMirror-hint-active {
@@ -222,7 +228,7 @@
             color: #fff !important;
         }
 
-        /* --- КОНСОЛЬ ВЫВОДА --- */
+        /* --- КОНСОЛЬ --- */
         .console-wrapper {
             flex: 1;
             background: var(--console-bg);
@@ -237,7 +243,7 @@
             background: var(--bg-surface);
             border-bottom: 1px solid var(--border);
         }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
         .dot.red { background: #ff5f56; }
         .dot.yellow { background: #ffbd2e; }
         .dot.green { background: #27c93f; }
@@ -247,7 +253,7 @@
             padding: 20px;
             font-family: 'Fira Code', monospace;
             font-size: 14px;
-            color: #e2e8f0;
+            color: var(--text-primary);
             overflow-y: auto;
             white-space: pre-wrap;
             line-height: 1.5;
@@ -256,7 +262,7 @@
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
-        /* --- НИЖНЯЯ ПАНЕЛЬ --- */
+        /* --- FOOTER --- */
         footer {
             height: 25px;
             background: var(--bg-surface);
@@ -285,7 +291,6 @@
         #py-status.loading { color: #f59e0b; }
         #py-status.ready { color: var(--success); }
 
-        /* --- АДАПТИВ --- */
         @media (max-width: 768px) {
             main { flex-direction: column; }
             .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
@@ -301,9 +306,9 @@
         </div>
         <div class="controls">
             <select id="theme-select" onchange="changeTheme(this.value)">
-                <option value="dark">🌙 Тёмная</option>
-                <option value="light">☀️ Светлая</option>
-                <option value="neon">🦄 Неон</option>
+                <option value="dark">Тёмная</option>
+                <option value="light">Светлая</option>
+                <option value="neon">Неон</option>
             </select>
             <button onclick="clearOutput()">
                 <i class="ph ph-trash"></i> Очистить
@@ -315,7 +320,6 @@
     </header>
 
     <main>
-        <!-- ЛЕВАЯ ПАНЕЛЬ: РЕДАКТОР -->
         <div class="panel panel-left">
             <div class="panel-header">
                 <div class="tab">
@@ -335,7 +339,6 @@ greet(user_name)
             </textarea>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: КОНСОЛЬ -->
         <div class="panel">
             <div class="panel-header">
                 <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
@@ -373,7 +376,7 @@ greet(user_name)
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
-                theme: "dracula",
+                theme: "dracula", // Базовый синтаксис берем из Dracula, фон переопределен в CSS
                 lineNumbers: true,
                 autoCloseBrackets: true,
                 matchBrackets: true,
@@ -383,7 +386,6 @@ greet(user_name)
                     "Ctrl-Space": "autocomplete",
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
-                    // Позволяет выбирать подсказку по Tab
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
                             cm.state.completionActive.widget.selectActive();
@@ -394,7 +396,6 @@ greet(user_name)
                 }
             });
 
-            // Автоматический вызов подсказок при вводе
             let timeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0].match(/[a-zA-Z_]/)) {
@@ -405,7 +406,6 @@ greet(user_name)
                 }
             });
 
-            // Обновление позиции курсора
             editor.on("cursorActivity", function(cm) {
                 let pos = cm.getCursor();
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
@@ -416,9 +416,12 @@ greet(user_name)
 
         function changeTheme(theme) {
             document.body.setAttribute('data-theme', theme);
+            
+            // Для светлой темы используем дефолтную светлую тему редактора
             if (theme === 'light') {
                 editor.setOption("theme", "default");
             } else {
+                // Для темной и неона используем Dracula (его цвета синтаксиса универсальны)
                 editor.setOption("theme", "dracula");
             }
         }
@@ -439,7 +442,6 @@ greet(user_name)
                     }
                 });
 
-                // Поддержка input()
                 pyodide.runPython(`
 import builtins
 def custom_input(prompt=""):
@@ -465,13 +467,12 @@ builtins.input = custom_input
             }
 
             const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = ""; // Полная очистка перед запуском
+            outputDiv.innerHTML = "";
             
             const code = editor.getValue();
 
             try {
                 await pyodide.runPythonAsync(code);
-                // Дружелюбный текст без доллара
                 outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
             } catch (error) {
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
