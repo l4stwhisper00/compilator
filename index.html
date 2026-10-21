@@ -11,8 +11,10 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- CodeMirror Core & Addons (включая поиск) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
@@ -20,7 +22,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
 
+    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
@@ -46,6 +52,8 @@
             --syn-def: #e5c07b;
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
+            
+            --editor-font-size: 15px; /* Переменная для шрифта */
         }
 
         [data-theme="light"] {
@@ -127,50 +135,68 @@
 
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
+        
         .controls { display: flex; gap: 12px; align-items: center; }
 
+        /* Общие стили для кнопок и селектов */
         button, select {
             display: flex; align-items: center; gap: 6px;
             background: var(--bg-surface); color: var(--text-primary);
-            border: 1px solid var(--border); padding: 8px 16px;
+            border: 1px solid var(--border); padding: 8px 12px;
             border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px;
             font-weight: 500; cursor: pointer; transition: all 0.2s; outline: none;
         }
 
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; }
+        .icon-btn { padding: 8px; } /* Квадратные кнопки для иконок */
+
+        button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
 
+        /* Ползунок шрифта */
+        .font-size-control {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 0 12px; border-radius: 8px; height: 35px;
+        }
+        .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
+        input[type=range] {
+            -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%;
+            background: var(--accent); cursor: pointer; margin-top: -5px;
+            box-shadow: 0 0 5px var(--accent);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px;
+        }
+
         main {
-            display: flex;
-            flex: 1;
-            padding: 16px;
-            gap: 16px;
+            display: flex; flex: 1; padding: 16px; gap: 16px;
             height: calc(100vh - 56px - 30px);
         }
 
         .panel {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
-            background: var(--bg-panel);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+            background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden;
         }
 
         .panel-header {
-            display: flex; align-items: center; height: 42px;
+            display: flex; justify-content: space-between; align-items: center; height: 42px;
             background: var(--bg-surface); border-bottom: 1px solid var(--border);
             padding: 0 15px; font-size: 13px; color: var(--text-secondary);
         }
 
+        .panel-header-left { display: flex; align-items: center; gap: 10px; }
+
         .tab {
             display: flex; align-items: center; gap: 8px;
             background: var(--console-bg); color: var(--text-primary);
-            padding: 0 18px; height: 100%; border-right: 1px solid var(--border);
+            padding: 0 18px; height: 42px; border-right: 1px solid var(--border);
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
@@ -179,7 +205,9 @@
         .CodeMirror {
             position: absolute; top: 0; bottom: 0; left: 0; right: 0;
             height: 100% !important; font-family: 'Fira Code', monospace;
-            font-size: 15px; line-height: 1.6; background: transparent !important;
+            font-size: var(--editor-font-size) !important; /* Применяем шрифт */
+            line-height: 1.6; background: transparent !important;
+            transition: font-size 0.1s;
         }
 
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
@@ -198,50 +226,57 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
+        /* Стили поиска (Ctrl+F) */
+        .CodeMirror-dialog {
+            background: var(--bg-surface) !important; color: var(--text-primary) !important;
+            border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important;
+            font-family: 'Inter', sans-serif !important; font-size: 14px !important;
+        }
+        .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
+
+        /* Подсказки (свечение букв) */
         .CodeMirror-hints {
-            background: var(--bg-surface) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 10px !important; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; 
-            font-family: 'Fira Code', monospace !important;
-            font-size: 14px !important;
-            padding: 6px 0 !important;
-            z-index: 1000 !important;
-            overflow: hidden;
+            background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
+            border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; 
+            font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important;
+            padding: 6px 0 !important; z-index: 1000 !important; overflow: hidden;
         }
         .CodeMirror-hint {
-            color: var(--text-primary) !important;
-            padding: 8px 16px !important;
-            cursor: pointer !important;
-            transition: background 0.1s, color 0.1s;
+            color: var(--text-primary) !important; padding: 8px 16px !important;
+            cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s;
         }
         li.CodeMirror-hint-active {
-            background: var(--accent) !important;
-            color: #111 !important; 
-            font-weight: 600;
+            background: transparent !important; color: var(--accent) !important; 
+            font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important;
+            outline: none !important; border: none !important;
         }
 
         .console-wrapper {
             flex: 1; background: var(--console-bg);
-            display: flex; flex-direction: column; position: relative;
-            min-height: 0;
+            display: flex; flex-direction: column; position: relative; min-height: 0;
         }
 
         .console-topbar {
-            display: flex; gap: 8px; padding: 12px 18px;
-            background: transparent; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border);
         }
+        .dots { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
         .dot.red { background: #ff5f56; box-shadow: 0 0 5px #ff5f56; }
         .dot.yellow { background: #ffbd2e; box-shadow: 0 0 5px #ffbd2e; }
         .dot.green { background: #27c93f; box-shadow: 0 0 5px #27c93f; }
 
+        .copy-btn {
+            background: transparent; border: none; color: var(--text-secondary);
+            cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s;
+        }
+        .copy-btn:hover { color: var(--accent); }
+
         #output {
             flex: 1; padding: 20px;
             font-family: 'Fira Code', monospace; font-size: 14px;
             color: var(--text-primary); overflow-y: auto; white-space: pre-wrap;
-            line-height: 1.6;
-            min-height: 0;
+            line-height: 1.6; min-height: 0;
         }
 
         .output-success { color: var(--success); font-weight: 500; }
@@ -259,55 +294,11 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        @media (max-width: 768px) {
-            main { flex-direction: column; padding: 10px; gap: 10px; }
+        @media (max-width: 900px) {
+            header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
+            .controls { flex-wrap: wrap; justify-content: center; }
+            main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
         }
-
-        /* --- КРАСИВОЕ ОКНО ВВОДА (МОДАЛКА) --- */
-        .modal-overlay {
-            display: none;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 2000;
-            align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: var(--bg-surface);
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 340px;
-            display: flex; flex-direction: column; gap: 16px;
-            color: var(--text-primary);
-            animation: modalFadeIn 0.2s ease-out;
-        }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-content p { font-size: 15px; font-weight: 500; margin-bottom: 5px; }
-        .modal-content input {
-            background: var(--bg-body); color: var(--text-primary);
-            border: 1px solid var(--border); padding: 12px; border-radius: 8px;
-            outline: none; font-family: 'Fira Code', monospace; font-size: 15px;
-            transition: border-color 0.2s;
-        }
-        .modal-content input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 157, 92, 0.15); }
-        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
-        .modal-buttons button {
-            padding: 10px 20px; border-radius: 8px; cursor: pointer;
-            border: 1px solid var(--border); background: var(--bg-surface-hover);
-            color: var(--text-primary); font-weight: 500; transition: all 0.2s;
-        }
-        .modal-buttons button:hover { background: var(--border); }
-        .modal-buttons button#prompt-ok {
-            background: var(--accent); color: #111; border: none;
-            font-weight: 600; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3);
-        }
-        .modal-buttons button#prompt-ok:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
     </style>
 </head>
 <body data-theme="dark">
@@ -318,16 +309,33 @@
             Питон в браузере
         </div>
         <div class="controls">
+            <!-- Управление размером шрифта -->
+            <div class="font-size-control" title="Размер шрифта">
+                <i class="ph ph-text-aa"></i>
+                <input type="range" id="font-size-slider" min="10" max="28" value="15">
+                <span id="font-size-val">15px</span>
+            </div>
+
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="dark">PyCharm Dark</option>
                 <option value="light">IntelliJ Light</option>
                 <option value="neon">Cyberpunk</option>
             </select>
-            <button onclick="clearOutput()">
+            
+            <!-- Кнопки файлов -->
+            <input type="file" id="file-upload" accept=".py" style="display: none;">
+            <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py">
+                <i class="ph ph-folder-open"></i>
+            </button>
+            <button class="icon-btn" onclick="downloadCode()" title="Скачать код">
+                <i class="ph ph-download-simple"></i>
+            </button>
+
+            <button onclick="clearOutput()" title="Очистить консоль">
                 <i class="ph ph-trash"></i> Очистить
             </button>
             <button id="run-btn" class="run-btn" onclick="runPython()">
-                <i class="ph-fill ph-play"></i> Запустить (Ctrl+Enter)
+                <i class="ph-fill ph-play"></i> Запустить
             </button>
         </div>
     </header>
@@ -335,8 +343,13 @@
     <main>
         <div class="panel">
             <div class="panel-header">
-                <div class="tab">
-                    <i class="ph ph-file-py"></i> main.py
+                <div class="panel-header-left">
+                    <div class="tab">
+                        <i class="ph ph-file-py"></i> main.py
+                    </div>
+                </div>
+                <div style="font-size: 12px; opacity: 0.7;">
+                    <i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск
                 </div>
             </div>
             <div class="editor-container">
@@ -354,13 +367,20 @@ print("Итоговая цена:", itog)
 
         <div class="panel">
             <div class="panel-header">
-                <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
+                <div class="panel-header-left">
+                    <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
+                </div>
             </div>
             <div class="console-wrapper">
                 <div class="console-topbar">
-                    <div class="dot red"></div>
-                    <div class="dot yellow"></div>
-                    <div class="dot green"></div>
+                    <div class="dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
+                    </div>
+                    <button class="copy-btn" onclick="copyOutput()" title="Скопировать вывод">
+                        <i class="ph ph-copy"></i>
+                    </button>
                 </div>
                 <div id="output">Ожидание запуска кода...</div>
             </div>
@@ -380,18 +400,6 @@ print("Итоговая цена:", itog)
         </div>
     </footer>
 
-    <!-- КРАСИВОЕ ОКНО ВВОДА -->
-    <div id="custom-prompt" class="modal-overlay">
-        <div class="modal-content">
-            <p id="prompt-text">Введите данные:</p>
-            <input type="text" id="prompt-input" autocomplete="off" spellcheck="false">
-            <div class="modal-buttons">
-                <button id="prompt-cancel">Отмена</button>
-                <button id="prompt-ok">Ввод</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let editor;
         let pyodideReady = false;
@@ -402,47 +410,30 @@ print("Итоговая цена:", itog)
             output.scrollTop = output.scrollHeight;
         }
 
-        // Функция для показа красивого окна
-        function showCustomPrompt(message) {
-            return new Promise((resolve) => {
-                const overlay = document.getElementById('custom-prompt');
-                const text = document.getElementById('prompt-text');
-                const input = document.getElementById('prompt-input');
-                const btnOk = document.getElementById('prompt-ok');
-                const btnCancel = document.getElementById('prompt-cancel');
+        // --- ЛОГИКА ФАЙЛОВ И ШРИФТА ---
+        function downloadCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: 'text/x-python' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'main.py';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
 
-                text.innerText = message;
-                input.value = '';
-                overlay.style.display = 'flex';
-                setTimeout(() => input.focus(), 50);
-
-                const cleanup = () => {
-                    btnOk.removeEventListener('click', handleOk);
-                    btnCancel.removeEventListener('click', handleCancel);
-                    input.removeEventListener('keydown', handleKey);
-                };
-
-                const handleOk = () => {
-                    overlay.style.display = 'none';
-                    cleanup();
-                    resolve(input.value);
-                };
-                const handleCancel = () => {
-                    overlay.style.display = 'none';
-                    cleanup();
-                    resolve(null); // Отмена
-                };
-                const handleKey = (e) => {
-                    if (e.key === 'Enter') handleOk();
-                    if (e.key === 'Escape') handleCancel();
-                };
-
-                btnOk.addEventListener('click', handleOk);
-                btnCancel.addEventListener('click', handleCancel);
-                input.addEventListener('keydown', handleKey);
+        function copyOutput() {
+            const text = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn i');
+                btn.className = 'ph ph-check';
+                setTimeout(() => btn.className = 'ph ph-copy', 2000);
             });
         }
 
+        // --- ИНИЦИАЛИЗАЦИЯ ---
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
@@ -456,6 +447,8 @@ print("Итоговая цена:", itog)
                     "Ctrl-Space": "autocomplete",
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
+                    "Ctrl-F": "findPersistent", // Добавили поиск
+                    "Cmd-F": "findPersistent",
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
                             cm.state.completionActive.widget.selectActive();
@@ -466,11 +459,11 @@ print("Итоговая цена:", itog)
                 }
             });
 
+            // Загрузка кода
             const savedCode = localStorage.getItem('python_ide_code');
-            if (savedCode) {
-                editor.setValue(savedCode);
-            }
+            if (savedCode) editor.setValue(savedCode);
 
+            // Сохранение кода
             let saveTimeout;
             editor.on("change", function() {
                 clearTimeout(saveTimeout);
@@ -479,9 +472,39 @@ print("Итоговая цена:", itog)
                 }, 500);
             });
 
-            setTimeout(() => editor.refresh(), 100);
-            window.addEventListener('resize', () => editor.refresh());
+            // Загрузка файла из проводника
+            document.getElementById('file-upload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editor.setValue(e.target.result);
+                    this.value = ''; // Сброс инпута
+                };
+                reader.readAsText(file);
+            });
 
+            // Обработка ползунка шрифта
+            const slider = document.getElementById('font-size-slider');
+            const valDisplay = document.getElementById('font-size-val');
+            
+            // Загружаем сохраненный размер шрифта
+            const savedFontSize = localStorage.getItem('python_ide_font_size');
+            if (savedFontSize) {
+                slider.value = savedFontSize;
+                valDisplay.innerText = savedFontSize + 'px';
+                document.documentElement.style.setProperty('--editor-font-size', savedFontSize + 'px');
+            }
+
+            slider.addEventListener('input', function() {
+                const size = this.value;
+                valDisplay.innerText = size + 'px';
+                document.documentElement.style.setProperty('--editor-font-size', size + 'px');
+                localStorage.setItem('python_ide_font_size', size);
+                editor.refresh(); // Обязательно обновляем редактор
+            });
+
+            // Автодополнение
             let timeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
@@ -496,6 +519,9 @@ print("Итоговая цена:", itog)
                 let pos = cm.getCursor();
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
             });
+
+            setTimeout(() => editor.refresh(), 100);
+            window.addEventListener('resize', () => editor.refresh());
 
             initPyodide();
         };
@@ -523,30 +549,7 @@ print("Итоговая цена:", itog)
                     }
                 });
 
-                // ПРОВЕРКА: Работают ли заголовки безопасности?
-                if (window.crossOriginIsolated) {
-                    // Да, это Netlify! Включаем красивое окно.
-                    pyodide.setStdin({
-                        stdin: () => {
-                            return new Promise((resolve, reject) => {
-                                document.getElementById('output').innerText += "\n";
-                                scrollToBottom();
-                                
-                                showCustomPrompt("Введите данные (Python):").then(val => {
-                                    if (val === null) {
-                                        reject(new Error("Ввод отменен пользователем"));
-                                    } else {
-                                        document.getElementById('output').innerText += "> " + val + "\n";
-                                        scrollToBottom();
-                                        resolve(val + "\n");
-                                    }
-                                });
-                            });
-                        }
-                    });
-                } else {
-                    // Нет, это GitHub Pages. Используем стандартное окно prompt.
-                    pyodide.runPython(`
+                pyodide.runPython(`
 import builtins
 def custom_input(prompt=""):
     import js
@@ -555,8 +558,7 @@ def custom_input(prompt=""):
         raise EOFError("Пользователь отменил ввод")
     return res
 builtins.input = custom_input
-                    `);
-                }
+                `);
 
                 const status = document.getElementById('py-status');
                 status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
