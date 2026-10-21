@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Питон в браузере | Онлайн-компилятор Python для уроков</title>
-    <meta name="description" content="Удобный онлайн-компилятор Python прямо в браузере. Создан для уроков информатики. Поддержка ввода данных, умные подсказки, смена тем оформления.">
+    <title>Питон в браузере | Онлайн-компилятор Python</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- Убрали тему dracula, так как рисуем свою -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -27,273 +25,248 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ПРОФЕССИОНАЛЬНЫЕ ЦВЕТОВЫЕ СХЕМЫ --- */
+        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ (СВЕЧЕНИЕ, БЛЮР, PYCHARM SYNTAX) --- */
         
-        /* Тёмная тема (Tokyo Night) */
+        /* Тёмная тема (Deep Black / PyCharm Darcula) */
         :root {
-            --bg-body: #1a1b26;
-            --bg-surface: #16161e;
-            --bg-surface-hover: #292e42;
-            --bg-editor: #1a1b26;
-            --text-primary: #c0caf5;
-            --text-secondary: #565f89;
-            --accent: #7aa2f7;
-            --accent-hover: #2ac3de;
-            --border: #292e42;
-            --success: #9ece6a;
-            --error: #f7768e;
-            --console-bg: #16161e;
+            --bg-body: #0b0b0e;
+            --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
+            --bg-panel: rgba(22, 22, 28, 0.75); /* Полупрозрачный для блюра */
+            --bg-surface: #18181f;
+            --bg-surface-hover: #272732;
+            --text-primary: #a9b7c6; /* Классический цвет текста PyCharm */
+            --text-secondary: #767e8c;
+            --accent: #cc7832; /* Оранжевый акцент PyCharm */
+            --accent-hover: #e08b47;
+            --border: rgba(255, 255, 255, 0.08);
+            --console-bg: rgba(15, 15, 18, 0.85);
+            --success: #6a8759;
+            --error: #ff5252;
+            
+            /* Цвета синтаксиса Dark */
+            --syn-keyword: #cc7832;   /* Оранжевый (def, if, print) */
+            --syn-string: #6a8759;    /* Зелёный строки */
+            --syn-number: #6897bb;    /* Голубой числа */
+            --syn-comment: #808080;   /* Серый комменты */
+            --syn-def: #ffc66d;       /* Желтый функции */
+            --syn-builtin: #8888c6;   /* Фиолетовый встроенные */
         }
 
-        /* Светлая тема (GitHub Light) */
+        /* Светлая тема (IntelliJ Light) */
         [data-theme="light"] {
-            --bg-body: #f6f8fa;
+            --bg-body: #f2f4f8;
+            --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
+            --bg-panel: rgba(255, 255, 255, 0.8);
             --bg-surface: #ffffff;
-            --bg-surface-hover: #eaeef2;
-            --bg-editor: #ffffff;
-            --text-primary: #1f2328;
-            --text-secondary: #656d76;
-            --accent: #0969da;
-            --accent-hover: #0550ae;
-            --border: #d0d7de;
-            --success: #1a7f37;
-            --error: #cf222e;
-            --console-bg: #f6f8fa;
+            --bg-surface-hover: #f1f3f5;
+            --text-primary: #1f1f1f;
+            --text-secondary: #6c757d;
+            --accent: #005cbf;
+            --accent-hover: #004494;
+            --border: rgba(0, 0, 0, 0.1);
+            --console-bg: rgba(248, 250, 252, 0.9);
+            --success: #00a000;
+            --error: #d00000;
+
+            /* Цвета синтаксиса Light */
+            --syn-keyword: #0033b3;
+            --syn-string: #067d17;
+            --syn-number: #1750eb;
+            --syn-comment: #8c8c8c;
+            --syn-def: #00627a;
+            --syn-builtin: #7a3e9d;
         }
 
-        /* Неоновая тема (Cyberpunk / Synthwave) */
+        /* Неоновая тема (Cyberpunk Synthwave) */
         [data-theme="neon"] {
-            --bg-body: #0d0b14;
-            --bg-surface: #16111f;
-            --bg-surface-hover: #241b33;
-            --bg-editor: #0d0b14;
+            --bg-body: #05000a;
+            --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
+            --bg-panel: rgba(20, 10, 30, 0.7);
+            --bg-surface: #120a1c;
+            --bg-surface-hover: #26133b;
             --text-primary: #e0def4;
-            --text-secondary: #6e6a86;
+            --text-secondary: #8b7ca4;
             --accent: #ff007f;
             --accent-hover: #ff3399;
-            --border: #2a1b3d;
+            --border: rgba(255, 0, 127, 0.2);
+            --console-bg: rgba(10, 5, 15, 0.9);
             --success: #00f0ff;
             --error: #ff007f;
-            --console-bg: #090710;
+
+            /* Цвета синтаксиса Neon */
+            --syn-keyword: #ff007f; /* Ярко-розовый */
+            --syn-string: #00f0ff;  /* Голубой */
+            --syn-number: #f1fa8c;  /* Желтый */
+            --syn-comment: #6272a4; /* Сине-серый */
+            --syn-def: #bd93f9;     /* Фиолетовый */
+            --syn-builtin: #8be9fd; /* Бирюзовый */
         }
 
-        /* --- БАЗОВЫЕ СТИЛИ --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* --- БАЗОВАЯ СТРУКТУРА --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
+            background-image: var(--glow-bg); /* Свечение на фоне */
             color: var(--text-primary);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background 0.4s, color 0.4s;
         }
 
         ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- HEADER --- */
+        /* --- HEADER (Шапка) --- */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            height: 50px;
-            background: var(--bg-surface);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; height: 56px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px); /* Блюр шапки */
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             z-index: 10;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .logo i { color: var(--accent); font-size: 20px; }
-
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
+        .logo i { color: var(--accent); font-size: 22px; }
         .controls { display: flex; gap: 12px; align-items: center; }
 
         button, select {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-surface-hover);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            outline: none;
+            display: flex; align-items: center; gap: 6px;
+            background: var(--bg-surface); color: var(--text-primary);
+            border: 1px solid var(--border); padding: 8px 16px;
+            border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px;
+            font-weight: 500; cursor: pointer; transition: all 0.2s; outline: none;
         }
 
-        button:hover, select:hover {
-            border-color: var(--accent);
-            background: var(--bg-surface);
-        }
+        button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
+        button.run-btn { background: var(--accent); color: #fff; border: none; box-shadow: 0 0 10px rgba(204, 120, 50, 0.3); }
+        button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(204, 120, 50, 0.5); }
+        [data-theme="neon"] button.run-btn { box-shadow: 0 0 15px rgba(255, 0, 127, 0.5); }
 
-        button.run-btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-        }
-        button.run-btn:hover { background: var(--accent-hover); }
-
-        /* --- РАБОЧАЯ ОБЛАСТЬ --- */
+        /* --- РАБОЧАЯ ОБЛАСТЬ (С Отступами и Блюром) --- */
         main {
             display: flex;
             flex: 1;
-            height: calc(100vh - 75px);
+            padding: 16px; /* Отступы по краям */
+            gap: 16px;     /* Отступ между редактором и терминалом */
+            height: calc(100vh - 56px - 30px);
         }
 
         .panel {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 0;
+            display: flex; flex-direction: column; flex: 1; min-width: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px); /* Блюр панелей */
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; /* Закругленные углы */
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Легкая тень/свечение */
+            overflow: hidden;
         }
 
-        .panel-left { border-right: 1px solid var(--border); }
-
         .panel-header {
-            display: flex;
-            align-items: center;
-            height: 40px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 15px;
-            font-size: 13px;
-            color: var(--text-secondary);
+            display: flex; align-items: center; height: 42px;
+            background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            padding: 0 15px; font-size: 13px; color: var(--text-secondary);
         }
 
         .tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-editor);
-            color: var(--text-primary);
-            padding: 0 15px;
-            height: 100%;
-            border-right: 1px solid var(--border);
-            border-top: 2px solid var(--accent);
-            font-family: 'Fira Code', monospace;
-            font-size: 13px;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--console-bg); color: var(--text-primary);
+            padding: 0 18px; height: 100%; border-right: 1px solid var(--border);
+            border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
-        /* Переопределяем фон CodeMirror под наши темы */
+        /* --- РЕДАКТОР CODEMIRROR --- */
         .CodeMirror {
-            height: 100% !important;
-            font-family: 'Fira Code', monospace;
-            font-size: 15px;
-            line-height: 1.6;
-            background: var(--bg-editor) !important;
+            height: 100% !important; font-family: 'Fira Code', monospace;
+            font-size: 15px; line-height: 1.6;
+            background: transparent !important; /* Прозрачный фон, чтобы работал блюр */
         }
-        
-        .cm-s-dracula .CodeMirror-gutters {
-            background: var(--bg-editor) !important;
+
+        .CodeMirror-gutters {
+            background: transparent !important;
             border-right: 1px solid var(--border) !important;
         }
 
-        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК --- */
-        .CodeMirror-hints {
-            background: var(--bg-surface) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 6px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-            font-family: 'Fira Code', monospace !important;
-            font-size: 14px !important;
-            padding: 4px 0 !important;
-            z-index: 1000 !important;
-        }
-        .CodeMirror-hint {
-            color: var(--text-primary) !important;
-            padding: 6px 12px !important;
-            cursor: pointer !important;
-        }
-        li.CodeMirror-hint-active {
-            background: var(--accent) !important;
-            color: #fff !important;
-        }
+        /* Кастомная подсветка синтаксиса (PyCharm Style) */
+        .cm-s-custom.CodeMirror { color: var(--text-primary); }
+        .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
+        .cm-s-custom .cm-string { color: var(--syn-string); }
+        .cm-s-custom .cm-number { color: var(--syn-number); }
+        .cm-s-custom .cm-comment { color: var(--syn-comment); font-style: italic; }
+        .cm-s-custom .cm-def { color: var(--syn-def); }
+        .cm-s-custom .cm-builtin { color: var(--syn-builtin); }
+        .cm-s-custom .cm-variable { color: var(--text-primary); }
+        .cm-s-custom .cm-operator { color: var(--text-primary); }
 
-        /* --- КОНСОЛЬ --- */
+        /* --- ПОДСКАЗКИ (AUTOCOMPLETE) --- */
+        .CodeMirror-hints {
+            background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
+            border-radius: 8px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+            font-family: 'Fira Code', monospace !important; font-size: 14px !important;
+            padding: 6px 0 !important; z-index: 1000 !important;
+        }
+        .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 15px !important; cursor: pointer !important; }
+        li.CodeMirror-hint-active { background: var(--accent) !important; color: #fff !important; }
+
+        /* --- КОНСОЛЬ ВЫВОДА --- */
         .console-wrapper {
-            flex: 1;
-            background: var(--console-bg);
-            display: flex;
-            flex-direction: column;
+            flex: 1; background: var(--console-bg);
+            display: flex; flex-direction: column; position: relative;
         }
 
         .console-topbar {
-            display: flex;
-            gap: 6px;
-            padding: 10px 15px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
+            display: flex; gap: 8px; padding: 12px 18px;
+            background: transparent; border-bottom: 1px solid var(--border);
         }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; }
-        .dot.yellow { background: #ffbd2e; }
-        .dot.green { background: #27c93f; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; box-shadow: 0 0 5px #ff5f56; }
+        .dot.yellow { background: #ffbd2e; box-shadow: 0 0 5px #ffbd2e; }
+        .dot.green { background: #27c93f; box-shadow: 0 0 5px #27c93f; }
 
         #output {
-            flex: 1;
-            padding: 20px;
-            font-family: 'Fira Code', monospace;
-            font-size: 14px;
-            color: var(--text-primary);
-            overflow-y: auto;
-            white-space: pre-wrap;
-            line-height: 1.5;
+            flex: 1; padding: 20px;
+            font-family: 'Fira Code', monospace; font-size: 14px;
+            color: var(--text-primary); overflow-y: auto; white-space: pre-wrap;
+            line-height: 1.6;
         }
 
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
+        /* Поле ввода в терминале */
+        #terminal-input-container {
+            display: none; align-items: center; padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border);
+        }
+        #terminal-input {
+            flex: 1; background: transparent; border: none;
+            color: var(--text-primary); font-family: 'Fira Code', monospace;
+            font-size: 14px; outline: none;
+        }
+
         /* --- FOOTER --- */
         footer {
-            height: 25px;
-            background: var(--bg-surface);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            z-index: 10;
+            height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10;
+            backdrop-filter: blur(12px);
         }
 
-        .status-left, .status-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        #py-status.loading { color: #f59e0b; }
+        .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
+        .status-item { display: flex; align-items: center; gap: 4px; }
+        #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
         @media (max-width: 768px) {
-            main { flex-direction: column; }
-            .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+            main { flex-direction: column; padding: 10px; gap: 10px; }
         }
     </style>
 </head>
@@ -306,9 +279,9 @@
         </div>
         <div class="controls">
             <select id="theme-select" onchange="changeTheme(this.value)">
-                <option value="dark">Тёмная</option>
-                <option value="light">Светлая</option>
-                <option value="neon">Неон</option>
+                <option value="dark">PyCharm Dark</option>
+                <option value="light">IntelliJ Light</option>
+                <option value="neon">Cyberpunk</option>
             </select>
             <button onclick="clearOutput()">
                 <i class="ph ph-trash"></i> Очистить
@@ -320,7 +293,8 @@
     </header>
 
     <main>
-        <div class="panel panel-left">
+        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+        <div class="panel">
             <div class="panel-header">
                 <div class="tab">
                     <i class="ph ph-file-py"></i> main.py
@@ -339,6 +313,7 @@ greet(user_name)
             </textarea>
         </div>
 
+        <!-- ПРАВАЯ ПАНЕЛЬ -->
         <div class="panel">
             <div class="panel-header">
                 <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
@@ -349,7 +324,11 @@ greet(user_name)
                     <div class="dot yellow"></div>
                     <div class="dot green"></div>
                 </div>
-                <pre id="output">Ожидание запуска кода...</pre>
+                <div id="output">Ожидание запуска кода...</div>
+                
+                <div id="terminal-input-container">
+                    <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+                </div>
             </div>
         </div>
     </main>
@@ -372,11 +351,13 @@ greet(user_name)
         let editor;
         let pyodideReady = false;
         let pyodide;
+        let resolveInput = null;
 
         window.onload = function() {
+            // Используем кастомную тему "custom", чтобы наши CSS-правила сработали
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
-                theme: "dracula", // Базовый синтаксис берем из Dracula, фон переопределен в CSS
+                theme: "custom", 
                 lineNumbers: true,
                 autoCloseBrackets: true,
                 matchBrackets: true,
@@ -411,19 +392,30 @@ greet(user_name)
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
             });
 
+            document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const value = this.value;
+                    const output = document.getElementById('output');
+                    
+                    output.innerText += value + "\n";
+                    output.scrollTop = output.scrollHeight;
+                    
+                    this.value = '';
+                    document.getElementById('terminal-input-container').style.display = 'none';
+                    
+                    if (resolveInput) {
+                        resolveInput(value);
+                        resolveInput = null;
+                    }
+                }
+            });
+
             initPyodide();
         };
 
         function changeTheme(theme) {
+            // Просто меняем атрибут, CSS-переменные сами перекрасят и сайт, и редактор
             document.body.setAttribute('data-theme', theme);
-            
-            // Для светлой темы используем дефолтную светлую тему редактора
-            if (theme === 'light') {
-                editor.setOption("theme", "default");
-            } else {
-                // Для темной и неона используем Dracula (его цвета синтаксиса универсальны)
-                editor.setOption("theme", "dracula");
-            }
         }
 
         function clearOutput() {
@@ -434,21 +426,28 @@ greet(user_name)
             try {
                 pyodide = await loadPyodide({
                     stdout: (text) => {
-                        document.getElementById('output').innerText += text + "\n";
+                        const output = document.getElementById('output');
+                        output.innerText += text + "\n";
+                        output.scrollTop = output.scrollHeight;
                     },
                     stderr: (text) => {
-                        let out = document.getElementById('output');
-                        out.innerHTML += `<span class="output-error">${text}</span>\n`;
+                        const output = document.getElementById('output');
+                        output.innerHTML += `<span class="output-error">${text}</span>\n`;
+                        output.scrollTop = output.scrollHeight;
                     }
                 });
 
-                pyodide.runPython(`
-import builtins
-def custom_input(prompt=""):
-    import js
-    return js.prompt(prompt)
-builtins.input = custom_input
-                `);
+                pyodide.setStdin({
+                    stdin: () => {
+                        return new Promise((resolve) => {
+                            resolveInput = resolve;
+                            const container = document.getElementById('terminal-input-container');
+                            const inputField = document.getElementById('terminal-input');
+                            container.style.display = 'flex';
+                            inputField.focus();
+                        });
+                    }
+                });
 
                 const status = document.getElementById('py-status');
                 status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
@@ -466,8 +465,11 @@ builtins.input = custom_input
                 return;
             }
 
+            document.getElementById('terminal-input-container').style.display = 'none';
+            resolveInput = null;
+
             const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = "";
+            outputDiv.innerHTML = ""; 
             
             const code = editor.getValue();
 
@@ -477,6 +479,7 @@ builtins.input = custom_input
             } catch (error) {
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
             }
+            outputDiv.scrollTop = outputDiv.scrollHeight;
         }
     </script>
 </body>
