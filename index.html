@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyWeb IDE | Professional Python Environment</title>
+    
+    <!-- SEO для Яндекса и поисковиков -->
+    <title>Питон в браузере | Онлайн-компилятор Python для уроков</title>
+    <meta name="description" content="Удобный онлайн-компилятор Python прямо в браузере. Создан для уроков информатики. Поддержка ввода данных, умные подсказки, смена тем оформления.">
+    <meta name="keywords" content="python, питон, онлайн компилятор, python в браузере, информатика, программирование, уроки">
     
     <!-- Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Иконки -->
+    <!-- Иконки (Phosphor Icons) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <!-- CodeMirror (Редактор) -->
@@ -31,7 +35,6 @@
     <style>
         /* --- ЦВЕТОВЫЕ СХЕМЫ (ТЕМЫ) --- */
         :root {
-            /* Тёмная (по умолчанию) */
             --bg-body: #0f111a;
             --bg-surface: #1a1d27;
             --bg-surface-hover: #232736;
@@ -94,7 +97,6 @@
             transition: background-color 0.3s;
         }
 
-        /* Скроллбар */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
@@ -118,13 +120,11 @@
             gap: 10px;
             font-weight: 600;
             font-size: 16px;
-            color: var(--text-primary);
         }
         .logo i { color: var(--accent); font-size: 20px; }
 
         .controls { display: flex; gap: 12px; align-items: center; }
 
-        /* Стилизация кнопок и селектов */
         button, select {
             display: flex;
             align-items: center;
@@ -139,6 +139,7 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            outline: none;
         }
 
         button:hover, select:hover {
@@ -153,14 +154,13 @@
         }
         button.run-btn:hover { background: var(--accent-hover); }
 
-        /* --- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ --- */
+        /* --- РАБОЧАЯ ОБЛАСТЬ --- */
         main {
             display: flex;
             flex: 1;
-            height: calc(100vh - 75px); /* 50px header + 25px footer */
+            height: calc(100vh - 75px);
         }
 
-        /* Панели (Редактор и Консоль) */
         .panel {
             display: flex;
             flex-direction: column;
@@ -168,11 +168,8 @@
             min-width: 0;
         }
 
-        .panel-left {
-            border-right: 1px solid var(--border);
-        }
+        .panel-left { border-right: 1px solid var(--border); }
 
-        /* Заголовки панелей (Вкладки) */
         .panel-header {
             display: flex;
             align-items: center;
@@ -197,12 +194,32 @@
             font-family: 'Fira Code', monospace;
         }
 
-        /* Настройки CodeMirror */
         .CodeMirror {
             height: 100% !important;
             font-family: 'Fira Code', monospace;
             font-size: 15px;
             line-height: 1.6;
+        }
+
+        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК (DARK AUTOCOMPLETE) --- */
+        .CodeMirror-hints {
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+            font-family: 'Fira Code', monospace !important;
+            font-size: 14px !important;
+            padding: 5px 0 !important;
+            z-index: 1000 !important;
+        }
+        .CodeMirror-hint {
+            color: var(--text-primary) !important;
+            padding: 6px 15px !important;
+            cursor: pointer !important;
+        }
+        li.CodeMirror-hint-active {
+            background: var(--accent) !important;
+            color: #fff !important;
         }
 
         /* --- КОНСОЛЬ ВЫВОДА --- */
@@ -236,10 +253,10 @@
             line-height: 1.5;
         }
 
-        .output-success { color: var(--success); }
-        .output-error { color: var(--error); }
+        .output-success { color: var(--success); font-weight: 500; }
+        .output-error { color: var(--error); font-weight: 500; }
 
-        /* --- НИЖНЯЯ ПАНЕЛЬ (STATUS BAR) --- */
+        /* --- НИЖНЯЯ ПАНЕЛЬ --- */
         footer {
             height: 25px;
             background: var(--bg-surface);
@@ -277,17 +294,16 @@
 </head>
 <body data-theme="dark">
 
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
     <header>
         <div class="logo">
             <i class="ph ph-terminal-window"></i>
-            PyWeb IDE
+            Питон в браузере
         </div>
         <div class="controls">
             <select id="theme-select" onchange="changeTheme(this.value)">
-                <option value="dark">🌙 Dark</option>
-                <option value="light">☀️ Light</option>
-                <option value="neon">🦄 Neon</option>
+                <option value="dark">🌙 Тёмная</option>
+                <option value="light">☀️ Светлая</option>
+                <option value="neon">🦄 Неон</option>
             </select>
             <button onclick="clearOutput()">
                 <i class="ph ph-trash"></i> Очистить
@@ -298,7 +314,6 @@
         </div>
     </header>
 
-    <!-- РАБОЧАЯ ОБЛАСТЬ -->
     <main>
         <!-- ЛЕВАЯ ПАНЕЛЬ: РЕДАКТОР -->
         <div class="panel panel-left">
@@ -308,18 +323,15 @@
                 </div>
             </div>
             <textarea id="code-editor">
-# Привет! Это твоя профессиональная среда.
-# Начни писать код и нажми Ctrl+Space для подсказок.
-# Для запуска нажми Ctrl+Enter.
+# Добро пожаловать! Пиши код здесь.
+# Нажми Ctrl+Enter для запуска.
+# Подсказки: начни писать и нажми Ctrl+Space.
 
-import math
+def greet(name):
+    print(f"Привет, {name}!")
 
-def calculate_circle_area(radius):
-    return math.pi * (radius ** 2)
-
-r = float(input("Введите радиус круга: "))
-area = calculate_circle_area(r)
-print(f"Площадь круга: {area:.2f}")
+user_name = input("Введи свое имя: ")
+greet(user_name)
             </textarea>
         </div>
 
@@ -339,7 +351,6 @@ print(f"Площадь круга: {area:.2f}")
         </div>
     </main>
 
-    <!-- НИЖНЯЯ ПАНЕЛЬ -->
     <footer>
         <div class="status-left">
             <span class="status-item" id="py-status">
@@ -350,6 +361,7 @@ print(f"Площадь круга: {area:.2f}")
             <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
             <span class="status-item">UTF-8</span>
             <span class="status-item">Python 3</span>
+            <span class="status-item" style="opacity: 0.7;">© 2024 Твое Имя</span>
         </div>
     </footer>
 
@@ -358,7 +370,6 @@ print(f"Площадь круга: {area:.2f}")
         let pyodideReady = false;
         let pyodide;
 
-        // Инициализация CodeMirror
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
@@ -369,13 +380,21 @@ print(f"Площадь круга: {area:.2f}")
                 indentUnit: 4,
                 lineWrapping: true,
                 extraKeys: {
-                    "Ctrl-Space": "autocomplete", // Вызов подсказок
+                    "Ctrl-Space": "autocomplete",
                     "Ctrl-Enter": function() { runPython(); },
-                    "Cmd-Enter": function() { runPython(); } // Для Mac
+                    "Cmd-Enter": function() { runPython(); },
+                    // Позволяет выбирать подсказку по Tab
+                    "Tab": function(cm) {
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.widget.selectActive();
+                        } else {
+                            cm.replaceSelection("    ", "end");
+                        }
+                    }
                 }
             });
 
-            // Автоматический вызов подсказок при вводе букв (задержка 300мс)
+            // Автоматический вызов подсказок при вводе
             let timeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0].match(/[a-zA-Z_]/)) {
@@ -386,7 +405,7 @@ print(f"Площадь круга: {area:.2f}")
                 }
             });
 
-            // Обновление координат курсора в нижней панели
+            // Обновление позиции курсора
             editor.on("cursorActivity", function(cm) {
                 let pos = cm.getCursor();
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
@@ -395,25 +414,19 @@ print(f"Площадь круга: {area:.2f}")
             initPyodide();
         };
 
-        // Переключение тем
         function changeTheme(theme) {
             document.body.setAttribute('data-theme', theme);
             if (theme === 'light') {
                 editor.setOption("theme", "default");
-            } else if (theme === 'neon') {
-                // Для неона используем темную тему редактора + CSS фильтр
-                editor.setOption("theme", "dracula");
             } else {
                 editor.setOption("theme", "dracula");
             }
         }
 
-        // Очистка консоли
         function clearOutput() {
             document.getElementById('output').innerText = "";
         }
 
-        // Инициализация Pyodide
         async function initPyodide() {
             try {
                 pyodide = await loadPyodide({
@@ -426,7 +439,7 @@ print(f"Площадь круга: {area:.2f}")
                     }
                 });
 
-                // Вшиваем поддержку input()
+                // Поддержка input()
                 pyodide.runPython(`
 import builtins
 def custom_input(prompt=""):
@@ -445,23 +458,23 @@ builtins.input = custom_input
             }
         }
 
-        // Запуск кода
         async function runPython() {
             if (!pyodideReady) {
                 alert("Подожди, Python загружается...");
                 return;
             }
 
-            clearOutput();
-            const code = editor.getValue();
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ""; // Полная очистка перед запуском
             
-            document.getElementById('output').innerHTML += '<span style="color: var(--text-secondary);">$ python main.py</span>\n\n';
+            const code = editor.getValue();
 
             try {
                 await pyodide.runPythonAsync(code);
-                document.getElementById('output').innerHTML += '\n\n<span class="output-success">[Процесс завершен с кодом 0]</span>';
+                // Дружелюбный текст без доллара
+                outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
             } catch (error) {
-                document.getElementById('output').innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
+                outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
             }
         }
     </script>
