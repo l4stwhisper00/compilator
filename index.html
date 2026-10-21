@@ -129,6 +129,28 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* --- ПРЕЛОАДЕР --- */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-body); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+        #loading-overlay.hidden {
+            opacity: 0; visibility: hidden;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;}
+        .loading-subtext { font-size: 13px; color: var(--text-secondary); }
+
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
@@ -302,44 +324,6 @@
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; }
         .ai-header .settings-btn:hover { color: var(--text-primary); }
 
-        /* ЭКРАН ПОДКЛЮЧЕНИЯ (ОНБОРДИНГ) */
-        .ai-onboarding { padding: 25px 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
-        .ai-onboarding h3 { font-size: 18px; color: var(--text-primary); text-align: center; margin-bottom: 5px; }
-        .ai-onboarding p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; text-align: center; }
-        
-        /* БЛОК ПРЕДУПРЕЖДЕНИЯ */
-        .warning-box {
-            background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 8px;
-            padding: 12px; display: flex; gap: 10px; align-items: flex-start;
-            margin: 5px 0;
-        }
-        .warning-box i { color: var(--error); font-size: 20px; margin-top: 2px; }
-        .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
-        .warning-box strong { color: var(--error); text-transform: uppercase; }
-
-        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
-        .ai-onboarding .provider-buttons a {
-            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
-            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-        .ai-onboarding .provider-buttons .groq-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .groq-btn:hover { background: var(--accent); color: #111; }
-        .ai-onboarding .provider-buttons .gemini-btn { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid #38bdf8; }
-        .ai-onboarding .provider-buttons .gemini-btn:hover { background: #38bdf8; color: #111; }
-        
-        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
-        .ai-onboarding .input-group input {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
-        }
-        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
-        .ai-onboarding .connect-btn {
-            background: var(--accent); color: #111; border: none; border-radius: 8px;
-            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
-        }
-        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
-        
         /* ЧАТ */
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
@@ -351,7 +335,7 @@
             font-size: 12px; color: var(--error); font-weight: 600;
         }
 
-        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: none; gap: 10px; }
+        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .ai-input-area input {
             flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px;
             padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px;
@@ -384,6 +368,13 @@
 </head>
 <body data-theme="dark">
 
+    <!-- ПРЕЛОАДЕР -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Загрузка Python...</div>
+        <div class="loading-subtext">Это займет пару секунд</div>
+    </div>
+
     <header>
         <div class="logo">
             <i class="ph ph-terminal-window"></i>
@@ -413,7 +404,7 @@
             <button onclick="clearOutput()" title="Очистить консоль">
                 <i class="ph ph-trash"></i> Очистить
             </button>
-            <button id="run-btn" class="run-btn" onclick="runPython()">
+            <button id="run-btn" class="run-btn" onclick="runPython()" disabled>
                 <i class="ph-fill ph-play"></i> Запустить
             </button>
         </div>
@@ -491,80 +482,19 @@ print("Итоговая цена:", itog)
                 <i class="ph-fill ph-robot"></i>
                 ИИ-Наставник
             </div>
-            <div id="ai-header-buttons" style="display: none;">
-                <button class="settings-btn" onclick="toggleAISettings()" title="Настройки API">
-                    <i class="ph ph-gear"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
-        <div id="ai-onboarding" class="ai-onboarding">
-            <h3>Подключение ИИ-Наставника</h3>
-            <p>ИИ помогает разобраться в коде и подсказывает, где ошибка. Он бесплатный. Выбери любой сервис, получи ключ и вставь его ниже.</p>
-            
-            <!-- ПРЕДУПРЕЖДЕНИЕ ОБ ОБЩИХ КОМПЬЮТЕРАХ -->
-            <div class="warning-box">
-                <i class="ph-fill ph-warning-circle"></i>
-                <div>
-                    <strong>ВАЖНО!</strong><br>
-                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
-                </div>
-            </div>
-
-            <div class="provider-buttons">
-                <a href="https://console.groq.com/keys" target="_blank" class="groq-btn">
-                    <i class="ph ph-lightning"></i> Ключ Groq
-                </a>
-                <a href="https://aistudio.google.com/apikey" target="_blank" class="gemini-btn">
-                    <i class="ph ph-google-logo"></i> Ключ Gemini
-                </a>
-            </div>
-
-            <div class="input-group">
-                <label>Вставь полученный ключ сюда:</label>
-                <input type="password" id="onboarding-key" placeholder="gsk_... или AIza...">
-            </div>
-            
-            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
         </div>
 
         <!-- ЧАТ -->
-        <div class="ai-messages" id="ai-messages" style="display: none;">
+        <div class="ai-messages" id="ai-messages">
             <div class="message ai">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
-                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
             </div>
         </div>
 
         <div class="ai-input-area" id="ai-input-area">
             <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
-        </div>
-
-        <!-- Настройки API -->
-        <div class="ai-settings" id="ai-settings">
-            <label>Провайдер:
-                <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="groq">Groq (Бесплатно)</option>
-                    <option value="gemini">Google Gemini (Бесплатно)</option>
-                    <option value="custom">Свой вариант (DeepSeek, OpenAI и др.)</option>
-                </select>
-            </label>
-            <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://api.groq.com/openai/v1/chat/completions">
-            </label>
-            <label>API Ключ (Token):
-                <input type="password" id="ai-api-key" placeholder="Вставьте ваш ключ...">
-            </label>
-            <label>Модель:
-                <input type="text" id="ai-model" placeholder="llama-3.3-70b-versatile">
-            </label>
-            
-            <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
-            <!-- Кнопка выхода / сброса ключа -->
-            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
         </div>
     </div>
 
@@ -574,140 +504,22 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
-        const providers = {
-            groq: { url: "https://api.groq.com/openai/v1/chat/completions", model: "llama-3.3-70b-versatile" },
-            gemini: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", model: "gemini-2.5-flash" },
-            custom: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" }
-        };
+        // --- НАСТРОЙКИ KEYLESS AI ---
+        const KEYLESS_AI_URL = "https://keylessai.thryx.workers.dev/v1/chat/completions";
+        const KEYLESS_AI_MODEL = "gpt-4o"; // Можно попробовать другие модели, например "claude-3-5-sonnet-latest"
 
-        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
+        // --- ЛОГИКА ЧАТА ---
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display === 'flex') {
                 panel.style.display = 'none';
             } else {
                 panel.style.display = 'flex';
-                checkAIConnection();
-            }
-        }
-
-        function checkAIConnection() {
-            const savedKey = localStorage.getItem('ai_api_key');
-            const onboarding = document.getElementById('ai-onboarding');
-            const messages = document.getElementById('ai-messages');
-            const inputArea = document.getElementById('ai-input-area');
-            const headerBtns = document.getElementById('ai-header-buttons');
-            const settings = document.getElementById('ai-settings');
-
-            settings.style.display = 'none'; // На всякий случай скрываем настройки
-
-            if (savedKey) {
-                // Ключ есть, показываем чат
-                onboarding.style.display = 'none';
-                messages.style.display = 'flex';
-                inputArea.style.display = 'flex';
-                headerBtns.style.display = 'block';
                 document.getElementById('ai-input').focus();
                 scrollToAIBottom();
-            } else {
-                // Ключа нет, показываем экран подключения
-                onboarding.style.display = 'flex';
-                messages.style.display = 'none';
-                inputArea.style.display = 'none';
-                headerBtns.style.display = 'none';
             }
         }
 
-        function connectFromOnboarding() {
-            const key = document.getElementById('onboarding-key').value.trim();
-            if (!key) {
-                alert("Пожалуйста, вставь ключ!");
-                return;
-            }
-
-            // Умное определение провайдера по началу ключа
-            let provider = 'custom';
-            if (key.startsWith('gsk_')) {
-                provider = 'groq';
-            } else if (key.startsWith('AIza')) {
-                provider = 'gemini';
-            } else {
-                alert("Неизвестный формат ключа. Пожалуйста, используй ключ от Groq (начинается на gsk_) или Gemini (начинается на AIza).");
-                return;
-            }
-
-            // Сохраняем
-            localStorage.setItem('ai_provider', provider);
-            localStorage.setItem('ai_api_url', providers[provider].url);
-            localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', providers[provider].model);
-
-            // Переключаем на чат
-            checkAIConnection();
-        }
-
-        function toggleAISettings() {
-            const settings = document.getElementById('ai-settings');
-            const inputArea = document.getElementById('ai-input-area');
-            const messages = document.getElementById('ai-messages');
-            
-            if (settings.style.display === 'flex') {
-                settings.style.display = 'none';
-                inputArea.style.display = 'flex';
-                messages.style.display = 'flex';
-            } else {
-                // Заполняем текущие значения
-                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'groq';
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.groq.url;
-                document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.groq.model;
-
-                settings.style.display = 'flex';
-                inputArea.style.display = 'none';
-                messages.style.display = 'none';
-            }
-        }
-
-        function onProviderChange() {
-            const p = document.getElementById('ai-provider').value;
-            document.getElementById('ai-api-url').value = providers[p].url;
-            document.getElementById('ai-model').value = providers[p].model;
-        }
-
-        function saveAISettings() {
-            const provider = document.getElementById('ai-provider').value;
-            const url = document.getElementById('ai-api-url').value.trim();
-            const key = document.getElementById('ai-api-key').value.trim();
-            const model = document.getElementById('ai-model').value.trim();
-            
-            if (!url || !key || !model) {
-                alert("Заполни все поля!");
-                return;
-            }
-
-            localStorage.setItem('ai_provider', provider);
-            localStorage.setItem('ai_api_url', url);
-            localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', model);
-            
-            toggleAISettings();
-            checkAIConnection(); // Обновляем состояние
-            alert("Настройки сохранены!");
-        }
-
-        function logoutAI() {
-            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
-                localStorage.removeItem('ai_provider');
-                localStorage.removeItem('ai_api_url');
-                localStorage.removeItem('ai_api_key');
-                localStorage.removeItem('ai_model');
-                toggleAISettings();
-                checkAIConnection();
-            }
-        }
-
-        // --- ЛОГИКА ЧАТА ---
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
@@ -724,15 +536,6 @@ print("Итоговая цена:", itog)
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url');
-            const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model');
-
-            if (!apiKey) {
-                alert("Сначала подключи ИИ!");
-                return;
-            }
-
             const input = document.getElementById('ai-input');
             const text = input.value.trim();
             if (!text) return;
@@ -763,14 +566,14 @@ ${errorText}`;
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch(KEYLESS_AI_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
+                        'Content-Type': 'application/json'
+                        // Ключ авторизации не нужен!
                     },
                     body: JSON.stringify({
-                        model: model,
+                        model: KEYLESS_AI_MODEL,
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: text }
@@ -910,7 +713,7 @@ ${errorText}`;
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
 
-            initPyodide();
+            setTimeout(initPyodide, 100);
         };
 
         function changeTheme(theme) {
@@ -952,16 +755,27 @@ builtins.input = custom_input
                 const status = document.getElementById('py-status');
                 status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
                 status.className = "status-item ready";
+                
+                document.getElementById('run-btn').disabled = false;
                 pyodideReady = true;
+
+                const overlay = document.getElementById('loading-overlay');
+                overlay.classList.add('hidden');
+                
+                setTimeout(() => overlay.remove(), 500);
+
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
                 document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
+                
+                document.querySelector('.loading-text').innerText = "Ошибка загрузки";
+                document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
+                document.querySelector('.spinner').style.borderTopColor = "var(--error)";
             }
         }
 
         async function runPython() {
             if (!pyodideReady) {
-                alert("Python еще загружается. Подожди пару секунд...");
                 return;
             }
 
