@@ -11,6 +11,7 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- CodeMirror -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     
@@ -21,10 +22,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
-    <!-- САМАЯ НОВАЯ ВЕРСИЯ PYODIDE (Исправляет ошибку ввода) -->
+    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
+        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ --- */
         :root {
             --bg-body: #0b0b0e;
             --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
@@ -40,6 +42,7 @@
             --success: #6a8759;
             --error: #ff5252;
             
+            /* Синтаксис PyCharm */
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
             --syn-number: #61afef;
@@ -97,6 +100,7 @@
             --syn-variable: #e0def4;
         }
 
+        /* --- БАЗОВАЯ СТРУКТУРА --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -116,6 +120,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* --- HEADER --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
@@ -143,6 +148,7 @@
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
 
+        /* --- MAIN LAYOUT --- */
         main {
             display: flex;
             flex: 1;
@@ -175,6 +181,7 @@
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
+        /* --- РЕДАКТОР КОДА --- */
         .editor-container { flex: 1; position: relative; overflow: hidden; }
 
         .CodeMirror {
@@ -186,6 +193,7 @@
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
 
+        /* Яркий курсор */
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
 
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
@@ -199,7 +207,7 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
-        /* Красивые подсказки без кубиков */
+        /* --- ПОДСКАЗКИ (ОКРУГЛЫЕ, БЕЗ КУБИКОВ) --- */
         .CodeMirror-hints {
             background: var(--bg-surface) !important;
             border: 1px solid var(--border) !important;
@@ -217,12 +225,14 @@
             cursor: pointer !important;
             transition: background 0.1s, color 0.1s;
         }
+        /* Активный элемент: просто заливается цветом, без жестких рамок */
         li.CodeMirror-hint-active {
             background: var(--accent) !important;
             color: #111 !important; 
             font-weight: 600;
         }
 
+        /* --- ТЕРМИНАЛ --- */
         .console-wrapper {
             flex: 1; background: var(--console-bg);
             display: flex; flex-direction: column; position: relative;
@@ -261,6 +271,7 @@
             font-size: 14px; outline: none; caret-color: var(--accent);
         }
 
+        /* --- FOOTER --- */
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -332,7 +343,6 @@ print("Итоговая цена:", itog)
                 </div>
                 <div id="output">Ожидание запуска кода...</div>
                 
-                <!-- Терминальный ввод -->
                 <div id="terminal-input-container">
                     <span class="prompt-arrow">></span>
                     <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
@@ -426,7 +436,7 @@ print("Итоговая цена:", itog)
                     }
                 });
 
-                // Использование асинхронного stdin (работает в v0.26.1)
+                // Настройка ввода прямо в терминале (требует netlify.toml)
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
@@ -441,6 +451,7 @@ print("Итоговая цена:", itog)
                                     e.preventDefault();
                                     const val = inputField.value;
                                     
+                                    // Выводим в консоль то, что ввел пользователь (как в обычном терминале)
                                     const output = document.getElementById('output');
                                     output.innerText += "> " + val + "\n";
                                     output.scrollTop = output.scrollHeight;
@@ -449,7 +460,7 @@ print("Итоговая цена:", itog)
                                     container.style.display = 'none';
                                     inputField.onkeydown = null;
                                     
-                                    // Возвращаем строку с переносом, чтобы Питон понял, что ввод окончен
+                                    // \n критически важен, чтобы Pyodide не завис
                                     resolve(val + "\n"); 
                                 }
                             };
@@ -463,7 +474,7 @@ print("Итоговая цена:", itog)
                 pyodideReady = true;
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
-                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки (Обнови страницу)';
+                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
             }
         }
 
