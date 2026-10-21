@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Питон | Онлайн-компилятор Python</title>
+    <title>Питон  | Онлайн-компилятор Python</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -807,7 +807,7 @@ ${errorText}`;
 
             chatHistory.push({ role: "user", content: text });
 
-            async function fetchWithRetry(maxRetries = 3, initialDelay = 1000) {
+            async function fetchWithRetry(maxRetries = 5, initialDelay = 2000) {
                 let delay = initialDelay;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
@@ -823,7 +823,7 @@ ${errorText}`;
                                 model: model,
                                 messages: [
                                     { role: "system", content: systemPrompt },
-                                    ...chatHistory.slice(-12)
+                                    ...chatHistory.slice(-6)
                                 ],
                                 temperature: 0.3
                             }),
@@ -832,7 +832,9 @@ ${errorText}`;
                         clearTimeout(timeoutId);
 
                         if (response.status === 429 && attempt < maxRetries) {
-                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов, ждем ${delay / 1000} сек...`;
+                            const retryAfter = response.headers.get('Retry-After');
+                            const waitSec = retryAfter ? parseInt(retryAfter, 10) : Math.round(delay / 1000);
+                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов. Ждём ${waitSec} сек... (попытка ${attempt}/${maxRetries})`;
                             await new Promise(resolve => setTimeout(resolve, delay));
                             delay *= 2;
                             continue;
@@ -869,8 +871,11 @@ ${errorText}`;
 
             } catch (err) {
                 loadingDiv.remove();
-                addMessage(`Ошибка: ${err.message}`, 'ai', false);
-                // убираем последнее user-сообщение, чтобы не мусорить в истории
+                let msg = `Ошибка: ${err.message}`;
+                if (err.message.includes('429')) {
+                    msg = 'Превышен лимит запросов DeepSeek. Подождите минуту и отправьте сообщение снова.';
+                }
+                addMessage(msg, 'ai', false);
                 chatHistory.pop();
             } finally {
                 sendBtn.disabled = false;
@@ -906,7 +911,6 @@ ${errorText}`;
         }
 
         window.onload = function() {
-            // Восстановление темы
             const savedTheme = localStorage.getItem('python_ide_theme');
             if (savedTheme) {
                 document.body.setAttribute('data-theme', savedTheme);
@@ -1025,7 +1029,6 @@ ${errorText}`;
                         span.textContent = text + "\n";
                         output.appendChild(span);
                         scrollToBottom();
-                        // В stderr не факт что traceback — не перезаписываем lastError
                     }
                 });
 
