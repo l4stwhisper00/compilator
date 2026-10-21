@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Питон в браузере | Онлайн-компилятор Python</title>
+    <title>Питон | Онлайн-компилятор Python</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,6 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- CodeMirror Core & Addons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
@@ -26,7 +25,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
 
-    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
@@ -129,7 +127,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- ПРЕЛОАДЕР --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
@@ -292,7 +289,6 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
         #ai-toggle-btn {
             position: fixed; bottom: 50px; right: 30px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -326,12 +322,10 @@
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
         .ai-header .settings-btn:hover { color: var(--accent); }
 
-        /* ЭКРАН ПОДКЛЮЧЕНИЯ (ОНБОРДИНГ) */
         .ai-onboarding { padding: 25px 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
         .ai-onboarding h3 { font-size: 18px; color: var(--text-primary); text-align: center; margin-bottom: 5px; }
         .ai-onboarding p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; text-align: center; }
         
-        /* БЛОК ПРЕДУПРЕЖДЕНИЯ */
         .warning-box {
             background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 8px;
             padding: 12px; display: flex; gap: 10px; align-items: flex-start;
@@ -346,8 +340,8 @@
             flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
             transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-        .ai-onboarding .provider-buttons .mistral-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .mistral-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .deepseek-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .deepseek-btn:hover { background: var(--accent); color: #111; }
         
         .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
         .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
@@ -362,12 +356,20 @@
         }
         .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
         
-        /* ЧАТ */
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
+        .message code {
+            background: rgba(0,0,0,0.25); padding: 2px 5px; border-radius: 4px;
+            font-family: 'Fira Code', monospace; font-size: 0.92em;
+        }
+        .message pre {
+            background: rgba(0,0,0,0.25); padding: 10px 12px; border-radius: 6px;
+            overflow-x: auto; margin: 6px 0; font-family: 'Fira Code', monospace; font-size: 0.9em;
+        }
+        .message pre code { background: none; padding: 0; }
         .message.ai .logout-warning {
             display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--warning-border);
             font-size: 12px; color: var(--error); font-weight: 600;
@@ -386,7 +388,6 @@
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Настройки ИИ (Шестеренка) */
         .ai-settings { padding: 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
         .ai-settings label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
         .ai-settings input, .ai-settings select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
@@ -406,7 +407,6 @@
 </head>
 <body data-theme="dark">
 
-    <!-- ПРЕЛОАДЕР -->
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div class="loading-text">Загрузка Python...</div>
@@ -453,7 +453,7 @@
             <div class="panel-header">
                 <div class="panel-header-left">
                     <div class="tab">
-                        <i class="ph ph-file-py"></i> main.py
+                        <i class="ph ph-file-py"></i> <span id="filename-display">main.py</span>
                     </div>
                 </div>
                 <div style="font-size: 12px; opacity: 0.7;">
@@ -508,12 +508,10 @@ print("Итоговая цена:", itog)
         </div>
     </footer>
 
-    <!-- Кнопка вызова ИИ -->
     <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
         <i class="ph-fill ph-robot"></i>
     </button>
 
-    <!-- Окно ИИ -->
     <div id="ai-chat-panel">
         <div class="ai-header">
             <div class="ai-header-left">
@@ -530,10 +528,9 @@ print("Итоговая цена:", itog)
             </div>
         </div>
 
-        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
         <div id="ai-onboarding" class="ai-onboarding">
             <h3>Подключение ИИ-Наставника</h3>
-            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на сайте Mistral (интерфейс на английском) и вставь его ниже.</p>
+            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
             
             <div class="warning-box">
                 <i class="ph-fill ph-warning-circle"></i>
@@ -544,8 +541,8 @@ print("Итоговая цена:", itog)
             </div>
 
             <div class="provider-buttons">
-                <a href="https://console.mistral.ai/api-keys/" target="_blank" class="mistral-btn">
-                    <i class="ph ph-flag"></i> Получить ключ Mistral
+                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="deepseek-btn">
+                    <i class="ph ph-brain"></i> Получить ключ DeepSeek
                 </a>
             </div>
 
@@ -557,7 +554,6 @@ print("Итоговая цена:", itog)
             <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
         </div>
 
-        <!-- ЧАТ -->
         <div class="ai-messages" id="ai-messages" style="display: none;">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
@@ -571,22 +567,21 @@ print("Итоговая цена:", itog)
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
         </div>
 
-        <!-- Настройки API -->
         <div class="ai-settings" id="ai-settings">
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="mistral">Mistral AI (Бесплатно)</option>
-                    <option value="custom">Свой вариант (OpenAI, DeepSeek и др.)</option>
+                    <option value="deepseek">DeepSeek (Рекомендуется)</option>
+                    <option value="custom">Свой вариант (OpenAI, Mistral и др.)</option>
                 </select>
             </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://api.mistral.ai/v1/chat/completions">
+                <input type="text" id="ai-api-url" placeholder="https://api.deepseek.com/chat/completions">
             </label>
             <label>API Ключ (Token):
                 <input type="password" id="ai-api-key" placeholder="sk-...">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="mistral-large-latest">
+                <input type="text" id="ai-model" placeholder="deepseek-chat">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
@@ -599,14 +594,35 @@ print("Итоговая цена:", itog)
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
+        let currentFileName = "main.py";
+        let chatHistory = [];
 
-        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
         const providers = {
-            mistral: { url: "https://api.mistral.ai/v1/chat/completions", model: "mistral-large-latest" },
-            custom: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" }
+            deepseek: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" },
+            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
         };
 
-        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderAIMarkdown(text) {
+            let safe = escapeHTML(text);
+            safe = safe.replace(/```(?:\w+)?\n?([\s\S]*?)```/g, (_, code) => {
+                return `<pre><code>${code.replace(/\n$/, '')}</code></pre>`;
+            });
+            safe = safe.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+            safe = safe.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+            safe = safe.replace(/(^|\n)- (.+)/g, '$1• $2');
+            safe = safe.replace(/\n/g, '<br>');
+            return safe;
+        }
+
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display === 'flex') {
@@ -643,6 +659,8 @@ print("Итоговая цена:", itog)
         }
 
         function clearAIChat() {
+            if (!confirm("Очистить историю диалога?")) return;
+            chatHistory = [];
             const msgs = document.getElementById('ai-messages');
             const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
             msgs.innerHTML = welcomeHTML;
@@ -656,11 +674,11 @@ print("Итоговая цена:", itog)
                 return;
             }
 
-            // Включаем Mistral по умолчанию
-            localStorage.setItem('ai_provider', 'mistral');
-            localStorage.setItem('ai_api_url', providers.mistral.url);
+            localStorage.setItem('ai_provider', 'deepseek');
+            localStorage.setItem('ai_api_url', providers.deepseek.url);
             localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', providers.mistral.model);
+            localStorage.setItem('ai_model', providers.deepseek.model);
+            document.getElementById('onboarding-key').value = '';
 
             checkAIConnection();
         }
@@ -675,10 +693,10 @@ print("Итоговая цена:", itog)
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'mistral';
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.mistral.url;
+                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'deepseek';
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.deepseek.url;
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.mistral.model;
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.deepseek.model;
 
                 settings.style.display = 'flex';
                 inputArea.style.display = 'none';
@@ -719,31 +737,37 @@ print("Итоговая цена:", itog)
                 localStorage.removeItem('ai_api_url');
                 localStorage.removeItem('ai_api_key');
                 localStorage.removeItem('ai_model');
+                chatHistory = [];
                 toggleAISettings();
                 checkAIConnection();
             }
         }
 
-        // --- ЛОГИКА ЧАТА ---
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
         }
 
-        function addMessage(text, sender) {
+        function addMessage(text, sender, rawHTML = false) {
             const msgs = document.getElementById('ai-messages');
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            div.innerHTML = text.replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>');
+            if (rawHTML) {
+                div.innerHTML = text;
+            } else if (sender === 'ai') {
+                div.innerHTML = renderAIMarkdown(text);
+            } else {
+                div.textContent = text;
+            }
             msgs.appendChild(div);
             scrollToAIBottom();
             return div;
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.mistral.url;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.deepseek.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.mistral.model;
+            const model = localStorage.getItem('ai_model') || providers.deepseek.model;
 
             if (!apiKey) {
                 alert("Сначала подключи ИИ!");
@@ -768,6 +792,8 @@ print("Итоговая цена:", itog)
 3. Задай наводящий вопрос или дай теоретическую подсказку, чтобы ученик сам дошел до решения.
 4. Будь вежливым и поддерживай ученика.
 
+Если указанная ниже ошибка не соответствует коду — доверяй коду, ошибка может быть устаревшей.
+
 Текущий код ученика:
 \`\`\`python
 ${currentCode}
@@ -777,24 +803,56 @@ ${errorText}`;
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
 
-            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
+            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
+
+            chatHistory.push({ role: "user", content: text });
+
+            async function fetchWithRetry(maxRetries = 3, initialDelay = 1000) {
+                let delay = initialDelay;
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 45000);
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKey}`
+                            },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [
+                                    { role: "system", content: systemPrompt },
+                                    ...chatHistory.slice(-12)
+                                ],
+                                temperature: 0.3
+                            }),
+                            signal: controller.signal
+                        });
+                        clearTimeout(timeoutId);
+
+                        if (response.status === 429 && attempt < maxRetries) {
+                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов, ждем ${delay / 1000} сек...`;
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2;
+                            continue;
+                        }
+
+                        return response;
+                    } catch (err) {
+                        clearTimeout(timeoutId);
+                        if (err.name === 'AbortError') {
+                            throw new Error("Сервер не ответил за 45 секунд. Попробуй ещё раз.");
+                        }
+                        if (attempt === maxRetries) throw err;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    }
+                }
+            }
 
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: text }
-                        ],
-                        temperature: 0.3
-                    })
-                });
+                const response = await fetchWithRetry();
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
@@ -807,17 +865,19 @@ ${errorText}`;
 
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
+                chatHistory.push({ role: "assistant", content: aiResponse });
 
             } catch (err) {
                 loadingDiv.remove();
-                addMessage(`<span class="output-error">Ошибка: ${err.message}</span>`, 'ai');
+                addMessage(`Ошибка: ${err.message}`, 'ai', false);
+                // убираем последнее user-сообщение, чтобы не мусорить в истории
+                chatHistory.pop();
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
             }
         }
 
-        // --- ОСНОВНАЯ ЛОГИКА ---
         function scrollToBottom() {
             const output = document.getElementById('output');
             output.scrollTop = output.scrollHeight;
@@ -829,7 +889,7 @@ ${errorText}`;
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'main.py';
+            a.download = currentFileName || 'main.py';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -846,6 +906,13 @@ ${errorText}`;
         }
 
         window.onload = function() {
+            // Восстановление темы
+            const savedTheme = localStorage.getItem('python_ide_theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                document.getElementById('theme-select').value = savedTheme;
+            }
+
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
                 theme: "custom", 
@@ -885,9 +952,11 @@ ${errorText}`;
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    editor.setValue(e.target.result);
-                    this.value = '';
+                reader.onload = (ev) => {
+                    editor.setValue(ev.target.result);
+                    currentFileName = file.name;
+                    document.getElementById('filename-display').textContent = file.name;
+                    e.target.value = '';
                 };
                 reader.readAsText(file);
             });
@@ -909,12 +978,13 @@ ${errorText}`;
                 editor.refresh();
             });
 
-            let timeout;
+            let hintTimeout;
             editor.on("inputRead", function(cm, change) {
+                if (change.origin === 'paste' || change.origin === 'setValue') return;
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        cm.showHint({ hint: CodeMirror.pythonHint, completeSingle: false });
+                    clearTimeout(hintTimeout);
+                    hintTimeout = setTimeout(() => {
+                        cm.showHint({ hint: CodeMirror.hint.python, completeSingle: false });
                     }, 300);
                 }
             });
@@ -932,6 +1002,7 @@ ${errorText}`;
 
         function changeTheme(theme) {
             document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('python_ide_theme', theme);
         }
 
         function clearOutput() {
@@ -944,14 +1015,17 @@ ${errorText}`;
                 pyodide = await loadPyodide({
                     stdout: (text) => {
                         const output = document.getElementById('output');
-                        output.innerText += text + "\n";
+                        output.appendChild(document.createTextNode(text + "\n"));
                         scrollToBottom();
                     },
                     stderr: (text) => {
                         const output = document.getElementById('output');
-                        output.innerHTML += `<span class="output-error">${text}</span>\n`;
+                        const span = document.createElement('span');
+                        span.className = 'output-error';
+                        span.textContent = text + "\n";
+                        output.appendChild(span);
                         scrollToBottom();
-                        lastError = text;
+                        // В stderr не факт что traceback — не перезаписываем lastError
                     }
                 });
 
@@ -989,9 +1063,7 @@ builtins.input = custom_input
         }
 
         async function runPython() {
-            if (!pyodideReady) {
-                return;
-            }
+            if (!pyodideReady) return;
 
             const runBtn = document.getElementById('run-btn');
             runBtn.disabled = true;
@@ -1004,9 +1076,15 @@ builtins.input = custom_input
 
             try {
                 await pyodide.runPythonAsync(code);
-                outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
+                const span = document.createElement('span');
+                span.className = 'output-success';
+                span.textContent = '\n\n[Успешно завершено]';
+                outputDiv.appendChild(span);
             } catch (error) {
-                outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
+                const span = document.createElement('span');
+                span.className = 'output-error';
+                span.textContent = `\n\n[Ошибка выполнения]:\n${error.message}`;
+                outputDiv.appendChild(span);
                 lastError = error.message;
             } finally {
                 runBtn.disabled = false;
