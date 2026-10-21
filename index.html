@@ -11,7 +11,7 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- CodeMirror Core & Addons (включая поиск) -->
+    <!-- CodeMirror Core & Addons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
@@ -44,6 +44,8 @@
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
+            --warning-bg: rgba(255, 82, 82, 0.1);
+            --warning-border: rgba(255, 82, 82, 0.4);
             
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
@@ -53,7 +55,7 @@
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
             
-            --editor-font-size: 15px; /* Переменная для шрифта */
+            --editor-font-size: 15px;
         }
 
         [data-theme="light"] {
@@ -70,6 +72,8 @@
             --console-bg: rgba(248, 250, 252, 0.9);
             --success: #00a000;
             --error: #d00000;
+            --warning-bg: rgba(208, 0, 0, 0.05);
+            --warning-border: rgba(208, 0, 0, 0.3);
 
             --syn-keyword: #0033b3;
             --syn-string: #067d17;
@@ -94,6 +98,8 @@
             --console-bg: rgba(10, 5, 15, 0.9);
             --success: #00f0ff;
             --error: #ff007f;
+            --warning-bg: rgba(255, 0, 127, 0.1);
+            --warning-border: rgba(255, 0, 127, 0.4);
 
             --syn-keyword: #ff007f;
             --syn-string: #00f0ff;
@@ -138,7 +144,6 @@
         
         .controls { display: flex; gap: 12px; align-items: center; }
 
-        /* Общие стили для кнопок и селектов */
         button, select {
             display: flex; align-items: center; gap: 6px;
             background: var(--bg-surface); color: var(--text-primary);
@@ -149,34 +154,25 @@
 
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .icon-btn { padding: 8px; } /* Квадратные кнопки для иконок */
+        .icon-btn { padding: 8px; }
 
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
 
-        /* Ползунок шрифта */
         .font-size-control {
             display: flex; align-items: center; gap: 8px;
             background: var(--bg-surface); border: 1px solid var(--border);
             padding: 0 12px; border-radius: 8px; height: 35px;
         }
         .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
-        input[type=range] {
-            -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer;
-        }
+        input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%;
-            background: var(--accent); cursor: pointer; margin-top: -5px;
-            box-shadow: 0 0 5px var(--accent);
+            background: var(--accent); cursor: pointer; margin-top: -5px; box-shadow: 0 0 5px var(--accent);
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px;
-        }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
 
-        main {
-            display: flex; flex: 1; padding: 16px; gap: 16px;
-            height: calc(100vh - 56px - 30px);
-        }
+        main { display: flex; flex: 1; padding: 16px; gap: 16px; height: calc(100vh - 56px - 30px); }
 
         .panel {
             display: flex; flex-direction: column; flex: 1; min-width: 0;
@@ -205,7 +201,7 @@
         .CodeMirror {
             position: absolute; top: 0; bottom: 0; left: 0; right: 0;
             height: 100% !important; font-family: 'Fira Code', monospace;
-            font-size: var(--editor-font-size) !important; /* Применяем шрифт */
+            font-size: var(--editor-font-size) !important;
             line-height: 1.6; background: transparent !important;
             transition: font-size 0.1s;
         }
@@ -226,7 +222,6 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
-        /* Стили поиска (Ctrl+F) */
         .CodeMirror-dialog {
             background: var(--bg-surface) !important; color: var(--text-primary) !important;
             border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important;
@@ -234,70 +229,156 @@
         }
         .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
 
-        /* Подсказки (свечение букв) */
         .CodeMirror-hints {
             background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
             border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; 
             font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important;
             padding: 6px 0 !important; z-index: 1000 !important; overflow: hidden;
         }
-        .CodeMirror-hint {
-            color: var(--text-primary) !important; padding: 8px 16px !important;
-            cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s;
-        }
+        .CodeMirror-hint { color: var(--text-primary) !important; padding: 8px 16px !important; cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s; }
         li.CodeMirror-hint-active {
             background: transparent !important; color: var(--accent) !important; 
             font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important;
             outline: none !important; border: none !important;
         }
 
-        .console-wrapper {
-            flex: 1; background: var(--console-bg);
-            display: flex; flex-direction: column; position: relative; min-height: 0;
-        }
-
-        .console-topbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border);
-        }
+        .console-wrapper { flex: 1; background: var(--console-bg); display: flex; flex-direction: column; position: relative; min-height: 0; }
+        .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
         .dot.red { background: #ff5f56; box-shadow: 0 0 5px #ff5f56; }
         .dot.yellow { background: #ffbd2e; box-shadow: 0 0 5px #ffbd2e; }
         .dot.green { background: #27c93f; box-shadow: 0 0 5px #27c93f; }
 
-        .copy-btn {
-            background: transparent; border: none; color: var(--text-secondary);
-            cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s;
-        }
+        .copy-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s; }
         .copy-btn:hover { color: var(--accent); }
 
         #output {
-            flex: 1; padding: 20px;
-            font-family: 'Fira Code', monospace; font-size: 14px;
-            color: var(--text-primary); overflow-y: auto; white-space: pre-wrap;
-            line-height: 1.6; min-height: 0;
+            flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px;
+            color: var(--text-primary); overflow-y: auto; white-space: pre-wrap; line-height: 1.6; min-height: 0;
         }
-
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10;
-            backdrop-filter: blur(12px);
+            padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px);
         }
-
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
         .status-item { display: flex; align-items: center; gap: 4px; }
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
+        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
+        #ai-toggle-btn {
+            position: fixed; bottom: 50px; right: 30px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--accent); color: #111; border: none;
+            box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4);
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s;
+        }
+        #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
+
+        #ai-chat-panel {
+            position: fixed; bottom: 120px; right: 30px;
+            width: 400px; height: 600px; max-height: calc(100vh - 150px);
+            background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: none; flex-direction: column; z-index: 900;
+            overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes chatOpen { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .ai-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            font-weight: 600; color: var(--text-primary);
+        }
+        .ai-header-left { display: flex; align-items: center; gap: 10px; }
+        .ai-header-left i { color: var(--accent); font-size: 20px; }
+        .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; }
+        .ai-header .settings-btn:hover { color: var(--text-primary); }
+
+        /* ЭКРАН ПОДКЛЮЧЕНИЯ (ОНБОРДИНГ) */
+        .ai-onboarding { padding: 25px 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
+        .ai-onboarding h3 { font-size: 18px; color: var(--text-primary); text-align: center; margin-bottom: 5px; }
+        .ai-onboarding p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; text-align: center; }
+        
+        /* БЛОК ПРЕДУПРЕЖДЕНИЯ */
+        .warning-box {
+            background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 8px;
+            padding: 12px; display: flex; gap: 10px; align-items: flex-start;
+            margin: 5px 0;
+        }
+        .warning-box i { color: var(--error); font-size: 20px; margin-top: 2px; }
+        .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
+        .warning-box strong { color: var(--error); text-transform: uppercase; }
+
+        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
+        .ai-onboarding .provider-buttons a {
+            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
+            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .ai-onboarding .provider-buttons .groq-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .groq-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .gemini-btn { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid #38bdf8; }
+        .ai-onboarding .provider-buttons .gemini-btn:hover { background: #38bdf8; color: #111; }
+        
+        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
+        .ai-onboarding .input-group input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
+        }
+        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
+        .ai-onboarding .connect-btn {
+            background: var(--accent); color: #111; border: none; border-radius: 8px;
+            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
+        }
+        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
+        
+        /* ЧАТ */
+        .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
+        .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
+        .message.ai strong { color: var(--accent); }
+        .message.ai .logout-warning {
+            display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--warning-border);
+            font-size: 12px; color: var(--error); font-weight: 600;
+        }
+
+        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: none; gap: 10px; }
+        .ai-input-area input {
+            flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px;
+        }
+        .ai-input-area input:focus { border-color: var(--accent); }
+        .ai-input-area button {
+            background: var(--accent); color: #111; border: none; border-radius: 8px;
+            padding: 0 15px; cursor: pointer; font-weight: 600; transition: background 0.2s;
+        }
+        .ai-input-area button:hover { background: var(--accent-hover); }
+        .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Настройки ИИ (Шестеренка) */
+        .ai-settings { padding: 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
+        .ai-settings label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .ai-settings input, .ai-settings select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
+        .ai-settings input:focus, .ai-settings select:focus { border-color: var(--accent); }
+        .ai-settings .save-btn { background: var(--accent); color: #111; margin-top: 10px; justify-content: center; }
+        .ai-settings .logout-btn { background: transparent; color: var(--error); border: 1px solid var(--error); margin-top: 10px; justify-content: center; }
+        .ai-settings .logout-btn:hover { background: rgba(255, 82, 82, 0.1); }
+
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
+            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
+            #ai-toggle-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
         }
     </style>
 </head>
@@ -309,7 +390,6 @@
             Питон в браузере
         </div>
         <div class="controls">
-            <!-- Управление размером шрифта -->
             <div class="font-size-control" title="Размер шрифта">
                 <i class="ph ph-text-aa"></i>
                 <input type="range" id="font-size-slider" min="10" max="28" value="15">
@@ -322,7 +402,6 @@
                 <option value="neon">Cyberpunk</option>
             </select>
             
-            <!-- Кнопки файлов -->
             <input type="file" id="file-upload" accept=".py" style="display: none;">
             <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py">
                 <i class="ph ph-folder-open"></i>
@@ -400,17 +479,333 @@ print("Итоговая цена:", itog)
         </div>
     </footer>
 
+    <!-- Кнопка вызова ИИ -->
+    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
+        <i class="ph-fill ph-robot"></i>
+    </button>
+
+    <!-- Окно ИИ -->
+    <div id="ai-chat-panel">
+        <div class="ai-header">
+            <div class="ai-header-left">
+                <i class="ph-fill ph-robot"></i>
+                ИИ-Наставник
+            </div>
+            <div id="ai-header-buttons" style="display: none;">
+                <button class="settings-btn" onclick="toggleAISettings()" title="Настройки API">
+                    <i class="ph ph-gear"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
+        <div id="ai-onboarding" class="ai-onboarding">
+            <h3>Подключение ИИ-Наставника</h3>
+            <p>ИИ помогает разобраться в коде и подсказывает, где ошибка. Он бесплатный. Выбери любой сервис, получи ключ и вставь его ниже.</p>
+            
+            <!-- ПРЕДУПРЕЖДЕНИЕ ОБ ОБЩИХ КОМПЬЮТЕРАХ -->
+            <div class="warning-box">
+                <i class="ph-fill ph-warning-circle"></i>
+                <div>
+                    <strong>ВАЖНО!</strong><br>
+                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
+                </div>
+            </div>
+
+            <div class="provider-buttons">
+                <a href="https://console.groq.com/keys" target="_blank" class="groq-btn">
+                    <i class="ph ph-lightning"></i> Ключ Groq
+                </a>
+                <a href="https://aistudio.google.com/apikey" target="_blank" class="gemini-btn">
+                    <i class="ph ph-google-logo"></i> Ключ Gemini
+                </a>
+            </div>
+
+            <div class="input-group">
+                <label>Вставь полученный ключ сюда:</label>
+                <input type="password" id="onboarding-key" placeholder="gsk_... или AIza...">
+            </div>
+            
+            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
+        </div>
+
+        <!-- ЧАТ -->
+        <div class="ai-messages" id="ai-messages" style="display: none;">
+            <div class="message ai">
+                Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
+                <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
+            </div>
+        </div>
+
+        <div class="ai-input-area" id="ai-input-area">
+            <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
+            <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+        </div>
+
+        <!-- Настройки API -->
+        <div class="ai-settings" id="ai-settings">
+            <label>Провайдер:
+                <select id="ai-provider" onchange="onProviderChange()">
+                    <option value="groq">Groq (Бесплатно)</option>
+                    <option value="gemini">Google Gemini (Бесплатно)</option>
+                    <option value="custom">Свой вариант (DeepSeek, OpenAI и др.)</option>
+                </select>
+            </label>
+            <label>API URL (Endpoint):
+                <input type="text" id="ai-api-url" placeholder="https://api.groq.com/openai/v1/chat/completions">
+            </label>
+            <label>API Ключ (Token):
+                <input type="password" id="ai-api-key" placeholder="Вставьте ваш ключ...">
+            </label>
+            <label>Модель:
+                <input type="text" id="ai-model" placeholder="llama-3.3-70b-versatile">
+            </label>
+            
+            <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
+            <!-- Кнопка выхода / сброса ключа -->
+            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
+        </div>
+    </div>
+
     <script>
         let editor;
         let pyodideReady = false;
         let pyodide;
+        let lastError = "";
 
+        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
+        const providers = {
+            groq: { url: "https://api.groq.com/openai/v1/chat/completions", model: "llama-3.3-70b-versatile" },
+            gemini: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", model: "gemini-2.5-flash" },
+            custom: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" }
+        };
+
+        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
+        function toggleAI() {
+            const panel = document.getElementById('ai-chat-panel');
+            if (panel.style.display === 'flex') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'flex';
+                checkAIConnection();
+            }
+        }
+
+        function checkAIConnection() {
+            const savedKey = localStorage.getItem('ai_api_key');
+            const onboarding = document.getElementById('ai-onboarding');
+            const messages = document.getElementById('ai-messages');
+            const inputArea = document.getElementById('ai-input-area');
+            const headerBtns = document.getElementById('ai-header-buttons');
+            const settings = document.getElementById('ai-settings');
+
+            settings.style.display = 'none'; // На всякий случай скрываем настройки
+
+            if (savedKey) {
+                // Ключ есть, показываем чат
+                onboarding.style.display = 'none';
+                messages.style.display = 'flex';
+                inputArea.style.display = 'flex';
+                headerBtns.style.display = 'block';
+                document.getElementById('ai-input').focus();
+                scrollToAIBottom();
+            } else {
+                // Ключа нет, показываем экран подключения
+                onboarding.style.display = 'flex';
+                messages.style.display = 'none';
+                inputArea.style.display = 'none';
+                headerBtns.style.display = 'none';
+            }
+        }
+
+        function connectFromOnboarding() {
+            const key = document.getElementById('onboarding-key').value.trim();
+            if (!key) {
+                alert("Пожалуйста, вставь ключ!");
+                return;
+            }
+
+            // Умное определение провайдера по началу ключа
+            let provider = 'custom';
+            if (key.startsWith('gsk_')) {
+                provider = 'groq';
+            } else if (key.startsWith('AIza')) {
+                provider = 'gemini';
+            } else {
+                alert("Неизвестный формат ключа. Пожалуйста, используй ключ от Groq (начинается на gsk_) или Gemini (начинается на AIza).");
+                return;
+            }
+
+            // Сохраняем
+            localStorage.setItem('ai_provider', provider);
+            localStorage.setItem('ai_api_url', providers[provider].url);
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_model', providers[provider].model);
+
+            // Переключаем на чат
+            checkAIConnection();
+        }
+
+        function toggleAISettings() {
+            const settings = document.getElementById('ai-settings');
+            const inputArea = document.getElementById('ai-input-area');
+            const messages = document.getElementById('ai-messages');
+            
+            if (settings.style.display === 'flex') {
+                settings.style.display = 'none';
+                inputArea.style.display = 'flex';
+                messages.style.display = 'flex';
+            } else {
+                // Заполняем текущие значения
+                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'groq';
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.groq.url;
+                document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.groq.model;
+
+                settings.style.display = 'flex';
+                inputArea.style.display = 'none';
+                messages.style.display = 'none';
+            }
+        }
+
+        function onProviderChange() {
+            const p = document.getElementById('ai-provider').value;
+            document.getElementById('ai-api-url').value = providers[p].url;
+            document.getElementById('ai-model').value = providers[p].model;
+        }
+
+        function saveAISettings() {
+            const provider = document.getElementById('ai-provider').value;
+            const url = document.getElementById('ai-api-url').value.trim();
+            const key = document.getElementById('ai-api-key').value.trim();
+            const model = document.getElementById('ai-model').value.trim();
+            
+            if (!url || !key || !model) {
+                alert("Заполни все поля!");
+                return;
+            }
+
+            localStorage.setItem('ai_provider', provider);
+            localStorage.setItem('ai_api_url', url);
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_model', model);
+            
+            toggleAISettings();
+            checkAIConnection(); // Обновляем состояние
+            alert("Настройки сохранены!");
+        }
+
+        function logoutAI() {
+            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
+                localStorage.removeItem('ai_provider');
+                localStorage.removeItem('ai_api_url');
+                localStorage.removeItem('ai_api_key');
+                localStorage.removeItem('ai_model');
+                toggleAISettings();
+                checkAIConnection();
+            }
+        }
+
+        // --- ЛОГИКА ЧАТА ---
+        function scrollToAIBottom() {
+            const msgs = document.getElementById('ai-messages');
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function addMessage(text, sender) {
+            const msgs = document.getElementById('ai-messages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.innerHTML = text.replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>');
+            msgs.appendChild(div);
+            scrollToAIBottom();
+            return div;
+        }
+
+        async function sendToAI() {
+            const apiUrl = localStorage.getItem('ai_api_url');
+            const apiKey = localStorage.getItem('ai_api_key');
+            const model = localStorage.getItem('ai_model');
+
+            if (!apiKey) {
+                alert("Сначала подключи ИИ!");
+                return;
+            }
+
+            const input = document.getElementById('ai-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            addMessage(text, 'user');
+
+            const currentCode = editor.getValue();
+            const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
+            
+            const systemPrompt = `Ты — дружелюбный и опытный учитель информатики. Твоя задача — помочь ученику разобраться с его кодом на Python.
+КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать готовый код (полный или куски, которые можно просто скопировать).
+Вместо этого:
+1. Объясни, в чем логическая или синтаксическая ошибка.
+2. Укажи на конкретную строку (если видишь код).
+3. Задай наводящий вопрос или дай теоретическую подсказку, чтобы ученик сам дошел до решения.
+4. Будь вежливым и поддерживай ученика.
+
+Текущий код ученика:
+\`\`\`python
+${currentCode}
+\`\`\`
+${errorText}`;
+
+            const sendBtn = document.getElementById('ai-send-btn');
+            sendBtn.disabled = true;
+
+            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ],
+                        temperature: 0.3
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
+                    throw new Error(errMsg);
+                }
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                loadingDiv.remove();
+                addMessage(aiResponse, 'ai');
+
+            } catch (err) {
+                loadingDiv.remove();
+                addMessage(`<span class="output-error">Ошибка: ${err.message}</span>`, 'ai');
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // --- ОСНОВНАЯ ЛОГИКА ---
         function scrollToBottom() {
             const output = document.getElementById('output');
             output.scrollTop = output.scrollHeight;
         }
 
-        // --- ЛОГИКА ФАЙЛОВ И ШРИФТА ---
         function downloadCode() {
             const code = editor.getValue();
             const blob = new Blob([code], { type: 'text/x-python' });
@@ -433,7 +828,6 @@ print("Итоговая цена:", itog)
             });
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ ---
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
@@ -447,7 +841,7 @@ print("Итоговая цена:", itog)
                     "Ctrl-Space": "autocomplete",
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
-                    "Ctrl-F": "findPersistent", // Добавили поиск
+                    "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
@@ -459,11 +853,9 @@ print("Итоговая цена:", itog)
                 }
             });
 
-            // Загрузка кода
             const savedCode = localStorage.getItem('python_ide_code');
             if (savedCode) editor.setValue(savedCode);
 
-            // Сохранение кода
             let saveTimeout;
             editor.on("change", function() {
                 clearTimeout(saveTimeout);
@@ -472,23 +864,19 @@ print("Итоговая цена:", itog)
                 }, 500);
             });
 
-            // Загрузка файла из проводника
             document.getElementById('file-upload').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     editor.setValue(e.target.result);
-                    this.value = ''; // Сброс инпута
+                    this.value = '';
                 };
                 reader.readAsText(file);
             });
 
-            // Обработка ползунка шрифта
             const slider = document.getElementById('font-size-slider');
             const valDisplay = document.getElementById('font-size-val');
-            
-            // Загружаем сохраненный размер шрифта
             const savedFontSize = localStorage.getItem('python_ide_font_size');
             if (savedFontSize) {
                 slider.value = savedFontSize;
@@ -501,10 +889,9 @@ print("Итоговая цена:", itog)
                 valDisplay.innerText = size + 'px';
                 document.documentElement.style.setProperty('--editor-font-size', size + 'px');
                 localStorage.setItem('python_ide_font_size', size);
-                editor.refresh(); // Обязательно обновляем редактор
+                editor.refresh();
             });
 
-            // Автодополнение
             let timeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
@@ -532,6 +919,7 @@ print("Итоговая цена:", itog)
 
         function clearOutput() {
             document.getElementById('output').innerText = "";
+            lastError = "";
         }
 
         async function initPyodide() {
@@ -546,6 +934,7 @@ print("Итоговая цена:", itog)
                         const output = document.getElementById('output');
                         output.innerHTML += `<span class="output-error">${text}</span>\n`;
                         scrollToBottom();
+                        lastError = text;
                     }
                 });
 
@@ -581,6 +970,7 @@ builtins.input = custom_input
 
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
+            lastError = "";
             
             const code = editor.getValue();
 
@@ -589,6 +979,7 @@ builtins.input = custom_input
                 outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
             } catch (error) {
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
+                lastError = error.message;
             } finally {
                 runBtn.disabled = false;
                 scrollToBottom();
