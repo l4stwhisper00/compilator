@@ -322,7 +322,6 @@
         .ai-header-left { display: flex; align-items: center; gap: 10px; }
         .ai-header-left i { color: var(--accent); font-size: 20px; }
         
-        /* Контейнер для кнопок в шапке */
         #ai-header-buttons { display: flex; gap: 10px; align-items: center; }
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
         .ai-header .settings-btn:hover { color: var(--accent); }
@@ -347,8 +346,8 @@
             flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
             transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-        .ai-onboarding .provider-buttons .qwen-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .qwen-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .mistral-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .mistral-btn:hover { background: var(--accent); color: #111; }
         
         .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
         .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
@@ -390,8 +389,8 @@
         /* Настройки ИИ (Шестеренка) */
         .ai-settings { padding: 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
         .ai-settings label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .ai-settings input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
-        .ai-settings input:focus { border-color: var(--accent); }
+        .ai-settings input, .ai-settings select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
+        .ai-settings input:focus, .ai-settings select:focus { border-color: var(--accent); }
         .ai-settings .save-btn { background: var(--accent); color: #111; margin-top: 10px; justify-content: center; }
         .ai-settings .logout-btn { background: transparent; color: var(--error); border: 1px solid var(--error); margin-top: 10px; justify-content: center; }
         .ai-settings .logout-btn:hover { background: rgba(255, 82, 82, 0.1); }
@@ -510,7 +509,7 @@ print("Итоговая цена:", itog)
     </footer>
 
     <!-- Кнопка вызова ИИ -->
-    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник (Qwen)">
+    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
         <i class="ph-fill ph-robot"></i>
     </button>
 
@@ -521,7 +520,6 @@ print("Итоговая цена:", itog)
                 <i class="ph-fill ph-robot"></i>
                 ИИ-Наставник
             </div>
-            <!-- Кнопки управления (скрыты до подключения) -->
             <div id="ai-header-buttons" style="display: none;">
                 <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата">
                     <i class="ph ph-trash"></i>
@@ -535,9 +533,8 @@ print("Итоговая цена:", itog)
         <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
         <div id="ai-onboarding" class="ai-onboarding">
             <h3>Подключение ИИ-Наставника</h3>
-            <p>ИИ помогает разобраться в коде и подсказывает, где ошибка. Выбери сервис, получи ключ и вставь его ниже.</p>
+            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на сайте Mistral (интерфейс на английском) и вставь его ниже.</p>
             
-            <!-- ПРЕДУПРЕЖДЕНИЕ ОБ ОБЩИХ КОМПЬЮТЕРАХ -->
             <div class="warning-box">
                 <i class="ph-fill ph-warning-circle"></i>
                 <div>
@@ -547,8 +544,8 @@ print("Итоговая цена:", itog)
             </div>
 
             <div class="provider-buttons">
-                <a href="https://dashscope.console.aliyun.com/apiKey" target="_blank" class="qwen-btn">
-                    <i class="ph ph-brain"></i> Получить ключ Qwen
+                <a href="https://console.mistral.ai/api-keys/" target="_blank" class="mistral-btn">
+                    <i class="ph ph-flag"></i> Получить ключ Mistral
                 </a>
             </div>
 
@@ -576,14 +573,20 @@ print("Итоговая цена:", itog)
 
         <!-- Настройки API -->
         <div class="ai-settings" id="ai-settings">
+            <label>Провайдер:
+                <select id="ai-provider" onchange="onProviderChange()">
+                    <option value="mistral">Mistral AI (Бесплатно)</option>
+                    <option value="custom">Свой вариант (OpenAI, DeepSeek и др.)</option>
+                </select>
+            </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions">
+                <input type="text" id="ai-api-url" placeholder="https://api.mistral.ai/v1/chat/completions">
             </label>
             <label>API Ключ (Token):
                 <input type="password" id="ai-api-key" placeholder="sk-...">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="qwen3-coder-plus">
+                <input type="text" id="ai-model" placeholder="mistral-large-latest">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
@@ -597,9 +600,11 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ QWEN ---
-        const QWEN_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
-        const QWEN_MODEL = "qwen3-coder-plus";
+        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
+        const providers = {
+            mistral: { url: "https://api.mistral.ai/v1/chat/completions", model: "mistral-large-latest" },
+            custom: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" }
+        };
 
         // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
         function toggleAI() {
@@ -626,7 +631,7 @@ print("Итоговая цена:", itog)
                 onboarding.style.display = 'none';
                 messages.style.display = 'flex';
                 inputArea.style.display = 'flex';
-                headerBtns.style.display = 'flex'; // Показываем кнопки
+                headerBtns.style.display = 'flex';
                 document.getElementById('ai-input').focus();
                 scrollToAIBottom();
             } else {
@@ -637,10 +642,8 @@ print("Итоговая цена:", itog)
             }
         }
 
-        // Очистка чата
         function clearAIChat() {
             const msgs = document.getElementById('ai-messages');
-            // Оставляем только приветственное сообщение
             const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
             msgs.innerHTML = welcomeHTML;
             scrollToAIBottom();
@@ -653,15 +656,11 @@ print("Итоговая цена:", itog)
                 return;
             }
 
-            if (!key.startsWith('sk-')) {
-                alert("Неизвестный формат ключа. Ключ Qwen (DashScope) должен начинаться на sk-.");
-                return;
-            }
-
-            localStorage.setItem('ai_provider', 'qwen');
-            localStorage.setItem('ai_api_url', QWEN_URL);
+            // Включаем Mistral по умолчанию
+            localStorage.setItem('ai_provider', 'mistral');
+            localStorage.setItem('ai_api_url', providers.mistral.url);
             localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', QWEN_MODEL);
+            localStorage.setItem('ai_model', providers.mistral.model);
 
             checkAIConnection();
         }
@@ -676,9 +675,10 @@ print("Итоговая цена:", itog)
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || QWEN_URL;
+                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'mistral';
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.mistral.url;
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || QWEN_MODEL;
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.mistral.model;
 
                 settings.style.display = 'flex';
                 inputArea.style.display = 'none';
@@ -686,7 +686,14 @@ print("Итоговая цена:", itog)
             }
         }
 
+        function onProviderChange() {
+            const p = document.getElementById('ai-provider').value;
+            document.getElementById('ai-api-url').value = providers[p].url;
+            document.getElementById('ai-model').value = providers[p].model;
+        }
+
         function saveAISettings() {
+            const provider = document.getElementById('ai-provider').value;
             const url = document.getElementById('ai-api-url').value.trim();
             const key = document.getElementById('ai-api-key').value.trim();
             const model = document.getElementById('ai-model').value.trim();
@@ -696,6 +703,7 @@ print("Итоговая цена:", itog)
                 return;
             }
 
+            localStorage.setItem('ai_provider', provider);
             localStorage.setItem('ai_api_url', url);
             localStorage.setItem('ai_api_key', key);
             localStorage.setItem('ai_model', model);
@@ -733,9 +741,9 @@ print("Итоговая цена:", itog)
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || QWEN_URL;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.mistral.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || QWEN_MODEL;
+            const model = localStorage.getItem('ai_model') || providers.mistral.model;
 
             if (!apiKey) {
                 alert("Сначала подключи ИИ!");
