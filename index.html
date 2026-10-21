@@ -21,33 +21,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- САМАЯ НОВАЯ ВЕРСИЯ PYODIDE (Исправляет ошибку ввода) -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
-        /* --- ЦВЕТОВЫЕ ПАЛИТРЫ И СИНТАКСИС PYCHARM --- */
         :root {
             --bg-body: #0b0b0e;
             --glow-bg: radial-gradient(circle at 50% 50%, #1e1e24 0%, #0b0b0e 70%);
             --bg-panel: rgba(22, 22, 28, 0.75);
             --bg-surface: #18181f;
             --bg-surface-hover: #272732;
-            --text-primary: #a9b7c6; /* PyCharm Text */
+            --text-primary: #a9b7c6; 
             --text-secondary: #767e8c;
-            --accent: #cc7832; /* PyCharm Orange */
-            --accent-hover: #e08b47;
+            --accent: #ff9d5c; 
+            --accent-hover: #ffb07a;
             --border: rgba(255, 255, 255, 0.08);
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
             
-            /* Цвета синтаксиса Dark */
-            --syn-keyword: #cc7832;   /* if, def, in, return */
-            --syn-string: #6a8759;    /* "текст" */
-            --syn-number: #6897bb;    /* 123, 4.5 */
-            --syn-comment: #808080;   /* # коммент */
-            --syn-def: #ffc66d;       /* Имя функции после def */
-            --syn-builtin: #8888c6;   /* print, input */
-            --syn-variable: #a9b7c6;  /* Обычные переменные */
+            --syn-keyword: #ff9d5c;
+            --syn-string: #98c379;
+            --syn-number: #61afef;
+            --syn-comment: #808080;
+            --syn-def: #e5c07b;
+            --syn-builtin: #ff9d5c;
+            --syn-variable: #a9b7c6;
         }
 
         [data-theme="light"] {
@@ -70,7 +69,7 @@
             --syn-number: #1750eb;
             --syn-comment: #8c8c8c;
             --syn-def: #00627a;
-            --syn-builtin: #7a3e9d;
+            --syn-builtin: #0033b3;
             --syn-variable: #1f1f1f;
         }
 
@@ -94,11 +93,10 @@
             --syn-number: #f1fa8c;
             --syn-comment: #6272a4;
             --syn-def: #bd93f9;
-            --syn-builtin: #8be9fd;
+            --syn-builtin: #ff007f;
             --syn-variable: #e0def4;
         }
 
-        /* --- БАЗА --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
@@ -118,7 +116,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- HEADER --- */
         header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 20px; height: 56px;
@@ -143,10 +140,9 @@
 
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button.run-btn { background: var(--accent); color: #fff; border: none; box-shadow: 0 0 10px rgba(204, 120, 50, 0.3); }
-        button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(204, 120, 50, 0.5); }
+        button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; }
+        button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
 
-        /* --- MAIN LAYOUT --- */
         main {
             display: flex;
             flex: 1;
@@ -179,7 +175,6 @@
             border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
         }
 
-        /* --- РЕДАКТОР КОДА --- */
         .editor-container { flex: 1; position: relative; overflow: hidden; }
 
         .CodeMirror {
@@ -191,7 +186,8 @@
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
 
-        /* Подсветка синтаксиса (в точности PyCharm) */
+        .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
+
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
         .cm-s-custom .cm-operator { color: var(--syn-variable); }
@@ -203,30 +199,30 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
 
-        /* --- СТИЛИЗАЦИЯ ПОДСКАЗОК (КАК В PYCHARM) --- */
+        /* Красивые подсказки без кубиков */
         .CodeMirror-hints {
             background: var(--bg-surface) !important;
-            border: 1px solid var(--accent) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 10px !important; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; 
             font-family: 'Fira Code', monospace !important;
             font-size: 14px !important;
             padding: 6px 0 !important;
             z-index: 1000 !important;
+            overflow: hidden;
         }
         .CodeMirror-hint {
             color: var(--text-primary) !important;
-            padding: 8px 15px !important;
+            padding: 8px 16px !important;
             cursor: pointer !important;
-            transition: background 0.1s;
+            transition: background 0.1s, color 0.1s;
         }
         li.CodeMirror-hint-active {
             background: var(--accent) !important;
-            color: #fff !important;
-            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+            color: #111 !important; 
+            font-weight: 600;
         }
 
-        /* --- КОНСОЛЬ --- */
         .console-wrapper {
             flex: 1; background: var(--console-bg);
             display: flex; flex-direction: column; position: relative;
@@ -254,7 +250,10 @@
         /* Поле ввода в терминале */
         #terminal-input-container {
             display: none; align-items: center; padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.2); border-top: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.4); border-top: 1px solid var(--border);
+        }
+        .prompt-arrow {
+            color: var(--accent); font-family: 'Fira Code', monospace; margin-right: 10px; font-weight: bold;
         }
         #terminal-input {
             flex: 1; background: transparent; border: none;
@@ -262,7 +261,6 @@
             font-size: 14px; outline: none; caret-color: var(--accent);
         }
 
-        /* --- FOOTER --- */
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -334,7 +332,9 @@ print("Итоговая цена:", itog)
                 </div>
                 <div id="output">Ожидание запуска кода...</div>
                 
+                <!-- Терминальный ввод -->
                 <div id="terminal-input-container">
+                    <span class="prompt-arrow">></span>
                     <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
                 </div>
             </div>
@@ -358,7 +358,6 @@ print("Итоговая цена:", itog)
         let editor;
         let pyodideReady = false;
         let pyodide;
-        let resolveInput = null;
 
         window.onload = function() {
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
@@ -386,7 +385,6 @@ print("Итоговая цена:", itog)
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
 
-            // Автоподсказки
             let timeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
@@ -400,26 +398,6 @@ print("Итоговая цена:", itog)
             editor.on("cursorActivity", function(cm) {
                 let pos = cm.getCursor();
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
-            });
-
-            // Обработка ввода в терминале
-            document.getElementById('terminal-input').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const value = this.value;
-                    const output = document.getElementById('output');
-                    
-                    output.innerText += value + "\n";
-                    output.scrollTop = output.scrollHeight;
-                    
-                    this.value = '';
-                    document.getElementById('terminal-input-container').style.display = 'none';
-                    document.getElementById('run-btn').disabled = false; // Включаем кнопку обратно
-                    
-                    if (resolveInput) {
-                        resolveInput(value);
-                        resolveInput = null;
-                    }
-                }
             });
 
             initPyodide();
@@ -448,19 +426,33 @@ print("Итоговая цена:", itog)
                     }
                 });
 
-                // Исправление бага I/O Error: используем асинхронный stdin с блокировкой
+                // Использование асинхронного stdin (работает в v0.26.1)
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
-                            resolveInput = resolve;
                             const container = document.getElementById('terminal-input-container');
                             const inputField = document.getElementById('terminal-input');
                             
-                            // Блокируем кнопку запуска, пока ждем ввод
-                            document.getElementById('run-btn').disabled = true;
-                            
                             container.style.display = 'flex';
                             inputField.focus();
+
+                            inputField.onkeydown = (e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const val = inputField.value;
+                                    
+                                    const output = document.getElementById('output');
+                                    output.innerText += "> " + val + "\n";
+                                    output.scrollTop = output.scrollHeight;
+                                    
+                                    inputField.value = '';
+                                    container.style.display = 'none';
+                                    inputField.onkeydown = null;
+                                    
+                                    // Возвращаем строку с переносом, чтобы Питон понял, что ввод окончен
+                                    resolve(val + "\n"); 
+                                }
+                            };
                         });
                     }
                 });
@@ -471,20 +463,23 @@ print("Итоговая цена:", itog)
                 pyodideReady = true;
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
-                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
+                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки (Обнови страницу)';
             }
         }
 
         async function runPython() {
             if (!pyodideReady) {
-                alert("Подожди, Python загружается...");
+                alert("Python еще загружается. Подожди пару секунд...");
                 return;
             }
 
-            // Сбрасываем зависшие состояния ввода
+            const runBtn = document.getElementById('run-btn');
+            runBtn.disabled = true;
+
             document.getElementById('terminal-input-container').style.display = 'none';
-            document.getElementById('run-btn').disabled = true;
-            resolveInput = null;
+            if (document.getElementById('terminal-input').onkeydown) {
+                document.getElementById('terminal-input').onkeydown = null;
+            }
 
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
@@ -497,8 +492,7 @@ print("Итоговая цена:", itog)
             } catch (error) {
                 outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
             } finally {
-                // Включаем кнопку в любом случае (даже если программа упала)
-                document.getElementById('run-btn').disabled = false;
+                runBtn.disabled = false;
                 outputDiv.scrollTop = outputDiv.scrollHeight;
                 editor.refresh();
             }
