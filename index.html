@@ -338,8 +338,8 @@
             width: 100%; text-align: center; padding: 14px 10px; border-radius: 8px; font-size: 15px; font-weight: 600; 
             transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none;
         }
-        .ai-onboarding .provider-buttons .keyless-btn { background: rgba(106, 135, 89, 0.15); color: #98c379; border: 1px solid #98c379; }
-        .ai-onboarding .provider-buttons .keyless-btn:hover { background: #98c379; color: #111; }
+        .ai-onboarding .provider-buttons .kilo-btn { background: rgba(106, 135, 89, 0.15); color: #98c379; border: 1px solid #98c379; }
+        .ai-onboarding .provider-buttons .kilo-btn:hover { background: #98c379; color: #111; }
         .ai-onboarding .provider-buttons .pollinations-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
         .ai-onboarding .provider-buttons .pollinations-btn:hover { background: var(--accent); color: #111; }
         
@@ -517,11 +517,11 @@
                 </div>
             </div>
 
-            <p>Оба варианта полностью бесплатны, без ключей и регистраций. <b>KeylessAI</b> обычно работает быстрее, <b>Pollinations</b> — запасной вариант.</p>
+            <p>Оба варианта полностью бесплатны. Если один не отвечает, переключитесь на другой в настройках (шестерёнка).</p>
 
             <div class="provider-buttons">
-                <button class="keyless-btn" onclick="connectKeylessAI()">
-                    <i class="ph ph-lightning"></i> KeylessAI (Рекомендуется)
+                <button class="kilo-btn" onclick="connectKilo()">
+                    <i class="ph ph-lightning"></i> Kilo Gateway (Рекомендуется)
                 </button>
                 <button class="pollinations-btn" onclick="connectPollinations()">
                     <i class="ph ph-flower-lotus"></i> Pollinations (Запасной)
@@ -544,24 +544,24 @@
         <div class="ai-settings" id="ai-settings">
             <div class="warning-box">
                 <i class="ph-fill ph-info"></i>
-                <div>Настройки бесплатных провайдеров. Если KeylessAI тормозит, переключите на Pollinations.</div>
+                <div>Настройки бесплатных провайдеров. Если один перестал работать, просто выберите другой в списке ниже.</div>
             </div>
 
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="keylessai">KeylessAI (Бесплатно, без ключа)</option>
-                    <option value="pollinations">Pollinations (Бесплатно, без ключа)</option>
+                    <option value="kilo">Kilo Gateway (Бесплатно)</option>
+                    <option value="pollinations">Pollinations (Бесплатно)</option>
                     <option value="custom">Свой вариант (OpenAI и др.)</option>
                 </select>
             </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://keylessai.thryx.workers.dev/v1/chat/completions">
+                <input type="text" id="ai-api-url" placeholder="https://api.kilo.ai/api/gateway">
             </label>
             <label>API Ключ (Token):
                 <input type="password" id="ai-api-key" placeholder="Не требуется для бесплатных">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="gpt-4o-mini">
+                <input type="text" id="ai-model" placeholder="kilo-auto/free">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
@@ -578,9 +578,9 @@
         let chatHistory = [];
 
         const providers = {
-            keylessai: { 
-                url: "https://keylessai.thryx.workers.dev/v1/chat/completions", 
-                model: "gpt-4o-mini", 
+            kilo: { 
+                url: "https://api.kilo.ai/api/gateway", 
+                model: "kilo-auto/free", 
                 needsKey: false 
             },
             pollinations: { 
@@ -620,7 +620,7 @@
         }
 
         function checkAIConnection() {
-            const provider = localStorage.getItem('ai_provider') || 'keylessai';
+            const provider = localStorage.getItem('ai_provider') || 'kilo';
             const savedKey = localStorage.getItem('ai_api_key');
             const needsKey = providers[provider]?.needsKey ?? true;
 
@@ -647,10 +647,10 @@
             }
         }
 
-        function connectKeylessAI() {
-            localStorage.setItem('ai_provider', 'keylessai');
-            localStorage.setItem('ai_api_url', providers.keylessai.url);
-            localStorage.setItem('ai_model', providers.keylessai.model);
+        function connectKilo() {
+            localStorage.setItem('ai_provider', 'kilo');
+            localStorage.setItem('ai_api_url', providers.kilo.url);
+            localStorage.setItem('ai_model', providers.kilo.model);
             localStorage.removeItem('ai_api_key');
             checkAIConnection();
         }
@@ -682,7 +682,7 @@
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                const currentProvider = localStorage.getItem('ai_provider') || 'keylessai';
+                const currentProvider = localStorage.getItem('ai_provider') || 'kilo';
                 document.getElementById('ai-provider').value = currentProvider;
                 document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers[currentProvider]?.url || '';
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
@@ -759,11 +759,11 @@
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.keylessai.url;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.kilo.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.keylessai.model;
+            const model = localStorage.getItem('ai_model') || providers.kilo.model;
 
-            const provider = localStorage.getItem('ai_provider') || 'keylessai';
+            const provider = localStorage.getItem('ai_provider') || 'kilo';
             const needsKey = providers[provider]?.needsKey ?? true;
             
             if (needsKey && !apiKey) {
@@ -871,8 +871,10 @@
             } catch (err) {
                 loadingDiv.remove();
                 let msg = `Ошибка: ${err.message}`;
-                if (err.message.includes('402') || err.message.includes('429')) {
-                    msg = 'Слишком много запросов. Подождите пару секунд. Если не помогает, переключите провайдера в настройках (шестеренка) на Pollinations.';
+                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    msg = 'Не удалось подключиться к серверу ИИ. Скорее всего, он временно недоступен. Откройте настройки (шестерёнка) и переключитесь на другого провайдера (например, Pollinations).';
+                } else if (err.message.includes('402') || err.message.includes('429')) {
+                    msg = 'Слишком много запросов. Подождите пару секунд или переключите провайдера в настройках.';
                 }
                 addMessage(msg, 'ai', false);
                 chatHistory.pop();
@@ -910,7 +912,7 @@
         }
 
         window.onload = function() {
-            const currentVersion = "8.0-keyless-default";
+            const currentVersion = "9.0-kilo-fallback";
             if (localStorage.getItem('ide_version') !== currentVersion) {
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
