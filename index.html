@@ -127,6 +127,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* Красивый загрузчик */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
@@ -134,16 +135,36 @@
             transition: opacity 0.5s ease-out, visibility 0.5s;
         }
         #loading-overlay.hidden { opacity: 0; visibility: hidden; }
-        .spinner {
-            width: 50px; height: 50px;
-            border: 4px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+        
+        .loader-container {
+            display: flex; flex-direction: column; align-items: center; gap: 15px; width: 320px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;}
+        .loader-text {
+            font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: 1px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .dots::after {
+            content: ''; display: inline-block; width: 20px; text-align: left;
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        .progress-bar {
+            width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; position: relative;
+        }
+        .progress-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 30%;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: progress 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(400%); }
+        }
         .loading-subtext { font-size: 13px; color: var(--text-secondary); }
 
         header {
@@ -175,6 +196,9 @@
 
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
+        
+        button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; display: none; }
+        button.stop-btn:hover { background: #ff3333; box-shadow: 0 0 15px rgba(255, 82, 82, 0.5); }
 
         .font-size-control {
             display: flex; align-items: center; gap: 8px;
@@ -276,6 +300,28 @@
         }
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
+
+        /* Кнопка Объясни ошибку в терминале */
+        .ask-ai-btn {
+            background: rgba(255, 157, 92, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+        .ask-ai-btn:hover {
+            background: var(--accent);
+            color: #111;
+        }
 
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
@@ -393,9 +439,11 @@
 <body data-theme="dark">
 
     <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Загрузка Python...</div>
-        <div class="loading-subtext">Это займет пару секунд</div>
+        <div class="loader-container">
+            <div class="loader-text">Загрузка Python<span class="dots"></span></div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div class="loading-subtext">Это займет пару секунд</div>
+        </div>
     </div>
 
     <header>
@@ -427,6 +475,11 @@
             <button onclick="clearOutput()" title="Очистить консоль">
                 <i class="ph ph-trash"></i> Очистить
             </button>
+            
+            <button id="stop-btn" class="stop-btn" onclick="stopPython()">
+                <i class="ph-fill ph-stop"></i> Остановить
+            </button>
+            
             <button id="run-btn" class="run-btn" onclick="runPython()" disabled>
                 <i class="ph-fill ph-play"></i> Запустить
             </button>
@@ -739,6 +792,30 @@
             return div;
         }
 
+        // --- ФУНКЦИЯ ДЛЯ КНОПКИ "ОБЪЯСНИ ОШИБКУ" ---
+        function askAIAboutError(errMsg) {
+            // Открываем чат, если закрыт
+            const panel = document.getElementById('ai-chat-panel');
+            if (panel.style.display !== 'flex') {
+                toggleAI();
+            }
+            
+            // Проверяем, подключен ли ИИ
+            const provider = localStorage.getItem('ai_provider') || 'pollinations';
+            const savedKey = localStorage.getItem('ai_api_key');
+            const needsKey = providers[provider]?.needsKey ?? true;
+            
+            if (needsKey && !savedKey) {
+                alert("Сначала подключи ИИ-Наставника (нажми на кнопку подключения в чате)!");
+                return;
+            }
+
+            // Вставляем текст и отправляем
+            const input = document.getElementById('ai-input');
+            input.value = "Помоги разобраться с ошибкой, которая появилась при запуске кода.";
+            sendToAI();
+        }
+
         async function sendToAI() {
             const apiUrl = localStorage.getItem('ai_api_url') || providers.pollinations.url;
             const apiKey = localStorage.getItem('ai_api_key');
@@ -811,7 +888,6 @@
                         });
                         clearTimeout(timeoutId);
 
-                        // Если Pollinations упал с 500-й ошибкой (перегрузка), пробуем еще раз
                         if ((response.status >= 500 || response.status === 429) && attempt < maxRetries) {
                             loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Сервер перегружен. Ждём ${delay/1000} сек... (попытка ${attempt}/${maxRetries})`;
                             await new Promise(resolve => setTimeout(resolve, delay));
@@ -892,7 +968,7 @@
         }
 
         window.onload = function() {
-            const currentVersion = "10.0-pollinations-retry";
+            const currentVersion = "11.0-error-btn-stop";
             if (localStorage.getItem('ide_version') !== currentVersion) {
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
@@ -1043,14 +1119,18 @@ builtins.input = custom_input
                 document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
                 document.querySelector('.loading-text').innerText = "Ошибка загрузки";
                 document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
-                document.querySelector('.spinner').style.borderTopColor = "var(--error)";
+                document.querySelector('.progress-fill').style.background = "var(--error)";
             }
         }
 
         async function runPython() {
             if (!pyodideReady) return;
             const runBtn = document.getElementById('run-btn');
-            runBtn.disabled = true;
+            const stopBtn = document.getElementById('stop-btn');
+            
+            runBtn.style.display = 'none';
+            stopBtn.style.display = 'flex';
+            stopBtn.disabled = false;
 
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
@@ -1069,10 +1149,27 @@ builtins.input = custom_input
                 span.textContent = `\n\n[Ошибка выполнения]:\n${error.message}`;
                 outputDiv.appendChild(span);
                 lastError = error.message;
+
+                // Добавляем кнопку "Спросить ИИ" прямо в консоль
+                const askBtn = document.createElement('button');
+                askBtn.className = 'ask-ai-btn';
+                askBtn.innerHTML = '<i class="ph ph-robot"></i> Объясни ошибку';
+                askBtn.onclick = () => askAIAboutError(error.message);
+                outputDiv.appendChild(askBtn);
             } finally {
+                runBtn.style.display = 'flex';
+                stopBtn.style.display = 'none';
                 runBtn.disabled = false;
                 scrollToBottom();
                 editor.refresh();
+            }
+        }
+
+        // Функция кнопки СТОП (аварийная перезагрузка)
+        function stopPython() {
+            if (confirm("Остановить выполнение? Страница будет перезагружена, но ваш код сохранится.")) {
+                localStorage.setItem('python_ide_code', editor.getValue());
+                location.reload();
             }
         }
     </script>
