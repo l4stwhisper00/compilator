@@ -910,6 +910,14 @@ ${errorText}`;
         }
 
         window.onload = function() {
+            // ВЕРСИОНИРОВАНИЕ (заставит удалить старый код у всех учеников при обновлении)
+            const currentVersion = "2.0";
+            if (localStorage.getItem('ide_version') !== currentVersion) {
+                localStorage.removeItem('python_ide_code'); // Очищаем старый сохраненный код
+                localStorage.removeItem('ai_api_key');      // Сбрасываем ключ, чтобы все увидели предупреждение
+                localStorage.setItem('ide_version', currentVersion);
+            }
+
             const savedTheme = localStorage.getItem('python_ide_theme');
             if (savedTheme) {
                 document.body.setAttribute('data-theme', savedTheme);
@@ -940,7 +948,6 @@ ${errorText}`;
                 }
             });
 
-            // Загружаем сохраненный код, если он есть (после того как убрали код по умолчанию)
             const savedCode = localStorage.getItem('python_ide_code');
             if (savedCode) editor.setValue(savedCode);
 
