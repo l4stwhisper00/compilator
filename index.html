@@ -543,7 +543,6 @@
                 </button>
             </div>
 
-            <!-- Скрытая форма для OpenRouter -->
             <div id="openrouter-form" style="display: none; margin-top: 15px;">
                 <p style="text-align: left; margin-bottom: 10px;">
                     1. Открой <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent);">openrouter.ai/keys</a> (войди через Google или GitHub).<br>
@@ -605,39 +604,19 @@
         let currentFileName = "main.py";
         let chatHistory = [];
 
-        // --- КОНФИГУРАЦИЯ ПРОВАЙДЕРОВ ---
         const providers = {
-            pollinations: { 
-                url: "https://text.pollinations.ai/openai", 
-                model: "openai", 
-                needsKey: false 
-            },
-            openrouter: { 
-                url: "https://openrouter.ai/api/v1/chat/completions", 
-                model: "meta-llama/llama-3.3-70b-instruct:free", 
-                needsKey: true 
-            },
-            custom: { 
-                url: "https://api.openai.com/v1/chat/completions", 
-                model: "gpt-4o-mini", 
-                needsKey: true 
-            }
+            pollinations: { url: "https://text.pollinations.ai/openai", model: "openai", needsKey: false },
+            openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", model: "meta-llama/llama-3.3-70b-instruct:free", needsKey: true },
+            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini", needsKey: true }
         };
 
         function escapeHTML(str) {
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
         function renderAIMarkdown(text) {
             let safe = escapeHTML(text);
-            safe = safe.replace(/```(?:\w+)?\n?([\s\S]*?)```/g, (_, code) => {
-                return `<pre><code>${code.replace(/\n$/, '')}</code></pre>`;
-            });
+            safe = safe.replace(/```(?:\w+)?\n?([\s\S]*?)```/g, (_, code) => `<pre><code>${code.replace(/\n$/, '')}</code></pre>`);
             safe = safe.replace(/`([^`\n]+)`/g, '<code>$1</code>');
             safe = safe.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
             safe = safe.replace(/(^|\n)- (.+)/g, '$1• $2');
@@ -680,7 +659,7 @@
                 messages.style.display = 'none';
                 inputArea.style.display = 'none';
                 headerBtns.style.display = 'none';
-                document.getElementById('openrouter-form').style.display = 'none'; // прячем форму при входе
+                document.getElementById('openrouter-form').style.display = 'none';
             }
         }
 
@@ -763,25 +742,13 @@
             const model = document.getElementById('ai-model').value.trim();
             let key = document.getElementById('ai-api-key').value.trim();
             
-            if (!url || !model) {
-                alert("Заполни URL и Модель!");
-                return;
-            }
-
-            if (providers[provider]?.needsKey && !key) {
-                alert("Для этого провайдера нужен API-ключ!");
-                return;
-            }
+            if (!url || !model) { alert("Заполни URL и Модель!"); return; }
+            if (providers[provider]?.needsKey && !key) { alert("Для этого провайдера нужен API-ключ!"); return; }
 
             localStorage.setItem('ai_provider', provider);
             localStorage.setItem('ai_api_url', url);
             localStorage.setItem('ai_model', model);
-            
-            if (key) {
-                localStorage.setItem('ai_api_key', key);
-            } else {
-                localStorage.removeItem('ai_api_key');
-            }
+            if (key) localStorage.setItem('ai_api_key', key); else localStorage.removeItem('ai_api_key');
             
             toggleAISettings();
             checkAIConnection();
@@ -809,13 +776,9 @@
             const msgs = document.getElementById('ai-messages');
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            if (rawHTML) {
-                div.innerHTML = text;
-            } else if (sender === 'ai') {
-                div.innerHTML = renderAIMarkdown(text);
-            } else {
-                div.textContent = text;
-            }
+            if (rawHTML) div.innerHTML = text;
+            else if (sender === 'ai') div.innerHTML = renderAIMarkdown(text);
+            else div.textContent = text;
             msgs.appendChild(div);
             scrollToAIBottom();
             return div;
@@ -844,6 +807,17 @@
             const currentCode = editor.getValue();
             const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
             
+            // ФИКС: Вшиваем код прямо в сообщение, чтобы бесплатные модели его не игнорировали
+            let userMessageForAI = text;
+            if (currentCode.trim().length > 0) {
+                userMessageForAI += `\n\nВот мой код, который сейчас в редакторе:\n\`\`\`python\n${currentCode}\n\`\`\``;
+            } else {
+                userMessageForAI += `\n\n(Примечание: сейчас мой редактор кода пустой)`;
+            }
+            if (errorText) {
+                userMessageForAI += errorText;
+            }
+
             const systemPrompt = `Ты — дружелюбный и опытный учитель информатики. Твоя задача — помочь ученику разобраться с его кодом на Python.
 КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать готовый код (полный или куски, которые можно просто скопировать).
 Вместо этого:
@@ -852,32 +826,24 @@
 3. Задай наводящий вопрос или дай теоретическую подсказку, чтобы ученик сам дошел до решения.
 4. Будь вежливым и поддерживай ученика.
 
-Если указанная ниже ошибка не соответствует коду — доверяй коду, ошибка может быть устаревшей.
-
-Текущий код ученика:
-\`\`\`python
-${currentCode}
-\`\`\`
-${errorText}`;
+Если ученик спрашивает, видишь ли ты код, опиши, что ты видишь в его текущем коде, или вежливо скажи, что редактор пуст.`;
 
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
 
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
 
-            chatHistory.push({ role: "user", content: text });
+            // Отправляем ИИ сообщение с кодом
+            chatHistory.push({ role: "user", content: userMessageForAI });
 
             async function fetchWithRetry(maxRetries = 3) {
-                let delay = 3000; // Начальная задержка 3 сек (для 429/402)
+                let delay = 3000; 
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 сек таймаут
-                    
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); 
                     try {
                         const headers = { 'Content-Type': 'application/json' };
-                        if (apiKey) {
-                            headers['Authorization'] = `Bearer ${apiKey}`;
-                        }
+                        if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
                         const response = await fetch(apiUrl, {
                             method: 'POST',
@@ -886,7 +852,7 @@ ${errorText}`;
                                 model: model,
                                 messages: [
                                     { role: "system", content: systemPrompt },
-                                    ...chatHistory.slice(-6)
+                                    ...chatHistory.slice(-6) // Отправляем историю (где уже есть код)
                                 ],
                                 temperature: 0.3
                             }),
@@ -894,22 +860,11 @@ ${errorText}`;
                         });
                         clearTimeout(timeoutId);
 
-                        // Обработка лимитов (402 для Pollinations, 429 для OpenRouter/DeepSeek)
                         if ((response.status === 402 || response.status === 429) && attempt < maxRetries) {
                             const retryAfter = response.headers.get('Retry-After');
                             let waitSec = Math.round(delay / 1000);
-                            if (retryAfter) {
-                                if (!isNaN(retryAfter)) {
-                                    waitSec = parseInt(retryAfter, 10);
-                                } else {
-                                    const retryDate = new Date(retryAfter);
-                                    if (!isNaN(retryDate.getTime())) {
-                                        waitSec = Math.max(0, Math.round((retryDate - Date.now()) / 1000));
-                                    }
-                                }
-                            }
-                            
-                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов. Ждём ${waitSec} сек... (попытка ${attempt}/${maxRetries})`;
+                            if (retryAfter && !isNaN(retryAfter)) waitSec = parseInt(retryAfter, 10);
+                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит. Ждём ${waitSec} сек... (${attempt}/${maxRetries})`;
                             await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
                             delay *= 2;
                             continue;
@@ -918,9 +873,7 @@ ${errorText}`;
                         return response;
                     } catch (err) {
                         clearTimeout(timeoutId);
-                        if (err.name === 'AbortError') {
-                            throw new Error("Сервер не ответил за 30 секунд. Попробуй ещё раз.");
-                        }
+                        if (err.name === 'AbortError') throw new Error("Сервер не ответил за 30 секунд. Попробуй ещё раз.");
                         if (attempt === maxRetries) throw err;
                         await new Promise(resolve => setTimeout(resolve, delay));
                         delay *= 2;
@@ -939,10 +892,7 @@ ${errorText}`;
 
                 const data = await response.json();
                 const aiResponse = data.choices?.[0]?.message?.content;
-
-                if (!aiResponse) {
-                    throw new Error("Пустой ответ от сервера.");
-                }
+                if (!aiResponse) throw new Error("Пустой ответ от сервера.");
 
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
@@ -955,7 +905,7 @@ ${errorText}`;
                     msg = 'Слишком много запросов. Подождите несколько секунд и попробуйте снова.';
                 }
                 addMessage(msg, 'ai', false);
-                chatHistory.pop();
+                chatHistory.pop(); // Удаляем сообщение из истории, если была ошибка
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
@@ -990,8 +940,7 @@ ${errorText}`;
         }
 
         window.onload = function() {
-            // ВЕРСИОНИРОВАНИЕ
-            const currentVersion = "4.0-openrouter";
+            const currentVersion = "5.0-code-visibility";
             if (localStorage.getItem('ide_version') !== currentVersion) {
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
@@ -1020,11 +969,8 @@ ${errorText}`;
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
                     "Tab": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.widget.selectActive();
-                        } else {
-                            cm.replaceSelection("    ", "end");
-                        }
+                        if (cm.state.completionActive) cm.state.completionActive.widget.selectActive();
+                        else cm.replaceSelection("    ", "end");
                     }
                 }
             });
@@ -1088,7 +1034,6 @@ ${errorText}`;
 
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
-
             setTimeout(initPyodide, 100);
         };
 
@@ -1134,19 +1079,16 @@ builtins.input = custom_input
                 const status = document.getElementById('py-status');
                 status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
                 status.className = "status-item ready";
-                
                 document.getElementById('run-btn').disabled = false;
                 pyodideReady = true;
 
                 const overlay = document.getElementById('loading-overlay');
                 overlay.classList.add('hidden');
-                
                 setTimeout(() => overlay.remove(), 500);
 
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
                 document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
-                
                 document.querySelector('.loading-text').innerText = "Ошибка загрузки";
                 document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
                 document.querySelector('.spinner').style.borderTopColor = "var(--error)";
@@ -1155,14 +1097,12 @@ builtins.input = custom_input
 
         async function runPython() {
             if (!pyodideReady) return;
-
             const runBtn = document.getElementById('run-btn');
             runBtn.disabled = true;
 
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
             lastError = "";
-            
             const code = editor.getValue();
 
             try {
