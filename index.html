@@ -353,8 +353,9 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
+        /* Изменено положение кнопки и чата */
         #ai-toggle-btn {
-            position: fixed; bottom: 50px; right: 30px;
+            position: fixed; bottom: 250px; right: 30px;
             width: 60px; height: 60px; border-radius: 50%;
             background: var(--accent); color: #111; border: none;
             box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4);
@@ -364,8 +365,8 @@
         #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
 
         #ai-chat-panel {
-            position: fixed; bottom: 120px; right: 30px;
-            width: 400px; height: 600px; max-height: calc(100vh - 150px);
+            position: fixed; bottom: 320px; right: 30px;
+            width: 400px; height: 600px; max-height: calc(100vh - 350px);
             background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border); border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -451,8 +452,10 @@
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
-            #ai-toggle-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
+            
+            /* Мобильная адаптация для кнопки и чата */
+            #ai-toggle-btn { bottom: 190px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
+            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 250px; height: calc(100vh - 280px); }
             .variables-wrapper { height: 150px; }
         }
     </style>
@@ -823,7 +826,6 @@
             return div;
         }
 
-        // --- ФУНКЦИЯ ДЛЯ КНОПКИ "ОБЪЯСНИ ОШИБКУ" ---
         function askAIAboutError(errMsg) {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display !== 'flex') {
@@ -996,7 +998,7 @@
         }
 
         window.onload = function() {
-            const currentVersion = "13.0-clean-vars";
+            const currentVersion = "14.0-moved-btn";
             if (localStorage.getItem('ide_version') !== currentVersion) {
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
