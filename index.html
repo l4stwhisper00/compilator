@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Питон  | Онлайн-компилятор Python</title>
+    <title>Питон | Онлайн-компилятор</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -416,7 +416,7 @@
     <header>
         <div class="logo">
             <i class="ph ph-terminal-window"></i>
-            Питон в браузере
+            Питон
         </div>
         <div class="controls">
             <div class="font-size-control" title="Размер шрифта">
@@ -461,15 +461,8 @@
                 </div>
             </div>
             <div class="editor-container">
-                <textarea id="code-editor">
-x = int(input("Введи число товаров: "))
-y = int(input("Введи цену товара: "))
-a = float(input("Введи скидку на товар без %: "))
-
-z = a / 100
-itog = x * y * z
-print("Итоговая цена:", itog)
-                </textarea>
+                <!-- Поле пустое, как ты и просил -->
+                <textarea id="code-editor"></textarea>
             </div>
         </div>
 
@@ -530,19 +523,20 @@ print("Итоговая цена:", itog)
 
         <div id="ai-onboarding" class="ai-onboarding">
             <h3>Подключение ИИ-Наставника</h3>
-            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
             
-            <div class="warning-box">
-                <i class="ph-fill ph-warning-circle"></i>
-                <div>
-                    <strong>ВАЖНО!</strong><br>
-                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
+            <div class="warning-box" style="flex-direction: column; text-align: center;">
+                <i class="ph-fill ph-warning-circle" style="margin: 0 auto;"></i>
+                <div style="margin-top: 8px;">
+                    <strong>У КАЖДОГО УЧЕНИКА ДОЛЖЕН БЫТЬ СВОЙ КЛЮЧ!</strong><br><br>
+                    Если использовать один ключ на весь класс, сработает лимит запросов (ошибка 429), и ИИ перестанет отвечать.
                 </div>
             </div>
 
+            <p>ИИ помогает разобраться в коде. Получи свой бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
+
             <div class="provider-buttons">
                 <a href="https://platform.deepseek.com/api_keys" target="_blank" class="deepseek-btn">
-                    <i class="ph ph-brain"></i> Получить ключ DeepSeek
+                    <i class="ph ph-brain"></i> Получить СВОЙ ключ DeepSeek
                 </a>
             </div>
 
@@ -568,6 +562,11 @@ print("Итоговая цена:", itog)
         </div>
 
         <div class="ai-settings" id="ai-settings">
+            <div class="warning-box">
+                <i class="ph-fill ph-info"></i>
+                <div>Ключ сохраняется только в этом браузере. Если вы сидите за другим компьютером, введите СВОЙ ключ.</div>
+            </div>
+
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
                     <option value="deepseek">DeepSeek (Рекомендуется)</option>
@@ -807,7 +806,7 @@ ${errorText}`;
 
             chatHistory.push({ role: "user", content: text });
 
-            async function fetchWithRetry(maxRetries = 5, initialDelay = 2000) {
+            async function fetchWithRetry(maxRetries = 4, initialDelay = 10000) {
                 let delay = initialDelay;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
@@ -836,7 +835,7 @@ ${errorText}`;
                             const waitSec = retryAfter ? parseInt(retryAfter, 10) : Math.round(delay / 1000);
                             loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов. Ждём ${waitSec} сек... (попытка ${attempt}/${maxRetries})`;
                             await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2;
+                            delay += 10000; // прибавляем по 10 секунд
                             continue;
                         }
 
@@ -848,7 +847,7 @@ ${errorText}`;
                         }
                         if (attempt === maxRetries) throw err;
                         await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
+                        delay += 10000;
                     }
                 }
             }
@@ -873,7 +872,7 @@ ${errorText}`;
                 loadingDiv.remove();
                 let msg = `Ошибка: ${err.message}`;
                 if (err.message.includes('429')) {
-                    msg = 'Превышен лимит запросов DeepSeek. Подождите минуту и отправьте сообщение снова.';
+                    msg = 'Превышен лимит запросов DeepSeek. Чтобы этого избежать, КАЖДЫЙ ученик должен использовать СВОЙ ключ. Подождите минуту и отправьте сообщение снова.';
                 }
                 addMessage(msg, 'ai', false);
                 chatHistory.pop();
@@ -941,6 +940,7 @@ ${errorText}`;
                 }
             });
 
+            // Загружаем сохраненный код, если он есть (после того как убрали код по умолчанию)
             const savedCode = localStorage.getItem('python_ide_code');
             if (savedCode) editor.setValue(savedCode);
 
