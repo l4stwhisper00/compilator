@@ -133,9 +133,7 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.5s ease-out, visibility 0.5s;
         }
-        #loading-overlay.hidden {
-            opacity: 0; visibility: hidden;
-        }
+        #loading-overlay.hidden { opacity: 0; visibility: hidden; }
         .spinner {
             width: 50px; height: 50px;
             border: 4px solid var(--border);
@@ -337,26 +335,13 @@
 
         .ai-onboarding .provider-buttons { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
         .ai-onboarding .provider-buttons button {
-            width: 100%; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 14px; font-weight: 600; 
+            width: 100%; text-align: center; padding: 14px 10px; border-radius: 8px; font-size: 15px; font-weight: 600; 
             transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none;
         }
+        .ai-onboarding .provider-buttons .keyless-btn { background: rgba(106, 135, 89, 0.15); color: #98c379; border: 1px solid #98c379; }
+        .ai-onboarding .provider-buttons .keyless-btn:hover { background: #98c379; color: #111; }
         .ai-onboarding .provider-buttons .pollinations-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
         .ai-onboarding .provider-buttons .pollinations-btn:hover { background: var(--accent); color: #111; }
-        .ai-onboarding .provider-buttons .openrouter-btn { background: rgba(0, 92, 191, 0.1); color: #4ea8de; border: 1px solid #4ea8de; }
-        .ai-onboarding .provider-buttons .openrouter-btn:hover { background: #4ea8de; color: #111; }
-        
-        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
-        .ai-onboarding .input-group input {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
-        }
-        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
-        .ai-onboarding .connect-btn {
-            background: var(--accent); color: #111; border: none; border-radius: 8px;
-            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
-        }
-        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
         
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
@@ -526,33 +511,21 @@
             <h3>Подключение ИИ-Наставника</h3>
             
             <div class="warning-box" style="flex-direction: column; text-align: center;">
-                <i class="ph-fill ph-warning-circle" style="margin: 0 auto;"></i>
+                <i class="ph ph-check-circle" style="margin: 0 auto; color: var(--success);"></i>
                 <div style="margin-top: 8px;">
                     <strong>Выбери способ подключения</strong>
                 </div>
             </div>
 
-            <p>Pollinations — без ключа, но в часы пик может быть медленным. OpenRouter — мгновенный ответ, но нужно получить бесплатный ключ (без карты).</p>
+            <p>Оба варианта полностью бесплатны, без ключей и регистраций. <b>KeylessAI</b> обычно работает быстрее, <b>Pollinations</b> — запасной вариант.</p>
 
             <div class="provider-buttons">
+                <button class="keyless-btn" onclick="connectKeylessAI()">
+                    <i class="ph ph-lightning"></i> KeylessAI (Рекомендуется)
+                </button>
                 <button class="pollinations-btn" onclick="connectPollinations()">
-                    <i class="ph ph-lightning"></i> Pollinations (Без ключа)
+                    <i class="ph ph-flower-lotus"></i> Pollinations (Запасной)
                 </button>
-                <button class="openrouter-btn" onclick="showOpenRouterForm()">
-                    <i class="ph ph-rocket"></i> OpenRouter (Быстро, бесплатный ключ)
-                </button>
-            </div>
-
-            <div id="openrouter-form" style="display: none; margin-top: 15px;">
-                <p style="text-align: left; margin-bottom: 10px;">
-                    1. Открой <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent);">openrouter.ai/keys</a> (войди через Google или GitHub).<br>
-                    2. Создай ключ (кнопка "Create Key").<br>
-                    3. Вставь его сюда:
-                </p>
-                <div class="input-group">
-                    <input type="password" id="openrouter-key" placeholder="sk-or-v1-...">
-                </div>
-                <button class="connect-btn" onclick="connectOpenRouter()">Подключить OpenRouter</button>
             </div>
         </div>
 
@@ -571,24 +544,24 @@
         <div class="ai-settings" id="ai-settings">
             <div class="warning-box">
                 <i class="ph-fill ph-info"></i>
-                <div>Ключ сохраняется только в этом браузере. Если вы сменили компьютер, введите ключ заново.</div>
+                <div>Настройки бесплатных провайдеров. Если KeylessAI тормозит, переключите на Pollinations.</div>
             </div>
 
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="pollinations">Pollinations (Без ключа)</option>
-                    <option value="openrouter">OpenRouter (Быстро, бесплатно)</option>
+                    <option value="keylessai">KeylessAI (Бесплатно, без ключа)</option>
+                    <option value="pollinations">Pollinations (Бесплатно, без ключа)</option>
                     <option value="custom">Свой вариант (OpenAI и др.)</option>
                 </select>
             </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://text.pollinations.ai/openai">
+                <input type="text" id="ai-api-url" placeholder="https://keylessai.thryx.workers.dev/v1/chat/completions">
             </label>
             <label>API Ключ (Token):
-                <input type="password" id="ai-api-key" placeholder="Для Pollinations не нужен">
+                <input type="password" id="ai-api-key" placeholder="Не требуется для бесплатных">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="openai">
+                <input type="text" id="ai-model" placeholder="gpt-4o-mini">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
@@ -605,9 +578,21 @@
         let chatHistory = [];
 
         const providers = {
-            pollinations: { url: "https://text.pollinations.ai/openai", model: "openai", needsKey: false },
-            openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", model: "meta-llama/llama-3.3-70b-instruct:free", needsKey: true },
-            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini", needsKey: true }
+            keylessai: { 
+                url: "https://keylessai.thryx.workers.dev/v1/chat/completions", 
+                model: "gpt-4o-mini", 
+                needsKey: false 
+            },
+            pollinations: { 
+                url: "https://text.pollinations.ai/openai", 
+                model: "openai", 
+                needsKey: false 
+            },
+            custom: { 
+                url: "https://api.openai.com/v1/chat/completions", 
+                model: "gpt-4o-mini", 
+                needsKey: true 
+            }
         };
 
         function escapeHTML(str) {
@@ -635,7 +620,7 @@
         }
 
         function checkAIConnection() {
-            const provider = localStorage.getItem('ai_provider') || 'pollinations';
+            const provider = localStorage.getItem('ai_provider') || 'keylessai';
             const savedKey = localStorage.getItem('ai_api_key');
             const needsKey = providers[provider]?.needsKey ?? true;
 
@@ -659,12 +644,15 @@
                 messages.style.display = 'none';
                 inputArea.style.display = 'none';
                 headerBtns.style.display = 'none';
-                document.getElementById('openrouter-form').style.display = 'none';
             }
         }
 
-        function showOpenRouterForm() {
-            document.getElementById('openrouter-form').style.display = 'block';
+        function connectKeylessAI() {
+            localStorage.setItem('ai_provider', 'keylessai');
+            localStorage.setItem('ai_api_url', providers.keylessai.url);
+            localStorage.setItem('ai_model', providers.keylessai.model);
+            localStorage.removeItem('ai_api_key');
+            checkAIConnection();
         }
 
         function connectPollinations() {
@@ -672,20 +660,6 @@
             localStorage.setItem('ai_api_url', providers.pollinations.url);
             localStorage.setItem('ai_model', providers.pollinations.model);
             localStorage.removeItem('ai_api_key');
-            checkAIConnection();
-        }
-
-        function connectOpenRouter() {
-            const key = document.getElementById('openrouter-key').value.trim();
-            if (!key) {
-                alert("Вставь ключ OpenRouter!");
-                return;
-            }
-            localStorage.setItem('ai_provider', 'openrouter');
-            localStorage.setItem('ai_api_url', providers.openrouter.url);
-            localStorage.setItem('ai_model', providers.openrouter.model);
-            localStorage.setItem('ai_api_key', key);
-            document.getElementById('openrouter-key').value = '';
             checkAIConnection();
         }
 
@@ -708,7 +682,7 @@
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                const currentProvider = localStorage.getItem('ai_provider') || 'pollinations';
+                const currentProvider = localStorage.getItem('ai_provider') || 'keylessai';
                 document.getElementById('ai-provider').value = currentProvider;
                 document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers[currentProvider]?.url || '';
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
@@ -785,11 +759,11 @@
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.pollinations.url;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.keylessai.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.pollinations.model;
+            const model = localStorage.getItem('ai_model') || providers.keylessai.model;
 
-            const provider = localStorage.getItem('ai_provider') || 'pollinations';
+            const provider = localStorage.getItem('ai_provider') || 'keylessai';
             const needsKey = providers[provider]?.needsKey ?? true;
             
             if (needsKey && !apiKey) {
@@ -807,16 +781,13 @@
             const currentCode = editor.getValue();
             const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
             
-            // ФИКС: Вшиваем код прямо в сообщение, чтобы бесплатные модели его не игнорировали
             let userMessageForAI = text;
             if (currentCode.trim().length > 0) {
                 userMessageForAI += `\n\nВот мой код, который сейчас в редакторе:\n\`\`\`python\n${currentCode}\n\`\`\``;
             } else {
                 userMessageForAI += `\n\n(Примечание: сейчас мой редактор кода пустой)`;
             }
-            if (errorText) {
-                userMessageForAI += errorText;
-            }
+            if (errorText) userMessageForAI += errorText;
 
             const systemPrompt = `Ты — дружелюбный и опытный учитель информатики. Твоя задача — помочь ученику разобраться с его кодом на Python.
 КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать готовый код (полный или куски, которые можно просто скопировать).
@@ -833,10 +804,9 @@
 
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
 
-            // Отправляем ИИ сообщение с кодом
             chatHistory.push({ role: "user", content: userMessageForAI });
 
-            async function fetchWithRetry(maxRetries = 3) {
+            async function fetchWithRetry(maxRetries = 2) {
                 let delay = 3000; 
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
@@ -852,7 +822,7 @@
                                 model: model,
                                 messages: [
                                     { role: "system", content: systemPrompt },
-                                    ...chatHistory.slice(-6) // Отправляем историю (где уже есть код)
+                                    ...chatHistory.slice(-6)
                                 ],
                                 temperature: 0.3
                             }),
@@ -902,10 +872,10 @@
                 loadingDiv.remove();
                 let msg = `Ошибка: ${err.message}`;
                 if (err.message.includes('402') || err.message.includes('429')) {
-                    msg = 'Слишком много запросов. Подождите несколько секунд и попробуйте снова.';
+                    msg = 'Слишком много запросов. Подождите пару секунд. Если не помогает, переключите провайдера в настройках (шестеренка) на Pollinations.';
                 }
                 addMessage(msg, 'ai', false);
-                chatHistory.pop(); // Удаляем сообщение из истории, если была ошибка
+                chatHistory.pop();
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
@@ -940,7 +910,7 @@
         }
 
         window.onload = function() {
-            const currentVersion = "5.0-code-visibility";
+            const currentVersion = "8.0-keyless-default";
             if (localStorage.getItem('ide_version') !== currentVersion) {
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
