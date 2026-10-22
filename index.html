@@ -461,7 +461,6 @@
                 </div>
             </div>
             <div class="editor-container">
-                <!-- Поле пустое, как ты и просил -->
                 <textarea id="code-editor"></textarea>
             </div>
         </div>
@@ -527,32 +526,21 @@
             <div class="warning-box" style="flex-direction: column; text-align: center;">
                 <i class="ph-fill ph-warning-circle" style="margin: 0 auto;"></i>
                 <div style="margin-top: 8px;">
-                    <strong>У КАЖДОГО УЧЕНИКА ДОЛЖЕН БЫТЬ СВОЙ КЛЮЧ!</strong><br><br>
-                    Если использовать один ключ на весь класс, сработает лимит запросов (ошибка 429), и ИИ перестанет отвечать.
+                    <strong>ВАЖНО: ОДИН ЗАПРОС В 30 СЕКУНД!</strong><br><br>
+                    Pollinations.ai — бесплатный и без ключа. Но если отправить запрос слишком быстро, сервер попросит подождать.
                 </div>
             </div>
 
-            <p>ИИ помогает разобраться в коде. Получи свой бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
+            <p>ИИ помогает разобраться в коде. Никакой регистрации и ключей не нужно — просто нажми кнопку ниже.</p>
 
-            <div class="provider-buttons">
-                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="deepseek-btn">
-                    <i class="ph ph-brain"></i> Получить СВОЙ ключ DeepSeek
-                </a>
-            </div>
-
-            <div class="input-group">
-                <label>Вставь полученный ключ сюда:</label>
-                <input type="password" id="onboarding-key" placeholder="sk-...">
-            </div>
-            
-            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
+            <button class="connect-btn" onclick="connectPollinations()" style="padding: 15px; font-size: 16px;">🚀 Подключить Pollinations (Бесплатно)</button>
         </div>
 
         <div class="ai-messages" id="ai-messages" style="display: none;">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
-                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
+                <span class="logout-warning"><i class="ph ph-warning"></i> Бесплатный лимит: 1 запрос в 30 секунд.</span>
             </div>
         </div>
 
@@ -564,27 +552,28 @@
         <div class="ai-settings" id="ai-settings">
             <div class="warning-box">
                 <i class="ph-fill ph-info"></i>
-                <div>Ключ сохраняется только в этом браузере. Если вы сидите за другим компьютером, введите СВОЙ ключ.</div>
+                <div>Настройки Pollinations уже предустановлены. Если вы хотите использовать свой ключ DeepSeek или другой сервис, измените поля ниже.</div>
             </div>
 
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="deepseek">DeepSeek (Рекомендуется)</option>
-                    <option value="custom">Свой вариант (OpenAI, Mistral и др.)</option>
+                    <option value="pollinations">Pollinations (Бесплатно, без ключа)</option>
+                    <option value="deepseek">DeepSeek (Платно, нужен ключ)</option>
+                    <option value="custom">Свой вариант (OpenAI и др.)</option>
                 </select>
             </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://api.deepseek.com/chat/completions">
+                <input type="text" id="ai-api-url" placeholder="https://text.pollinations.ai/openai">
             </label>
             <label>API Ключ (Token):
-                <input type="password" id="ai-api-key" placeholder="sk-...">
+                <input type="password" id="ai-api-key" placeholder="Для Pollinations не нужен">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="deepseek-chat">
+                <input type="text" id="ai-model" placeholder="openai">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
-            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
+            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Сбросить настройки</button>
         </div>
     </div>
 
@@ -596,9 +585,23 @@
         let currentFileName = "main.py";
         let chatHistory = [];
 
+        // --- КОНФИГУРАЦИЯ ПРОВАЙДЕРОВ ---
         const providers = {
-            deepseek: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" },
-            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
+            pollinations: { 
+                url: "https://text.pollinations.ai/openai", 
+                model: "openai", 
+                needsKey: false 
+            },
+            deepseek: { 
+                url: "https://api.deepseek.com/chat/completions", 
+                model: "deepseek-chat", 
+                needsKey: true 
+            },
+            custom: { 
+                url: "https://api.openai.com/v1/chat/completions", 
+                model: "gpt-4o-mini", 
+                needsKey: true 
+            }
         };
 
         function escapeHTML(str) {
@@ -633,7 +636,10 @@
         }
 
         function checkAIConnection() {
+            const provider = localStorage.getItem('ai_provider') || 'pollinations';
             const savedKey = localStorage.getItem('ai_api_key');
+            const needsKey = providers[provider]?.needsKey ?? true;
+
             const onboarding = document.getElementById('ai-onboarding');
             const messages = document.getElementById('ai-messages');
             const inputArea = document.getElementById('ai-input-area');
@@ -642,7 +648,8 @@
 
             settings.style.display = 'none';
 
-            if (savedKey) {
+            // Если ключ не нужен (Pollinations) ИЛИ ключ уже сохранен
+            if (!needsKey || savedKey) {
                 onboarding.style.display = 'none';
                 messages.style.display = 'flex';
                 inputArea.style.display = 'flex';
@@ -657,6 +664,14 @@
             }
         }
 
+        function connectPollinations() {
+            localStorage.setItem('ai_provider', 'pollinations');
+            localStorage.setItem('ai_api_url', providers.pollinations.url);
+            localStorage.setItem('ai_model', providers.pollinations.model);
+            localStorage.removeItem('ai_api_key'); // Не нужен
+            checkAIConnection();
+        }
+
         function clearAIChat() {
             if (!confirm("Очистить историю диалога?")) return;
             chatHistory = [];
@@ -664,22 +679,6 @@
             const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
             msgs.innerHTML = welcomeHTML;
             scrollToAIBottom();
-        }
-
-        function connectFromOnboarding() {
-            const key = document.getElementById('onboarding-key').value.trim();
-            if (!key) {
-                alert("Пожалуйста, вставь ключ!");
-                return;
-            }
-
-            localStorage.setItem('ai_provider', 'deepseek');
-            localStorage.setItem('ai_api_url', providers.deepseek.url);
-            localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', providers.deepseek.model);
-            document.getElementById('onboarding-key').value = '';
-
-            checkAIConnection();
         }
 
         function toggleAISettings() {
@@ -692,10 +691,11 @@
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'deepseek';
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.deepseek.url;
+                const currentProvider = localStorage.getItem('ai_provider') || 'pollinations';
+                document.getElementById('ai-provider').value = currentProvider;
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers[currentProvider]?.url || '';
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.deepseek.model;
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers[currentProvider]?.model || '';
 
                 settings.style.display = 'flex';
                 inputArea.style.display = 'none';
@@ -705,25 +705,46 @@
 
         function onProviderChange() {
             const p = document.getElementById('ai-provider').value;
-            document.getElementById('ai-api-url').value = providers[p].url;
-            document.getElementById('ai-model').value = providers[p].model;
+            document.getElementById('ai-api-url').value = providers[p]?.url || '';
+            document.getElementById('ai-model').value = providers[p]?.model || '';
+            
+            // Показываем/скрываем поле ключа
+            const keyInput = document.getElementById('ai-api-key');
+            if (providers[p]?.needsKey) {
+                keyInput.disabled = false;
+                keyInput.placeholder = "sk-...";
+            } else {
+                keyInput.disabled = true;
+                keyInput.value = '';
+                keyInput.placeholder = "Не требуется";
+            }
         }
 
         function saveAISettings() {
             const provider = document.getElementById('ai-provider').value;
             const url = document.getElementById('ai-api-url').value.trim();
-            const key = document.getElementById('ai-api-key').value.trim();
             const model = document.getElementById('ai-model').value.trim();
+            let key = document.getElementById('ai-api-key').value.trim();
             
-            if (!url || !key || !model) {
-                alert("Заполни все поля!");
+            if (!url || !model) {
+                alert("Заполни URL и Модель!");
+                return;
+            }
+
+            if (providers[provider]?.needsKey && !key) {
+                alert("Для этого провайдера нужен API-ключ!");
                 return;
             }
 
             localStorage.setItem('ai_provider', provider);
             localStorage.setItem('ai_api_url', url);
-            localStorage.setItem('ai_api_key', key);
             localStorage.setItem('ai_model', model);
+            
+            if (key) {
+                localStorage.setItem('ai_api_key', key);
+            } else {
+                localStorage.removeItem('ai_api_key');
+            }
             
             toggleAISettings();
             checkAIConnection();
@@ -731,7 +752,7 @@
         }
 
         function logoutAI() {
-            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
+            if(confirm("Сбросить настройки ИИ и удалить сохраненный ключ?")) {
                 localStorage.removeItem('ai_provider');
                 localStorage.removeItem('ai_api_url');
                 localStorage.removeItem('ai_api_key');
@@ -764,12 +785,15 @@
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.deepseek.url;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.pollinations.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.deepseek.model;
+            const model = localStorage.getItem('ai_model') || providers.pollinations.model;
 
-            if (!apiKey) {
-                alert("Сначала подключи ИИ!");
+            const provider = localStorage.getItem('ai_provider') || 'pollinations';
+            const needsKey = providers[provider]?.needsKey ?? true;
+            
+            if (needsKey && !apiKey) {
+                alert("Сначала подключи ИИ или введи ключ!");
                 return;
             }
 
@@ -806,18 +830,22 @@ ${errorText}`;
 
             chatHistory.push({ role: "user", content: text });
 
-            async function fetchWithRetry(maxRetries = 4, initialDelay = 10000) {
-                let delay = initialDelay;
+            // Универсальная функция запроса с обработкой 402 (Pollinations) и 429 (DeepSeek)
+            async function fetchWithRetry(maxRetries = 3) {
+                let delay = 10000; // Начальная задержка 10 сек
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 45000);
+                    
                     try {
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (apiKey) {
+                            headers['Authorization'] = `Bearer ${apiKey}`;
+                        }
+
                         const response = await fetch(apiUrl, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${apiKey}`
-                            },
+                            headers: headers,
                             body: JSON.stringify({
                                 model: model,
                                 messages: [
@@ -830,12 +858,26 @@ ${errorText}`;
                         });
                         clearTimeout(timeoutId);
 
-                        if (response.status === 429 && attempt < maxRetries) {
+                        // Обработка лимитов (402 для Pollinations, 429 для DeepSeek)
+                        if ((response.status === 402 || response.status === 429) && attempt < maxRetries) {
                             const retryAfter = response.headers.get('Retry-After');
-                            const waitSec = retryAfter ? parseInt(retryAfter, 10) : Math.round(delay / 1000);
+                            // Pollinations может вернуть Retry-After в секундах или HTTP-дате
+                            let waitSec = Math.round(delay / 1000);
+                            if (retryAfter) {
+                                if (!isNaN(retryAfter)) {
+                                    waitSec = parseInt(retryAfter, 10);
+                                } else {
+                                    // Если это HTTP-дата, вычисляем разницу
+                                    const retryDate = new Date(retryAfter);
+                                    if (!isNaN(retryDate.getTime())) {
+                                        waitSec = Math.max(0, Math.round((retryDate - Date.now()) / 1000));
+                                    }
+                                }
+                            }
+                            
                             loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов. Ждём ${waitSec} сек... (попытка ${attempt}/${maxRetries})`;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            delay += 10000; // прибавляем по 10 секунд
+                            await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
+                            delay *= 2;
                             continue;
                         }
 
@@ -847,7 +889,7 @@ ${errorText}`;
                         }
                         if (attempt === maxRetries) throw err;
                         await new Promise(resolve => setTimeout(resolve, delay));
-                        delay += 10000;
+                        delay *= 2;
                     }
                 }
             }
@@ -857,12 +899,17 @@ ${errorText}`;
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
+                    const errMsg = errData.error?.message || errData.message || `${response.status} ${response.statusText}`;
                     throw new Error(errMsg);
                 }
 
                 const data = await response.json();
-                const aiResponse = data.choices[0].message.content;
+                // Pollinations и DeepSeek используют одинаковую структуру OpenAI
+                const aiResponse = data.choices?.[0]?.message?.content;
+
+                if (!aiResponse) {
+                    throw new Error("Пустой ответ от сервера.");
+                }
 
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
@@ -871,8 +918,8 @@ ${errorText}`;
             } catch (err) {
                 loadingDiv.remove();
                 let msg = `Ошибка: ${err.message}`;
-                if (err.message.includes('429')) {
-                    msg = 'Превышен лимит запросов DeepSeek. Чтобы этого избежать, КАЖДЫЙ ученик должен использовать СВОЙ ключ. Подождите минуту и отправьте сообщение снова.';
+                if (err.message.includes('402') || err.message.includes('429')) {
+                    msg = 'Превышен бесплатный лимит запросов. Подождите 30 секунд и попробуйте снова.';
                 }
                 addMessage(msg, 'ai', false);
                 chatHistory.pop();
@@ -910,11 +957,13 @@ ${errorText}`;
         }
 
         window.onload = function() {
-            // ВЕРСИОНИРОВАНИЕ (заставит удалить старый код у всех учеников при обновлении)
-            const currentVersion = "2.0";
+            // ВЕРСИОНИРОВАНИЕ
+            const currentVersion = "3.0-pollinations";
             if (localStorage.getItem('ide_version') !== currentVersion) {
-                localStorage.removeItem('python_ide_code'); // Очищаем старый сохраненный код
-                localStorage.removeItem('ai_api_key');      // Сбрасываем ключ, чтобы все увидели предупреждение
+                // Принудительно сбрасываем старые настройки при обновлении
+                localStorage.removeItem('python_ide_code');
+                localStorage.removeItem('ai_api_key');
+                localStorage.removeItem('ai_provider');
                 localStorage.setItem('ide_version', currentVersion);
             }
 
