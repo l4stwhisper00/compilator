@@ -335,13 +335,15 @@
         .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
         .warning-box strong { color: var(--error); text-transform: uppercase; }
 
-        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
-        .ai-onboarding .provider-buttons a {
-            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
-            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        .ai-onboarding .provider-buttons { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
+        .ai-onboarding .provider-buttons button {
+            width: 100%; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 14px; font-weight: 600; 
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none;
         }
-        .ai-onboarding .provider-buttons .deepseek-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .deepseek-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .pollinations-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .pollinations-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .openrouter-btn { background: rgba(0, 92, 191, 0.1); color: #4ea8de; border: 1px solid #4ea8de; }
+        .ai-onboarding .provider-buttons .openrouter-btn:hover { background: #4ea8de; color: #111; }
         
         .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
         .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
@@ -526,21 +528,39 @@
             <div class="warning-box" style="flex-direction: column; text-align: center;">
                 <i class="ph-fill ph-warning-circle" style="margin: 0 auto;"></i>
                 <div style="margin-top: 8px;">
-                    <strong>ВАЖНО: ОДИН ЗАПРОС В 30 СЕКУНД!</strong><br><br>
-                    Pollinations.ai — бесплатный и без ключа. Но если отправить запрос слишком быстро, сервер попросит подождать.
+                    <strong>Выбери способ подключения</strong>
                 </div>
             </div>
 
-            <p>ИИ помогает разобраться в коде. Никакой регистрации и ключей не нужно — просто нажми кнопку ниже.</p>
+            <p>Pollinations — без ключа, но в часы пик может быть медленным. OpenRouter — мгновенный ответ, но нужно получить бесплатный ключ (без карты).</p>
 
-            <button class="connect-btn" onclick="connectPollinations()" style="padding: 15px; font-size: 16px;">🚀 Подключить Pollinations (Бесплатно)</button>
+            <div class="provider-buttons">
+                <button class="pollinations-btn" onclick="connectPollinations()">
+                    <i class="ph ph-lightning"></i> Pollinations (Без ключа)
+                </button>
+                <button class="openrouter-btn" onclick="showOpenRouterForm()">
+                    <i class="ph ph-rocket"></i> OpenRouter (Быстро, бесплатный ключ)
+                </button>
+            </div>
+
+            <!-- Скрытая форма для OpenRouter -->
+            <div id="openrouter-form" style="display: none; margin-top: 15px;">
+                <p style="text-align: left; margin-bottom: 10px;">
+                    1. Открой <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent);">openrouter.ai/keys</a> (войди через Google или GitHub).<br>
+                    2. Создай ключ (кнопка "Create Key").<br>
+                    3. Вставь его сюда:
+                </p>
+                <div class="input-group">
+                    <input type="password" id="openrouter-key" placeholder="sk-or-v1-...">
+                </div>
+                <button class="connect-btn" onclick="connectOpenRouter()">Подключить OpenRouter</button>
+            </div>
         </div>
 
         <div class="ai-messages" id="ai-messages" style="display: none;">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
-                <span class="logout-warning"><i class="ph ph-warning"></i> Бесплатный лимит: 1 запрос в 30 секунд.</span>
             </div>
         </div>
 
@@ -552,13 +572,13 @@
         <div class="ai-settings" id="ai-settings">
             <div class="warning-box">
                 <i class="ph-fill ph-info"></i>
-                <div>Настройки Pollinations уже предустановлены. Если вы хотите использовать свой ключ DeepSeek или другой сервис, измените поля ниже.</div>
+                <div>Ключ сохраняется только в этом браузере. Если вы сменили компьютер, введите ключ заново.</div>
             </div>
 
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="pollinations">Pollinations (Бесплатно, без ключа)</option>
-                    <option value="deepseek">DeepSeek (Платно, нужен ключ)</option>
+                    <option value="pollinations">Pollinations (Без ключа)</option>
+                    <option value="openrouter">OpenRouter (Быстро, бесплатно)</option>
                     <option value="custom">Свой вариант (OpenAI и др.)</option>
                 </select>
             </label>
@@ -592,9 +612,9 @@
                 model: "openai", 
                 needsKey: false 
             },
-            deepseek: { 
-                url: "https://api.deepseek.com/chat/completions", 
-                model: "deepseek-chat", 
+            openrouter: { 
+                url: "https://openrouter.ai/api/v1/chat/completions", 
+                model: "meta-llama/llama-3.3-70b-instruct:free", 
                 needsKey: true 
             },
             custom: { 
@@ -648,7 +668,6 @@
 
             settings.style.display = 'none';
 
-            // Если ключ не нужен (Pollinations) ИЛИ ключ уже сохранен
             if (!needsKey || savedKey) {
                 onboarding.style.display = 'none';
                 messages.style.display = 'flex';
@@ -661,14 +680,33 @@
                 messages.style.display = 'none';
                 inputArea.style.display = 'none';
                 headerBtns.style.display = 'none';
+                document.getElementById('openrouter-form').style.display = 'none'; // прячем форму при входе
             }
+        }
+
+        function showOpenRouterForm() {
+            document.getElementById('openrouter-form').style.display = 'block';
         }
 
         function connectPollinations() {
             localStorage.setItem('ai_provider', 'pollinations');
             localStorage.setItem('ai_api_url', providers.pollinations.url);
             localStorage.setItem('ai_model', providers.pollinations.model);
-            localStorage.removeItem('ai_api_key'); // Не нужен
+            localStorage.removeItem('ai_api_key');
+            checkAIConnection();
+        }
+
+        function connectOpenRouter() {
+            const key = document.getElementById('openrouter-key').value.trim();
+            if (!key) {
+                alert("Вставь ключ OpenRouter!");
+                return;
+            }
+            localStorage.setItem('ai_provider', 'openrouter');
+            localStorage.setItem('ai_api_url', providers.openrouter.url);
+            localStorage.setItem('ai_model', providers.openrouter.model);
+            localStorage.setItem('ai_api_key', key);
+            document.getElementById('openrouter-key').value = '';
             checkAIConnection();
         }
 
@@ -708,7 +746,6 @@
             document.getElementById('ai-api-url').value = providers[p]?.url || '';
             document.getElementById('ai-model').value = providers[p]?.model || '';
             
-            // Показываем/скрываем поле ключа
             const keyInput = document.getElementById('ai-api-key');
             if (providers[p]?.needsKey) {
                 keyInput.disabled = false;
@@ -830,12 +867,11 @@ ${errorText}`;
 
             chatHistory.push({ role: "user", content: text });
 
-            // Универсальная функция запроса с обработкой 402 (Pollinations) и 429 (DeepSeek)
             async function fetchWithRetry(maxRetries = 3) {
-                let delay = 10000; // Начальная задержка 10 сек
+                let delay = 3000; // Начальная задержка 3 сек (для 429/402)
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 45000);
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 сек таймаут
                     
                     try {
                         const headers = { 'Content-Type': 'application/json' };
@@ -858,16 +894,14 @@ ${errorText}`;
                         });
                         clearTimeout(timeoutId);
 
-                        // Обработка лимитов (402 для Pollinations, 429 для DeepSeek)
+                        // Обработка лимитов (402 для Pollinations, 429 для OpenRouter/DeepSeek)
                         if ((response.status === 402 || response.status === 429) && attempt < maxRetries) {
                             const retryAfter = response.headers.get('Retry-After');
-                            // Pollinations может вернуть Retry-After в секундах или HTTP-дате
                             let waitSec = Math.round(delay / 1000);
                             if (retryAfter) {
                                 if (!isNaN(retryAfter)) {
                                     waitSec = parseInt(retryAfter, 10);
                                 } else {
-                                    // Если это HTTP-дата, вычисляем разницу
                                     const retryDate = new Date(retryAfter);
                                     if (!isNaN(retryDate.getTime())) {
                                         waitSec = Math.max(0, Math.round((retryDate - Date.now()) / 1000));
@@ -885,7 +919,7 @@ ${errorText}`;
                     } catch (err) {
                         clearTimeout(timeoutId);
                         if (err.name === 'AbortError') {
-                            throw new Error("Сервер не ответил за 45 секунд. Попробуй ещё раз.");
+                            throw new Error("Сервер не ответил за 30 секунд. Попробуй ещё раз.");
                         }
                         if (attempt === maxRetries) throw err;
                         await new Promise(resolve => setTimeout(resolve, delay));
@@ -904,7 +938,6 @@ ${errorText}`;
                 }
 
                 const data = await response.json();
-                // Pollinations и DeepSeek используют одинаковую структуру OpenAI
                 const aiResponse = data.choices?.[0]?.message?.content;
 
                 if (!aiResponse) {
@@ -919,7 +952,7 @@ ${errorText}`;
                 loadingDiv.remove();
                 let msg = `Ошибка: ${err.message}`;
                 if (err.message.includes('402') || err.message.includes('429')) {
-                    msg = 'Превышен бесплатный лимит запросов. Подождите 30 секунд и попробуйте снова.';
+                    msg = 'Слишком много запросов. Подождите несколько секунд и попробуйте снова.';
                 }
                 addMessage(msg, 'ai', false);
                 chatHistory.pop();
@@ -958,9 +991,8 @@ ${errorText}`;
 
         window.onload = function() {
             // ВЕРСИОНИРОВАНИЕ
-            const currentVersion = "3.0-pollinations";
+            const currentVersion = "4.0-openrouter";
             if (localStorage.getItem('ide_version') !== currentVersion) {
-                // Принудительно сбрасываем старые настройки при обновлении
                 localStorage.removeItem('python_ide_code');
                 localStorage.removeItem('ai_api_key');
                 localStorage.removeItem('ai_provider');
