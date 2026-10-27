@@ -344,7 +344,6 @@ else:
                 const btnOk = document.getElementById('modal-ok');
                 const btnCancel = document.getElementById('modal-cancel');
 
-                // Если текст пустой, ставим дефолтный
                 promptText.innerText = message.trim() !== "" ? message : "Введите данные:";
                 
                 inputField.value = '';
@@ -473,13 +472,13 @@ ${errorText}`;
 
                 const data = await response.json();
 
-                // === ПРОВЕРКА ОШИБОК СЕРВЕРА ===
-                if (!response.ok) {
-                    throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
+                // === ПРОВЕРКА ОШИБОК ОТ GROQ ===
+                if (data.error) {
+                    throw new Error(data.error.message || "Ошибка от нейросети (проверь ключ)");
                 }
                 
                 if (!data.choices || data.choices.length === 0) {
-                    throw new Error("Нейросеть вернула пустой ответ. Проверьте ключ API и модель.");
+                    throw new Error("Нейросеть вернула пустой ответ.");
                 }
 
                 const aiResponse = data.choices[0].message.content;
@@ -654,37 +653,44 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // === ПЕРЕХВАТ ВВОДА ===
+                // === ПРАВИЛЬНЫЙ ПЕРЕХВАТ ВВОДА (БЕЗ ОШИБОК) ===
+                await pyodide.runPythonAsync(`
+import builtins
+import sys
+
+_orig_input = builtins.input
+def custom_input(prompt=""):
+    if prompt:
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+    return _orig_input()
+builtins.input = custom_input
+                `);
+
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
-                            const outputDiv = document.getElementById('output');
-                            const lines = outputDiv.innerText.split('\n');
-                            let promptText = lines[lines.length - 1].trim();
-                            if (promptText === "") promptText = "Введите данные:";
+                            // Ждем 50мс, чтобы DOM точно обновился и проглотил текст prompt
+                            setTimeout(() => {
+                                const outputDiv = document.getElementById('output');
+                                const lines = outputDiv.innerText.split('\n');
+                                let promptText = lines[lines.length - 1].trim();
+                                
+                                if (promptText === "") promptText = "Введите данные:";
 
-                            showCustomPrompt(promptText).then(val => {
-                                if (val === null) {
-                                    resolve("\n");
-                                } else {
-                                    // НЕ вставляем в DOM напрямую, чтобы не ломать поток
-                                    resolve(val + "\n");
-                                }
-                            });
+                                showCustomPrompt(promptText).then(val => {
+                                    if (val === null) {
+                                        resolve("\n");
+                                    } else {
+                                        outputDiv.innerText += val + "\n";
+                                        scrollToBottom();
+                                        resolve(val + "\n");
+                                    }
+                                });
+                            }, 50);
                         });
                     }
                 });
-
-                // Хак для того, чтобы введенный текст отображался в консоли
-                await pyodide.runPythonAsync(`
-import builtins
-_original_input = builtins.input
-def input_with_echo(prompt=""):
-    res = _original_input(prompt)
-    print(res)
-    return res
-builtins.input = input_with_echo
-                `);
 
                 let isReady = false;
                 let attempts = 0;
