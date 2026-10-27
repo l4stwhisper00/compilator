@@ -41,7 +41,7 @@
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
-            --task-color: #10b981; /* Зеленый для практики */
+            --task-color: #10b981;
             
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
@@ -135,64 +135,67 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* === ВЫЕЗЖАЮЩИЕ ПАНЕЛИ (САЙДБАРЫ) === */
-        .side-panel {
+        /* === ВЫЕЗЖАЮЩИЕ ПАНЕЛИ (ВЕРНЫЙ ВАРИАНТ) === */
+        
+        /* Контейнер для панели */
+        .drawer {
             position: fixed;
             right: 0;
             display: flex;
-            height: 65vh;
-            min-height: 400px;
-            max-height: 700px;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
         }
 
-        .side-panel.ai-panel {
-            top: 12vh;
-            transform: translateX(calc(100% - 50px));
+        /* Позиция для ИИ (чуть выше центра) */
+        .drawer-ai {
+            top: 15vh;
+            transform: translateX(calc(100% - 60px)); /* Прячем все, кроме кнопки шириной 60px */
         }
 
-        .side-panel.tasks-panel {
-            bottom: 12vh;
-            transform: translateX(calc(100% - 50px));
+        /* Позиция для Практики (чуть ниже центра) */
+        .drawer-tasks {
+            bottom: 15vh;
+            transform: translateX(calc(100% - 60px));
         }
 
-        /* Выезжает при наведении (для ПК) */
-        .side-panel:hover, .side-panel.open {
+        /* При наведении выезжаем полностью */
+        .drawer:hover, .drawer.open {
             transform: translateX(0);
         }
 
-        .side-tab {
-            width: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 24px;
-            border-top-left-radius: 12px;
-            border-bottom-left-radius: 12px;
+        /* Сама кнопка (круглая, как и была) */
+        .drawer-btn {
+            width: 60px; height: 60px; 
+            border-radius: 12px 0 0 12px; /* Скруглены левые углы */
+            display: flex; justify-content: center; align-items: center;
+            font-size: 28px; cursor: pointer;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.4);
+            z-index: 2; /* Кнопка поверх панели */
             transition: background 0.2s;
         }
 
-        .ai-panel .side-tab { background: var(--accent); color: #111; }
-        .ai-panel .side-tab:hover { background: var(--accent-hover); }
+        .drawer-ai .drawer-btn { background: var(--accent); color: #111; }
+        .drawer-ai .drawer-btn:hover { background: var(--accent-hover); }
         
-        .tasks-panel .side-tab { background: var(--task-color); color: #111; }
-        .tasks-panel .side-tab:hover { background: #34d399; }
+        .drawer-tasks .drawer-btn { background: var(--task-color); color: #111; }
+        .drawer-tasks .drawer-btn:hover { background: #34d399; }
 
-        .side-content {
-            width: 400px;
+        /* Сама панель с контентом */
+        .drawer-content {
+            width: 380px;
+            height: 600px;
+            max-height: 75vh;
             background: var(--bg-panel);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
             border-right: none;
-            border-top-left-radius: 12px;
-            border-bottom-left-radius: 12px;
+            border-radius: 12px 0 0 12px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            z-index: 1; /* Контент под кнопкой */
         }
 
         .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary); }
@@ -228,11 +231,10 @@
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
             
-            .side-panel { height: 70vh; }
-            .side-panel.ai-panel { top: 10vh; transform: translateX(calc(100% - 40px)); }
-            .side-panel.tasks-panel { bottom: 10vh; transform: translateX(calc(100% - 40px)); }
-            .side-tab { width: 40px; font-size: 20px; }
-            .side-content { width: calc(100vw - 60px); }
+            .drawer-content { width: calc(100vw - 60px); height: 70vh; }
+            .drawer-ai { top: 10vh; transform: translateX(calc(100% - 50px)); }
+            .drawer-tasks { bottom: 10vh; transform: translateX(calc(100% - 50px)); }
+            .drawer-btn { width: 50px; height: 50px; font-size: 24px; }
         }
     </style>
 </head>
@@ -295,12 +297,12 @@ asyncio.ensure_future(get_currency())
         <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
-    <!-- Выезжающая панель ИИ -->
-    <div class="side-panel ai-panel" id="ai-panel">
-        <div class="side-tab" onclick="toggleMobilePanel('ai-panel')">
+    <!-- Панель ИИ -->
+    <div class="drawer drawer-ai" id="ai-drawer">
+        <div class="drawer-btn" onclick="toggleMobilePanel('ai-drawer')">
             <i class="ph-fill ph-robot"></i>
         </div>
-        <div class="side-content">
+        <div class="drawer-content">
             <div class="ai-header">
                 <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
                 <div id="ai-header-buttons" style="display: flex;">
@@ -320,12 +322,12 @@ asyncio.ensure_future(get_currency())
         </div>
     </div>
 
-    <!-- Выезжающая панель Практики -->
-    <div class="side-panel tasks-panel" id="tasks-panel">
-        <div class="side-tab" onclick="toggleMobilePanel('tasks-panel')">
+    <!-- Панель Практики -->
+    <div class="drawer drawer-tasks" id="tasks-drawer">
+        <div class="drawer-btn" onclick="toggleMobilePanel('tasks-drawer')">
             <i class="ph ph-notebook"></i>
         </div>
-        <div class="side-content">
+        <div class="drawer-content">
             <div class="ai-header">
                 <div class="ai-header-left"><i class="ph ph-notebook"></i> Практика</div>
             </div>
@@ -349,9 +351,6 @@ asyncio.ensure_future(get_currency())
         let pyodide;
         let lastError = "";
 
-        // =====================================================================
-        // НАСТРОЙКИ ИИ (POLLINATIONS)
-        // =====================================================================
         const PROXY_URL = "https://text.pollinations.ai/openai"; 
         const AI_MODEL = "openai";
 
@@ -379,12 +378,11 @@ asyncio.ensure_future(get_currency())
             return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
-        // --- МОБИЛЬНАЯ ЛОГИКА ПАНЕЛЕЙ ---
-        // На телефонах нет hover, поэтому по клику добавляем/убираем класс .open
-        function toggleMobilePanel(panelId) {
+        // --- ЛОГИКА МОБИЛЬНЫХ ПАНЕЛЕЙ ---
+        function toggleMobilePanel(drawerId) {
             if (window.innerWidth <= 900) {
-                const panel = document.getElementById(panelId);
-                panel.classList.toggle('open');
+                const drawer = document.getElementById(drawerId);
+                drawer.classList.toggle('open');
             }
         }
 
@@ -396,7 +394,7 @@ asyncio.ensure_future(get_currency())
             const listContainer = document.getElementById('task-list');
             const genBtn = document.getElementById('gen-btn');
             
-            listContainer.innerHTML = '<div style="text-align: center; color: var(--task-color);"><i class="ph ph-spinner-gap ph-spin"></i> Генерируем задания...</div>';
+            listContainer.innerHTML = '<div style="text-align: center; color: var(--task-color);"><i class="ph ph-spinner-gap ph-spin"></i> Генерируем...</div>';
             genBtn.disabled = true;
 
             const systemPrompt = `Ты — учитель информатики. Напиши ровно 3 задания по программированию на Python на тему "${topic}".
