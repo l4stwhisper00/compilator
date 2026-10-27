@@ -134,21 +134,31 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        #ai-toggle-btn { position: fixed; bottom: 50px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #111; border: none; box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s; }
-        #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
-        #ai-chat-panel { position: fixed; bottom: 120px; right: 30px; width: 400px; height: 600px; max-height: calc(100vh - 150px); background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 900; overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* --- КНОПКИ И ПАНЕЛИ (ИИ и Задания) --- */
+        #ai-toggle-btn, #tasks-toggle-btn { position: fixed; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #111; border: none; box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s; }
+        #ai-toggle-btn:hover, #tasks-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
+        
+        #tasks-toggle-btn { bottom: 50px; right: 100px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); }
+        #tasks-toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+        #ai-chat-panel, #tasks-panel { position: fixed; bottom: 120px; right: 30px; width: 400px; height: 600px; max-height: calc(100vh - 150px); background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 900; overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #tasks-panel { right: 100px; }
+        
         @keyframes chatOpen { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
         .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary); }
         .ai-header-left { display: flex; align-items: center; gap: 10px; }
         .ai-header-left i { color: var(--accent); font-size: 20px; }
         #ai-header-buttons { display: flex; gap: 10px; align-items: center; }
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
         .ai-header .settings-btn:hover { color: var(--accent); }
+        
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
+        
         .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .ai-input-area input { flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
         .ai-input-area input:focus { border-color: var(--accent); }
@@ -156,12 +166,19 @@
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* --- СПЕЦИАЛЬНО ДЛЯ ЗАДАНИЙ --- */
+        .tasks-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .tasks-content select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); margin-bottom: 10px; }
+        .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.4; }
+        .task-item strong { color: var(--accent); }
+
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
+            #ai-chat-panel, #tasks-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
             #ai-toggle-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
+            #tasks-toggle-btn { bottom: 20px; right: 80px; width: 50px; height: 50px; font-size: 24px; }
         }
     </style>
 </head>
@@ -190,15 +207,24 @@
         <div class="panel">
             <div class="panel-header"><div class="panel-header-left"><div class="tab"><i class="ph ph-file-py"></i> main.py</div></div><div style="font-size: 12px; opacity: 0.7;"><i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск</div></div>
             <div class="editor-container"><textarea id="code-editor">
-x = float(input("Введите число/цифру!"))
-y = float(input("Введите цифру/число!"))
+import pyodide.http
+import asyncio
 
-if x > y:
-    print(x, "first number")
-elif y > x:
-    print(y, "second number")
-else:
-    print("числа одинаковы")
+# Пример: как получить данные из интернета (курс валют)
+# Мы используем твой Cloudflare Worker как прокси (обходим CORS)
+async def get_currency():
+    # ВАЖНО: Замени URL на свой воркер!
+    worker_url = "https://compilatorrr.zxcdedinside944.workers.dev/?url=https://api.exchangerate-api.com/v4/latest/USD"
+    
+    print("Загрузка данных...")
+    try:
+        response = await pyodide.http.pyfetch(worker_url)
+        data = await response.json()
+        print(f"Курс доллара к рублю: {data['rates']['RUB']}")
+    except Exception as e:
+        print("Ошибка:", e)
+
+asyncio.ensure_future(get_currency())
             </textarea></div>
         </div>
         <div class="panel">
@@ -215,8 +241,30 @@ else:
         <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
+    <!-- Кнопка заданий -->
+    <button id="tasks-toggle-btn" onclick="toggleTasks()" title="Задания для практики"><i class="ph ph-notebook"></i></button>
+
+    <!-- Кнопка ИИ -->
     <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник"><i class="ph-fill ph-robot"></i></button>
 
+    <!-- Панель заданий -->
+    <div id="tasks-panel">
+        <div class="ai-header">
+            <div class="ai-header-left"><i class="ph ph-notebook"></i> Практика</div>
+            <button class="settings-btn" onclick="toggleTasks()"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="tasks-content">
+            <select id="topic-select" onchange="loadTasks()">
+                <option value="conditions">Условия (if / else)</option>
+                <option value="loops">Циклы (for / while)</option>
+                <option value="lists">Списки и массивы</option>
+                <option value="functions">Функции</option>
+            </select>
+            <div id="task-list"></div>
+        </div>
+    </div>
+
+    <!-- Панель ИИ -->
     <div id="ai-chat-panel">
         <div class="ai-header">
             <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
@@ -243,10 +291,36 @@ else:
         let lastError = "";
 
         // =====================================================================
-        // НАСТРОЙКИ POLLINATIONS (БЕСПЛАТНО, БЕЗ КЛЮЧЕЙ)
+        // НАСТРОЙКИ ИИ (POLLINATIONS)
         // =====================================================================
         const PROXY_URL = "https://text.pollinations.ai/openai"; 
-        const AI_MODEL = "openai"; 
+        const AI_MODEL = "openai";
+
+        // =====================================================================
+        // БАЗА ЗАДАНИЙ
+        // =====================================================================
+        const TASKS_DATA = {
+            conditions: [
+                "<strong>Задание 1.</strong> Напиши программу, которая просит ввести возраст. Если возраст меньше 18, выведи 'Доступ запрещен', иначе — 'Добро пожаловать'.",
+                "<strong>Задание 2.</strong> Введи два числа. Выведи наибольшее из них.",
+                "<strong>Задание 3.</strong> Введи число. Проверь, является ли оно четным или нечетным (подсказка: используй %)."
+            ],
+            loops: [
+                "<strong>Задание 1.</strong> С помощью цикла for выведи все числа от 1 до 10.",
+                "<strong>Задание 2.</strong> Найди сумму всех чисел от 1 до 100 с помощью цикла.",
+                "<strong>Задание 3.</strong> Выведи таблицу умножения на 7 (от 1 до 10)."
+            ],
+            lists: [
+                "<strong>Задание 1.</strong> Создай список из 5 любых чисел и выведи его на экран.",
+                "<strong>Задание 2.</strong> Найди максимальное и минимальное число в списке (подсказка: max() и min()).",
+                "<strong>Задание 3.</strong> Создай список и выведи только те числа, которые больше 10."
+            ],
+            functions: [
+                "<strong>Задание 1.</strong> Напиши функцию, которая принимает имя и выводит приветствие.",
+                "<strong>Задание 2.</strong> Напиши функцию, которая считает площадь прямоугольника по двум сторонам.",
+                "<strong>Задание 3.</strong> Напиши функцию, которая принимает число и возвращает его квадрат."
+            ]
+        };
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -270,6 +344,29 @@ else:
             const currentWord = token.string;
             const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord) && w !== currentWord);
             return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
+        }
+
+        // --- ЛОГИКА ЗАДАНИЙ ---
+        function toggleTasks() {
+            const panel = document.getElementById('tasks-panel');
+            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+            if (panel.style.display === 'flex') {
+                loadTasks(); // Загружаем задания при открытии
+            }
+        }
+
+        function loadTasks() {
+            const topic = document.getElementById('topic-select').value;
+            const tasks = TASKS_DATA[topic];
+            const listContainer = document.getElementById('task-list');
+            
+            listContainer.innerHTML = ''; // Очищаем старые
+            tasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = task;
+                listContainer.appendChild(div);
+            });
         }
 
         // --- ЛОГИКА ЧАТА ---
@@ -523,7 +620,7 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // === НАДЕЖНЫЙ ПЕРЕХВАТ ВВОДА ЧЕРЕЗ PROMPT ===
+                // === НАДЕЖНЫЙ ПЕРЕХВАТ ВВОДА ===
                 pyodide.runPython(`
 import builtins
 import js
