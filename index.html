@@ -58,190 +58,52 @@
             --editor-font-size: 15px;
         }
 
-        [data-theme="light"] {
-            --bg-body: #f2f4f8;
-            --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
-            --bg-panel: rgba(255, 255, 255, 0.8);
-            --bg-surface: #ffffff;
-            --bg-surface-hover: #f1f3f5;
-            --text-primary: #1f1f1f;
-            --text-secondary: #6c757d;
-            --accent: #005cbf;
-            --accent-hover: #004494;
-            --border: rgba(0, 0, 0, 0.1);
-            --console-bg: rgba(248, 250, 252, 0.9);
-            --success: #00a000;
-            --error: #d00000;
-            --warning-bg: rgba(208, 0, 0, 0.05);
-            --warning-border: rgba(208, 0, 0, 0.3);
-
-            --syn-keyword: #0033b3;
-            --syn-string: #067d17;
-            --syn-number: #1750eb;
-            --syn-comment: #8c8c8c;
-            --syn-def: #00627a;
-            --syn-builtin: #0033b3;
-            --syn-variable: #1f1f1f;
-            --syn-property: #008080; 
-        }
-
-        [data-theme="neon"] {
-            --bg-body: #05000a;
-            --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
-            --bg-panel: rgba(20, 10, 30, 0.7);
-            --bg-surface: #120a1c;
-            --bg-surface-hover: #26133b;
-            --text-primary: #e0def4;
-            --text-secondary: #8b7ca4;
-            --accent: #ff007f;
-            --accent-hover: #ff3399;
-            --border: rgba(255, 0, 127, 0.2);
-            --console-bg: rgba(10, 5, 15, 0.9);
-            --success: #00f0ff;
-            --error: #ff007f;
-            --warning-bg: rgba(255, 0, 127, 0.1);
-            --warning-border: rgba(255, 0, 127, 0.4);
-
-            --syn-keyword: #ff007f;
-            --syn-string: #00f0ff;
-            --syn-number: #f1fa8c;
-            --syn-comment: #6272a4;
-            --syn-def: #bd93f9;
-            --syn-builtin: #ff007f;
-            --syn-variable: #e0def4;
-            --syn-property: #8be9fd;
-        }
+        [data-theme="light"] { --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%); --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5; --text-primary: #1f1f1f; --text-secondary: #6c757d; --accent: #005cbf; --accent-hover: #004494; --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #00a000; --error: #d00000; --warning-bg: rgba(208, 0, 0, 0.05); --warning-border: rgba(208, 0, 0, 0.3); --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c; --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080; }
+        [data-theme="neon"] { --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%); --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b; --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399; --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff007f; --warning-bg: rgba(255, 0, 127, 0.1); --warning-border: rgba(255, 0, 127, 0.4); --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4; --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            background-image: var(--glow-bg);
-            color: var(--text-primary);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: background 0.4s;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); background-image: var(--glow-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.4s; }
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-body); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
-        }
-        #loading-overlay.hidden {
-            opacity: 0; visibility: hidden;
-        }
-        .loading-text { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; letter-spacing: 1px;}
-        .loading-subtext { font-size: 13px; color: var(--text-secondary); margin-top: 15px;}
-        
-        .progress-container {
-            width: 300px;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
-            border-radius: 4px;
-            transition: width 0.2s ease;
-            box-shadow: 0 0 10px var(--accent);
-        }
+        /* --- ПРЕЛОАДЕР --- */
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease-out, visibility 0.5s; }
+        #loading-overlay.hidden { opacity: 0; visibility: hidden; }
+        .loading-text { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; letter-spacing: 1px; }
+        .loading-subtext { font-size: 13px; color: var(--text-secondary); margin-top: 15px; }
+        .progress-container { width: 300px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); border-radius: 4px; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
 
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; height: 56px;
-            background: var(--bg-panel);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            z-index: 10;
-        }
-
+        /* --- HEADER --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; height: 56px; background: var(--bg-panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 10; }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
-        
         .controls { display: flex; gap: 12px; align-items: center; }
-
-        button, select {
-            display: flex; align-items: center; gap: 6px;
-            background: var(--bg-surface); color: var(--text-primary);
-            border: 1px solid var(--border); padding: 8px 12px;
-            border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px;
-            font-weight: 500; cursor: pointer; transition: all 0.2s; outline: none;
-        }
-
+        button, select { display: flex; align-items: center; gap: 6px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; outline: none; }
         button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .icon-btn { padding: 8px; }
-
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
-
-        .font-size-control {
-            display: flex; align-items: center; gap: 8px;
-            background: var(--bg-surface); border: 1px solid var(--border);
-            padding: 0 12px; border-radius: 8px; height: 35px;
-        }
+        .font-size-control { display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 0 12px; border-radius: 8px; height: 35px; }
         .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
         input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%;
-            background: var(--accent); cursor: pointer; margin-top: -5px; box-shadow: 0 0 5px var(--accent);
-        }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
 
+        /* --- MAIN --- */
         main { display: flex; flex: 1; padding: 16px; gap: 16px; height: calc(100vh - 56px - 30px); }
-
-        .panel {
-            display: flex; flex-direction: column; flex: 1; min-width: 0;
-            background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-radius: 12px; border: 1px solid var(--border);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden;
-        }
-
-        .panel-header {
-            display: flex; justify-content: space-between; align-items: center; height: 42px;
-            background: var(--bg-surface); border-bottom: 1px solid var(--border);
-            padding: 0 15px; font-size: 13px; color: var(--text-secondary);
-        }
-
+        .panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; height: 42px; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 15px; font-size: 13px; color: var(--text-secondary); }
         .panel-header-left { display: flex; align-items: center; gap: 10px; }
-
-        .tab {
-            display: flex; align-items: center; gap: 8px;
-            background: var(--console-bg); color: var(--text-primary);
-            padding: 0 18px; height: 42px; border-right: 1px solid var(--border);
-            border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace;
-        }
-
+        .tab { display: flex; align-items: center; gap: 8px; background: var(--console-bg); color: var(--text-primary); padding: 0 18px; height: 42px; border-right: 1px solid var(--border); border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace; }
         .editor-container { flex: 1; position: relative; overflow: hidden; }
-
-        .CodeMirror {
-            position: absolute; top: 0; bottom: 0; left: 0; right: 0;
-            height: 100% !important; font-family: 'Fira Code', monospace;
-            font-size: var(--editor-font-size) !important;
-            line-height: 1.6; background: transparent !important;
-            transition: font-size 0.1s;
-        }
-
+        .CodeMirror { position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100% !important; font-family: 'Fira Code', monospace; font-size: var(--editor-font-size) !important; line-height: 1.6; background: transparent !important; transition: font-size 0.1s; }
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
-
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
-
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
         .cm-s-custom .cm-operator { color: var(--syn-variable); }
@@ -252,30 +114,15 @@
         .cm-s-custom .cm-builtin { color: var(--syn-builtin); }
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
-        
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
-
-        .CodeMirror-dialog {
-            background: var(--bg-surface) !important; color: var(--text-primary) !important;
-            border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important;
-            font-family: 'Inter', sans-serif !important; font-size: 14px !important;
-        }
+        .CodeMirror-dialog { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; }
         .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
-
-        .CodeMirror-hints {
-            background: var(--bg-surface) !important; border: 1px solid var(--border) !important;
-            border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; 
-            font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important;
-            padding: 6px 0 !important; z-index: 1000 !important; overflow: hidden;
-        }
+        .CodeMirror-hints { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important; padding: 6px 0 !important; z-index: 1000 !important; overflow: hidden; }
         .CodeMirror-hint { color: var(--text-primary) !important; padding: 8px 16px !important; cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s; }
-        li.CodeMirror-hint-active {
-            background: transparent !important; color: var(--accent) !important; 
-            font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important;
-            outline: none !important; border: none !important;
-        }
+        li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important; outline: none !important; border: none !important; }
 
+        /* --- CONSOLE --- */
         .console-wrapper { flex: 1; background: var(--console-bg); display: flex; flex-direction: column; position: relative; min-height: 0; }
         .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
@@ -283,83 +130,105 @@
         .dot.red { background: #ff5f56; box-shadow: 0 0 5px #ff5f56; }
         .dot.yellow { background: #ffbd2e; box-shadow: 0 0 5px #ffbd2e; }
         .dot.green { background: #27c93f; box-shadow: 0 0 5px #27c93f; }
-
         .copy-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s; }
         .copy-btn:hover { color: var(--accent); }
-
-        #output {
-            flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px;
-            color: var(--text-primary); overflow-y: auto; white-space: pre-wrap; line-height: 1.6; min-height: 0;
-        }
+        #output { flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px; color: var(--text-primary); overflow-y: auto; white-space: pre-wrap; line-height: 1.6; min-height: 0; }
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
-        footer {
-            height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px);
-        }
+        /* --- FOOTER --- */
+        footer { height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px); }
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
         .status-item { display: flex; align-items: center; gap: 4px; }
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
-        #ai-toggle-btn {
-            position: fixed; bottom: 50px; right: 30px;
-            width: 60px; height: 60px; border-radius: 50%;
-            background: var(--accent); color: #111; border: none;
-            box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4);
-            cursor: pointer; display: flex; justify-content: center; align-items: center;
-            font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s;
-        }
+        /* --- AI CHAT --- */
+        #ai-toggle-btn { position: fixed; bottom: 50px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #111; border: none; box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s; }
         #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
-
-        #ai-chat-panel {
-            position: fixed; bottom: 120px; right: 30px;
-            width: 400px; height: 600px; max-height: calc(100vh - 150px);
-            background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            display: none; flex-direction: column; z-index: 900;
-            overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        #ai-chat-panel { position: fixed; bottom: 120px; right: 30px; width: 400px; height: 600px; max-height: calc(100vh - 150px); background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 900; overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes chatOpen { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-        .ai-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-            font-weight: 600; color: var(--text-primary);
-        }
+        .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary); }
         .ai-header-left { display: flex; align-items: center; gap: 10px; }
         .ai-header-left i { color: var(--accent); font-size: 20px; }
-        
         #ai-header-buttons { display: flex; gap: 10px; align-items: center; }
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
         .ai-header .settings-btn:hover { color: var(--accent); }
-
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
-        .message.ai .logout-warning {
-            display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--warning-border);
-            font-size: 12px; color: var(--error); font-weight: 600;
-        }
-
         .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        .ai-input-area input {
-            flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px;
-            padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px;
-        }
+        .ai-input-area input { flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
         .ai-input-area input:focus { border-color: var(--accent); }
-        .ai-input-area button {
-            background: var(--accent); color: #111; border: none; border-radius: 8px;
-            padding: 0 15px; cursor: pointer; font-weight: 600; transition: background 0.2s;
-        }
+        .ai-input-area button { background: var(--accent); color: #111; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- КРАСИВОЕ МОДАЛЬНОЕ ОКНО ВВОДА --- */
+        #custom-input-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content {
+            background: var(--bg-surface);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transform: translateY(-20px);
+            animation: modalSlideUp 0.2s ease-out forwards;
+        }
+        @keyframes modalSlideUp { to { transform: translateY(0); } }
+        .modal-content p { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+        .modal-content input {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 10px;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        .modal-content input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 157, 92, 0.2); }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
+        .modal-buttons button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .modal-buttons button#modal-cancel {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .modal-buttons button#modal-cancel:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+        .modal-buttons button#modal-ok {
+            background: var(--accent);
+            color: #111;
+            box-shadow: 0 0 15px rgba(255, 157, 92, 0.3);
+        }
+        .modal-buttons button#modal-ok:hover { background: var(--accent-hover); box-shadow: 0 0 20px rgba(255, 157, 92, 0.5); }
 
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
@@ -372,63 +241,41 @@
 </head>
 <body data-theme="dark">
 
+    <!-- Модальное окно для ввода -->
+    <div id="custom-input-modal">
+        <div class="modal-content">
+            <p id="modal-prompt-text">Введите данные:</p>
+            <input type="text" id="modal-input-field" autocomplete="off" spellcheck="false">
+            <div class="modal-buttons">
+                <button id="modal-cancel">Отмена</button>
+                <button id="modal-ok">Ввод</button>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-overlay">
         <div class="loading-text">Загрузка Python</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
+        <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
         <div class="loading-subtext" id="progress-text">0%</div>
     </div>
 
     <header>
-        <div class="logo">
-            <i class="ph ph-terminal-window"></i>
-            Питон в браузере
-        </div>
+        <div class="logo"><i class="ph ph-terminal-window"></i> Питон в браузере</div>
         <div class="controls">
-            <div class="font-size-control" title="Размер шрифта">
-                <i class="ph ph-text-aa"></i>
-                <input type="range" id="font-size-slider" min="10" max="28" value="15">
-                <span id="font-size-val">15px</span>
-            </div>
-
-            <select id="theme-select" onchange="changeTheme(this.value)">
-                <option value="dark">PyCharm Dark</option>
-                <option value="light">IntelliJ Light</option>
-                <option value="neon">Cyberpunk</option>
-            </select>
-            
+            <div class="font-size-control" title="Размер шрифта"><i class="ph ph-text-aa"></i><input type="range" id="font-size-slider" min="10" max="28" value="15"><span id="font-size-val">15px</span></div>
+            <select id="theme-select" onchange="changeTheme(this.value)"><option value="dark">PyCharm Dark</option><option value="light">IntelliJ Light</option><option value="neon">Cyberpunk</option></select>
             <input type="file" id="file-upload" accept=".py" style="display: none;">
-            <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py">
-                <i class="ph ph-folder-open"></i>
-            </button>
-            <button class="icon-btn" onclick="downloadCode()" title="Скачать код">
-                <i class="ph ph-download-simple"></i>
-            </button>
-
-            <button onclick="clearOutput()" title="Очистить консоль">
-                <i class="ph ph-trash"></i> Очистить
-            </button>
-            <button id="run-btn" class="run-btn" onclick="runPython()" disabled>
-                <i class="ph-fill ph-play"></i> Запустить
-            </button>
+            <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py"><i class="ph ph-folder-open"></i></button>
+            <button class="icon-btn" onclick="downloadCode()" title="Скачать код"><i class="ph ph-download-simple"></i></button>
+            <button onclick="clearOutput()" title="Очистить консоль"><i class="ph ph-trash"></i> Очистить</button>
+            <button id="run-btn" class="run-btn" onclick="runPython()" disabled><i class="ph-fill ph-play"></i> Запустить</button>
         </div>
     </header>
 
     <main>
         <div class="panel">
-            <div class="panel-header">
-                <div class="panel-header-left">
-                    <div class="tab">
-                        <i class="ph ph-file-py"></i> main.py
-                    </div>
-                </div>
-                <div style="font-size: 12px; opacity: 0.7;">
-                    <i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск
-                </div>
-            </div>
-            <div class="editor-container">
-                <textarea id="code-editor">
+            <div class="panel-header"><div class="panel-header-left"><div class="tab"><i class="ph ph-file-py"></i> main.py</div></div><div style="font-size: 12px; opacity: 0.7;"><i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск</div></div>
+            <div class="editor-container"><textarea id="code-editor">
 age = int(input("возраст?: "))
 answer = input("есть пропуск? (да/нет): ")
 has_pass = answer == "да"
@@ -437,69 +284,37 @@ if age >= 16 and has_pass:
     print("одобр")
 else:
     print("не одобр")
-                </textarea>
-            </div>
+            </textarea></div>
         </div>
-
         <div class="panel">
-            <div class="panel-header">
-                <div class="panel-header-left">
-                    <i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал
-                </div>
-            </div>
+            <div class="panel-header"><div class="panel-header-left"><i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал</div></div>
             <div class="console-wrapper">
-                <div class="console-topbar">
-                    <div class="dots">
-                        <div class="dot red"></div>
-                        <div class="dot yellow"></div>
-                        <div class="dot green"></div>
-                    </div>
-                    <button class="copy-btn" onclick="copyOutput()" title="Скопировать вывод">
-                        <i class="ph ph-copy"></i>
-                    </button>
-                </div>
+                <div class="console-topbar"><div class="dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div><button class="copy-btn" onclick="copyOutput()" title="Скопировать вывод"><i class="ph ph-copy"></i></button></div>
                 <div id="output">Ожидание запуска кода...</div>
             </div>
         </div>
     </main>
 
     <footer>
-        <div class="status-left">
-            <span class="status-item" id="py-status">
-                <i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...
-            </span>
-        </div>
-        <div class="status-right">
-            <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
-            <span class="status-item">UTF-8</span>
-            <span class="status-item">Python 3</span>
-        </div>
+        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></div>
+        <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
-    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
-        <i class="ph-fill ph-robot"></i>
-    </button>
+    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник"><i class="ph-fill ph-robot"></i></button>
 
     <div id="ai-chat-panel">
         <div class="ai-header">
-            <div class="ai-header-left">
-                <i class="ph-fill ph-robot"></i>
-                ИИ-Наставник
-            </div>
-            <div id="ai-header-buttons" style="display: none;">
-                <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата">
-                    <i class="ph ph-trash"></i>
-                </button>
+            <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
+            <div id="ai-header-buttons" style="display: flex;">
+                <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата"><i class="ph ph-trash"></i></button>
             </div>
         </div>
-
         <div class="ai-messages" id="ai-messages">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
             </div>
         </div>
-
         <div class="ai-input-area" id="ai-input-area">
             <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
@@ -511,13 +326,55 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
-        let tabTimeout = null;
-        let tabInterval = null;
+        
+        // =====================================================================
+        // ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ CLOUDFLARE WORKER (с https:// и до .workers.dev)
+        // =====================================================================
+        const PROXY_URL = "https://compilatorrr.zxcdedinside944.workers.dev"; 
+        
+        // Модель, которую будет использовать твой прокси (llama-3.1-8b-instant или llama-3.3-70b-versatile)
+        const AI_MODEL = "llama-3.1-8b-instant";
 
-        // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (LLM7) ---
-        const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
-        // Используем стабильную llama-3.1-8b
-        const KEYLESS_AI_MODEL = "llama-3.1-8b"; 
+        // --- КРАСИВОЕ МОДАЛЬНОЕ ОКНО ВВОДА ---
+        function showCustomPrompt(message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-input-modal');
+                const promptText = document.getElementById('modal-prompt-text');
+                const inputField = document.getElementById('modal-input-field');
+                const btnOk = document.getElementById('modal-ok');
+                const btnCancel = document.getElementById('modal-cancel');
+
+                promptText.innerText = message;
+                inputField.value = '';
+                modal.style.display = 'flex';
+                setTimeout(() => inputField.focus(), 50);
+
+                const cleanup = () => {
+                    btnOk.removeEventListener('click', handleOk);
+                    btnCancel.removeEventListener('click', handleCancel);
+                    inputField.removeEventListener('keydown', handleKey);
+                };
+
+                const handleOk = () => {
+                    modal.style.display = 'none';
+                    cleanup();
+                    resolve(inputField.value);
+                };
+                const handleCancel = () => {
+                    modal.style.display = 'none';
+                    cleanup();
+                    resolve(null); // Отмена
+                };
+                const handleKey = (e) => {
+                    if (e.key === 'Enter') handleOk();
+                    if (e.key === 'Escape') handleCancel();
+                };
+
+                btnOk.addEventListener('click', handleOk);
+                btnCancel.addEventListener('click', handleCancel);
+                inputField.addEventListener('keydown', handleKey);
+            });
+        }
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -535,28 +392,19 @@ else:
             const start = token.start;
             const end = cursor.ch;
             const line = cursor.line;
-            
             const text = cm.getValue();
             const words = text.match(/[a-zA-Z_]\w*/g) || [];
             const allWords = new Set([...pyKeywords, ...words]);
             const currentWord = token.string;
-            
             const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord) && w !== currentWord);
-            
-            return {
-                list: filtered.sort(),
-                from: CodeMirror.Pos(line, start),
-                to: CodeMirror.Pos(line, end)
-            };
+            return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
         // --- ЛОГИКА ЧАТА ---
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
+            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
             if (panel.style.display === 'flex') {
-                panel.style.display = 'none';
-            } else {
-                panel.style.display = 'flex';
                 document.getElementById('ai-input').focus();
                 scrollToAIBottom();
             }
@@ -564,8 +412,7 @@ else:
 
         function clearAIChat() {
             const msgs = document.getElementById('ai-messages');
-            const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
-            msgs.innerHTML = welcomeHTML;
+            msgs.innerHTML = document.getElementById('ai-welcome-message').outerHTML;
             scrollToAIBottom();
         }
 
@@ -606,18 +453,14 @@ ${errorText}`;
 
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
-
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
 
             try {
-                const response = await fetch(KEYLESS_AI_URL, {
+                const response = await fetch(PROXY_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer unused'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: KEYLESS_AI_MODEL,
+                        model: AI_MODEL,
                         messages: [
                             { role: "system", content: systemPrompt },
                             { role: "user", content: text }
@@ -628,16 +471,13 @@ ${errorText}`;
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
-                    throw new Error(errMsg);
+                    throw new Error(errData.error?.message || `Ошибка сервера: ${response.status}`);
                 }
 
                 const data = await response.json();
                 const aiResponse = data.choices[0].message.content;
-
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
-
             } catch (err) {
                 loadingDiv.remove();
                 addMessage(`<span class="output-error">Ошибка: ${err.message}</span>`, 'ai');
@@ -692,51 +532,18 @@ ${errorText}`;
                     "Cmd-F": "findPersistent",
                     "Enter": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.pick(); // Вставить подсказку
+                            cm.state.completionActive.pick();
                         } else {
-                            cm.execCommand("newlineAndIndent"); // Перенос строки
+                            cm.execCommand("newlineAndIndent");
                         }
                     },
                     "Tab": function(cm) {
-                        if (!cm.state.completionActive) {
-                            // Если подсказок нет, просто ставим отступ
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.widget.selectNext();
+                        } else {
                             cm.replaceSelection("    ", "end");
                         }
-                        // Если подсказки есть, событие keydown обработает всё само
                     }
-                }
-            });
-
-            // === ЛОГИКА ЗАЖАТИЯ TAB ===
-            editor.on('keydown', function(cm, event) {
-                if (event.key === 'Tab' && cm.state.completionActive) {
-                    event.preventDefault(); // Блокируем стандартный Tab
-                    
-                    // Если это первое нажатие
-                    if (!tabTimeout) {
-                        // Сразу выбираем следующий пункт
-                        cm.state.completionActive.widget.selectNext(); 
-                        
-                        // Запускаем таймер для листания при зажатии
-                        tabTimeout = setTimeout(() => {
-                            tabInterval = setInterval(() => {
-                                if (cm.state.completionActive) {
-                                    cm.state.completionActive.widget.selectNext();
-                                } else {
-                                    clearInterval(tabInterval);
-                                    tabInterval = null;
-                                }
-                            }, 1500); // Интервал 1.5 секунды
-                        }, 500); // Задержка перед началом авто-листания (0.5 сек)
-                    }
-                }
-            });
-
-            // Останавливаем таймеры, когда отпускаем Tab
-            editor.on('keyup', function(cm, event) {
-                if (event.key === 'Tab') {
-                    if (tabTimeout) { clearTimeout(tabTimeout); tabTimeout = null; }
-                    if (tabInterval) { clearInterval(tabInterval); tabInterval = null; }
                 }
             });
 
@@ -796,7 +603,6 @@ ${errorText}`;
 
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
-
             setTimeout(initPyodide, 100);
         };
 
@@ -841,27 +647,32 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                pyodide.runPython(`
-import builtins
-def custom_input(prompt=""):
-    import js
-    res = js.prompt(prompt)
-    if res is None:
-        raise EOFError("Пользователь отменил ввод")
-    return res
-builtins.input = custom_input
-                `);
+                // === ЗАМЕНА СТАНДАРТНОГО INPUT НА КРАСИВОЕ ОКНО ===
+                pyodide.setStdin({
+                    stdin: () => {
+                        return new Promise((resolve) => {
+                            showCustomPrompt("Введите данные (Python):").then(val => {
+                                if (val === null) {
+                                    resolve("\n"); // При отмене просто пустая строка
+                                } else {
+                                    // Выводим введенное в консоль для наглядности
+                                    document.getElementById('output').innerText += "> " + val + "\n";
+                                    scrollToBottom();
+                                    resolve(val + "\n");
+                                }
+                            });
+                        });
+                    }
+                });
 
                 let isReady = false;
                 let attempts = 0;
-                
                 while (!isReady && attempts < 10) {
                     try {
                         await pyodide.runPythonAsync('print("Test")');
                         isReady = true;
                     } catch (e) {
                         attempts++;
-                        console.log(`Инициализация... попытка ${attempts}`);
                         await new Promise(r => setTimeout(r, 500));
                     }
                 }
@@ -887,7 +698,6 @@ builtins.input = custom_input
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
                 document.getElementById('py-status').innerHTML = '<i class="ph ph-fill ph-x-circle"></i> Ошибка загрузки';
-                
                 document.querySelector('.loading-text').innerText = "Ошибка загрузки";
                 document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
                 progressBar.style.background = "var(--error)";
@@ -895,17 +705,12 @@ builtins.input = custom_input
         }
 
         async function runPython() {
-            if (!pyodideReady) {
-                return;
-            }
-
+            if (!pyodideReady) return;
             const runBtn = document.getElementById('run-btn');
             runBtn.disabled = true;
-
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
             lastError = "";
-            
             const code = editor.getValue();
 
             try {
