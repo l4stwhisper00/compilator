@@ -11,7 +11,6 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- CodeMirror Core & Addons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
@@ -25,7 +24,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
 
-    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
@@ -43,6 +41,8 @@
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
+            --warning-bg: rgba(255, 82, 82, 0.1);
+            --warning-border: rgba(255, 82, 82, 0.4);
             
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
@@ -56,8 +56,8 @@
             --editor-font-size: 15px;
         }
 
-        [data-theme="light"] { --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%); --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5; --text-primary: #1f1f1f; --text-secondary: #6c757d; --accent: #005cbf; --accent-hover: #004494; --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #00a000; --error: #d00000; --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c; --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080; }
-        [data-theme="neon"] { --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%); --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b; --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399; --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff007f; --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4; --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd; }
+        [data-theme="light"] { --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%); --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5; --text-primary: #1f1f1f; --text-secondary: #6c757d; --accent: #005cbf; --accent-hover: #004494; --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #00a000; --error: #d00000; --warning-bg: rgba(208, 0, 0, 0.05); --warning-border: rgba(208, 0, 0, 0.3); --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c; --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080; }
+        [data-theme="neon"] { --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%); --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b; --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399; --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff007f; --warning-bg: rgba(255, 0, 127, 0.1); --warning-border: rgba(255, 0, 127, 0.4); --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4; --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); background-image: var(--glow-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.4s; }
@@ -66,6 +66,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* --- ПРЕЛОАДЕР --- */
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease-out, visibility 0.5s; }
         #loading-overlay.hidden { opacity: 0; visibility: hidden; }
         .loading-text { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; letter-spacing: 1px; }
@@ -73,6 +74,7 @@
         .progress-container { width: 300px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); border-radius: 4px; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
 
+        /* --- HEADER --- */
         header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; height: 56px; background: var(--bg-panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 10; }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
@@ -89,6 +91,7 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
 
+        /* --- MAIN --- */
         main { display: flex; flex: 1; padding: 16px; gap: 16px; height: calc(100vh - 56px - 30px); }
         .panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; height: 42px; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 15px; font-size: 13px; color: var(--text-secondary); }
@@ -117,6 +120,7 @@
         .CodeMirror-hint { color: var(--text-primary) !important; padding: 8px 16px !important; cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s; }
         li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important; outline: none !important; border: none !important; }
 
+        /* --- CONSOLE --- */
         .console-wrapper { flex: 1; background: var(--console-bg); display: flex; flex-direction: column; position: relative; min-height: 0; }
         .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
@@ -130,12 +134,14 @@
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
+        /* --- FOOTER --- */
         footer { height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px); }
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
         .status-item { display: flex; align-items: center; gap: 4px; }
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
+        /* --- AI CHAT --- */
         #ai-toggle-btn { position: fixed; bottom: 50px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #111; border: none; box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s; }
         #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
         #ai-chat-panel { position: fixed; bottom: 120px; right: 30px; width: 400px; height: 600px; max-height: calc(100vh - 150px); background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 900; overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -158,6 +164,70 @@
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* --- МОДАЛЬНОЕ ОКНО ВВОДА --- */
+        #custom-input-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content {
+            background: var(--bg-surface);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transform: translateY(-20px);
+            animation: modalSlideUp 0.2s ease-out forwards;
+        }
+        @keyframes modalSlideUp { to { transform: translateY(0); } }
+        .modal-content p { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+        .modal-content input {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 10px;
+            outline: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        .modal-content input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 157, 92, 0.2); }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
+        .modal-buttons button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .modal-buttons button#modal-cancel {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .modal-buttons button#modal-cancel:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+        .modal-buttons button#modal-ok {
+            background: var(--accent);
+            color: #111;
+            box-shadow: 0 0 15px rgba(255, 157, 92, 0.3);
+        }
+        .modal-buttons button#modal-ok:hover { background: var(--accent-hover); box-shadow: 0 0 20px rgba(255, 157, 92, 0.5); }
+
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
@@ -168,6 +238,18 @@
     </style>
 </head>
 <body data-theme="dark">
+
+    <!-- КРАСИВОЕ МОДАЛЬНОЕ ОКНО ВВОДА -->
+    <div id="custom-input-modal">
+        <div class="modal-content">
+            <p id="modal-prompt-text">Введите данные:</p>
+            <input type="text" id="modal-input-field" autocomplete="off" spellcheck="false">
+            <div class="modal-buttons">
+                <button id="modal-cancel">Отмена</button>
+                <button id="modal-ok">Ввод</button>
+            </div>
+        </div>
+    </div>
 
     <div id="loading-overlay">
         <div class="loading-text">Загрузка Python</div>
@@ -245,10 +327,10 @@ else:
         let lastError = "";
 
         // =====================================================================
-        // ССЫЛКА НА ТВОЙ CLOUDFLARE WORKER И МОДЕЛЬ
+        // ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ CLOUDFLARE WORKER И МОДЕЛЬ
         // =====================================================================
         const PROXY_URL = "https://compilatorrr.zxcdedinside944.workers.dev"; 
-        const AI_MODEL = "@cf/meta/llama-3.1-8b-instruct";
+        const AI_MODEL = "@cf/meta/llama-3-8b-instruct";
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -343,11 +425,11 @@ ${errorText}`;
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
-                }
-
                 const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
+                }
                 
                 if (!data.choices || data.choices.length === 0) {
                     throw new Error("Нейросеть вернула пустой ответ.");
@@ -525,18 +607,54 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // === НАДЕЖНЫЙ ПЕРЕХВАТ ВВОДА ===
-                pyodide.runPython(`
+                // === КРАСИВЫЙ ПЕРЕХВАТ ВВОДА ЧЕРЕЗ МОДАЛКУ ===
+                await pyodide.runPythonAsync(`
 import builtins
 import js
 def custom_input(prompt=""):
-    res = js.prompt(prompt)
-    if res is None:
-        return ""
-    return res
+    # Вызываем JS-функцию, которая откроет красивое окно
+    return js.customInput(prompt)
 builtins.input = custom_input
                 `);
 
+                // JS-функция для модалки
+                window.customInput = (promptText) => {
+                    return new Promise((resolve) => {
+                        const modal = document.getElementById('custom-input-modal');
+                        const textEl = document.getElementById('modal-prompt-text');
+                        const inputField = document.getElementById('modal-input-field');
+                        const btnOk = document.getElementById('modal-ok');
+                        const btnCancel = document.getElementById('modal-cancel');
+
+                        textEl.innerText = promptText || "Введите данные:";
+                        inputField.value = '';
+                        modal.style.display = 'flex';
+                        setTimeout(() => inputField.focus(), 50);
+
+                        const cleanup = () => {
+                            btnOk.onclick = null;
+                            btnCancel.onclick = null;
+                            inputField.onkeydown = null;
+                        };
+
+                        btnOk.onclick = () => {
+                            modal.style.display = 'none';
+                            cleanup();
+                            resolve(inputField.value + '\n');
+                        };
+                        btnCancel.onclick = () => {
+                            modal.style.display = 'none';
+                            cleanup();
+                            resolve('\n'); // Возвращаем перенос строки, чтобы Питон не завис
+                        };
+                        inputField.onkeydown = (e) => {
+                            if (e.key === 'Enter') btnOk.onclick();
+                            if (e.key === 'Escape') btnCancel.onclick();
+                        };
+                    });
+                };
+
+                // Ждем готовности
                 let isReady = false;
                 let attempts = 0;
                 while (!isReady && attempts < 10) {
