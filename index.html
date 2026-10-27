@@ -131,7 +131,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* --- ПРЕЛОАДЕР С ПРОГРЕСС-БАРОМ --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
@@ -305,7 +304,6 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
         #ai-toggle-btn {
             position: fixed; bottom: 50px; right: 30px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -339,40 +337,6 @@
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
         .ai-header .settings-btn:hover { color: var(--accent); }
 
-        .ai-onboarding { padding: 25px 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
-        .ai-onboarding h3 { font-size: 18px; color: var(--text-primary); text-align: center; margin-bottom: 5px; }
-        .ai-onboarding p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; text-align: center; }
-        
-        .warning-box {
-            background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 8px;
-            padding: 12px; display: flex; gap: 10px; align-items: flex-start;
-            margin: 5px 0;
-        }
-        .warning-box i { color: var(--error); font-size: 20px; margin-top: 2px; }
-        .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
-        .warning-box strong { color: var(--error); text-transform: uppercase; }
-
-        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
-        .ai-onboarding .provider-buttons a {
-            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
-            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-        .ai-onboarding .provider-buttons .deepseek-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .deepseek-btn:hover { background: var(--accent); color: #111; }
-        
-        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
-        .ai-onboarding .input-group input {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
-        }
-        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
-        .ai-onboarding .connect-btn {
-            background: var(--accent); color: #111; border: none; border-radius: 8px;
-            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
-        }
-        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
-        
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
@@ -383,7 +347,7 @@
             font-size: 12px; color: var(--error); font-weight: 600;
         }
 
-        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: none; gap: 10px; }
+        .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .ai-input-area input {
             flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px;
             padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px;
@@ -395,14 +359,6 @@
         }
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .ai-settings { padding: 20px; display: none; flex-direction: column; gap: 15px; background: var(--bg-surface); flex: 1; overflow-y: auto; }
-        .ai-settings label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .ai-settings input, .ai-settings select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); margin-top: 5px; outline: none; }
-        .ai-settings input:focus, .ai-settings select:focus { border-color: var(--accent); }
-        .ai-settings .save-btn { background: var(--accent); color: #111; margin-top: 10px; justify-content: center; }
-        .ai-settings .logout-btn { background: transparent; color: var(--error); border: 1px solid var(--error); margin-top: 10px; justify-content: center; }
-        .ai-settings .logout-btn:hover { background: rgba(255, 82, 82, 0.1); }
 
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
@@ -472,13 +428,14 @@
             </div>
             <div class="editor-container">
                 <textarea id="code-editor">
-x = int(input("Введи число товаров: "))
-y = int(input("Введи цену товара: "))
-a = float(input("Введи скидку на товар без %: "))
+age = int(input("возраст?: "))
+answer = input("есть пропуск? (да/нет): ")
+has_pass = answer == "да"
 
-z = a / 100
-itog = x * y * z
-print("Итоговая цена:", itog)
+if age >= 16 and has_pass:
+    print("одобр")
+else:
+    print("не одобр")
                 </textarea>
             </div>
         </div>
@@ -518,12 +475,10 @@ print("Итоговая цена:", itog)
         </div>
     </footer>
 
-    <!-- Кнопка вызова ИИ -->
     <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
         <i class="ph-fill ph-robot"></i>
     </button>
 
-    <!-- Окно ИИ -->
     <div id="ai-chat-panel">
         <div class="ai-header">
             <div class="ai-header-left">
@@ -537,7 +492,6 @@ print("Итоговая цена:", itog)
             </div>
         </div>
 
-        <!-- ЧАТ (Экран подключения убран, сразу работает) -->
         <div class="ai-messages" id="ai-messages">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
@@ -545,7 +499,7 @@ print("Итоговая цена:", itog)
             </div>
         </div>
 
-        <div class="ai-input-area" id="ai-input-area" style="display: flex;">
+        <div class="ai-input-area" id="ai-input-area">
             <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
         </div>
@@ -557,11 +511,11 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (KEYLESS) ---
-        const KEYLESS_AI_URL = "https://keylessai.thryx.workers.dev/v1/chat/completions";
-        const KEYLESS_AI_MODEL = "gpt-4o"; // Или "claude-3-5-sonnet-latest"
+        // --- НАСТРОЙКИ СТАБИЛЬНОГО БЕСПЛАТНОГО ИИ (POLLINATIONS) ---
+        const KEYLESS_AI_URL = "https://text.pollinations.ai/openai";
+        const KEYLESS_AI_MODEL = "openai"; 
 
-        // --- УМНЫЕ ПОДСКАЗКИ (БЕЗ ОШИБОК) ---
+        // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
             "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", 
             "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", 
@@ -660,7 +614,6 @@ ${errorText}`;
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                        // Токен не нужен!
                     },
                     body: JSON.stringify({
                         model: KEYLESS_AI_MODEL,
@@ -673,9 +626,7 @@ ${errorText}`;
                 });
 
                 if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
-                    throw new Error(errMsg);
+                    throw new Error(`Ошибка сервера: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -736,6 +687,14 @@ ${errorText}`;
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
+                    // ГЛАВНЫЙ ФИКС: Enter всегда делает новую строку, даже если открыта подсказка
+                    "Enter": function(cm) {
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.close();
+                        }
+                        cm.execCommand("newlineAndIndent");
+                    },
+                    // Tab выбирает подсказку или ставит отступ
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
                             cm.state.completionActive.widget.selectActive();
