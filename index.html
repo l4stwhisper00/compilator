@@ -131,6 +131,7 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
+        /* --- ПРЕЛОАДЕР С ПРОГРЕСС-БАРОМ --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
@@ -253,6 +254,7 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
         
+        /* Подсветка методов */
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
 
@@ -304,6 +306,7 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
+        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
         #ai-toggle-btn {
             position: fixed; bottom: 50px; right: 30px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -697,7 +700,7 @@ ${errorText}`;
                     // Tab выбирает подсказку или ставит отступ
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.widget.selectActive();
+                            cm.state.completionActive.pick();
                         } else {
                             cm.replaceSelection("    ", "end");
                         }
