@@ -511,13 +511,14 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
+        let tabInterval = null; // Для зажатия Tab
 
-        // --- НАСТРОЙКИ СТАБИЛЬНОГО БЕСПЛАТНОГО ИИ (LLM7) ---
+        // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (LLM7) ---
         const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
-        // Меняем модель на более мощную, чтобы не было бреда с таблицами
-        const KEYLESS_AI_MODEL = "gpt-4o"; 
+        // Используем самую стабильную модель на этом сервере
+        const KEYLESS_AI_MODEL = "gpt-4o-mini"; 
 
-        // --- УМНЫЕ ПОДСКАЗКИ (С ФИКСОМ) ---
+        // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
             "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", 
             "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", 
@@ -539,7 +540,7 @@ else:
             const allWords = new Set([...pyKeywords, ...words]);
             const currentWord = token.string;
             
-            // ФИКС: Фильтруем слова, которые начинаются на введенный текст, НО исключаем само введенное слово
+            // Убираем само введенное слово из подсказок
             const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord) && w !== currentWord);
             
             return {
@@ -594,7 +595,6 @@ else:
             const currentCode = editor.getValue();
             const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
             
-            // СТРОГИЙ ПРОМПТ: запрещаем таблицы и маркдаун
             const systemPrompt = `Ты — учитель информатики. Твой ответ должен быть коротким, понятным и написаным ТОЛЬКО обычным текстом. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать таблицы (символ |), сложный Markdown или списки с палками. 
 Если у ученика есть ошибка в коде, объясни в чем она и как ее исправить. Если код правильный, просто скажи ему об этом. НЕ пиши готовый код за ученика.
 
@@ -691,20 +691,49 @@ ${errorText}`;
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
                     
+                    // Enter вставляет подсказку, если она открыта. Иначе переносит строку.
                     "Enter": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.pick();
+                            cm.state.completionActive.pick(); 
                         } else {
-                            cm.execCommand("newlineAndIndent");
+                            cm.execCommand("newlineAndIndent"); 
                         }
-                    },
-                    
-                    "Tab": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.widget.selectNext();
-                        } else {
-                            cm.replaceSelection("    ", "end");
+                    }
+                }
+            });
+
+            // === КАСТОМНАЯ ЛОГИКА ДЛЯ TAB (ЗАЖАТИЕ) ===
+            editor.on('keydown', function(cm, event) {
+                if (event.key === 'Tab') {
+                    if (cm.state.completionActive) {
+                        event.preventDefault(); // Блокируем стандартное поведение Tab
+                        if (!tabInterval) {
+                            // Первое нажатие - сразу вниз
+                            cm.state.completionActive.widget.selectNext(); 
+                            // Запускаем таймер для прокрутки при зажатии (каждые 300 мс)
+                            tabInterval = setInterval(() => {
+                                if (cm.state.completionActive) {
+                                    cm.state.completionActive.widget.selectNext();
+                                } else {
+                                    clearInterval(tabInterval);
+                                    tabInterval = null;
+                                }
+                            }, 300);
                         }
+                    } else {
+                        // Если подсказки нет, Tab ставит отступ
+                        event.preventDefault();
+                        cm.replaceSelection("    ", "end");
+                    }
+                }
+            });
+
+            // Останавливаем таймер, когда отпускаем Tab
+            editor.on('keyup', function(cm, event) {
+                if (event.key === 'Tab') {
+                    if (tabInterval) {
+                        clearInterval(tabInterval);
+                        tabInterval = null;
                     }
                 }
             });
