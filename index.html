@@ -21,9 +21,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
-    <!-- ДОБАВЛЕН ANYWORD HINT для подсказок переменных -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
@@ -56,7 +53,7 @@
             --syn-def: #e5c07b;
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
-            --syn-property: #56b6c2; /* Новый цвет для методов (.lower и т.д.) */
+            --syn-property: #56b6c2; /* Бирюзовый цвет для методов (.lower и т.д.) */
             
             --editor-font-size: 15px;
         }
@@ -257,7 +254,7 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
         
-        /* --- ПОДСВЕТКА МЕТОДОВ (.lower, .append и т.д.) --- */
+        /* Подсветка методов */
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
 
@@ -620,23 +617,38 @@ print("Итоговая цена:", itog)
             custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
         };
 
-        // --- КАСТОМНЫЕ ПОДСКАЗКИ (PYTHON + ПЕРЕМЕННЫЕ ИЗ КОДА) ---
-        function customHint(cm) {
-            // 1. Получаем стандартные подсказки Python (print, if, for...)
-            const pythonHint = CodeMirror.pythonHint(cm) || { list: [] };
+        // --- УМНЫЕ ПОДСКАЗКИ (БЕЗ ОШИБОК) ---
+        const pyKeywords = [
+            "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", 
+            "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", 
+            "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
+            "print", "input", "int", "float", "str", "list", "dict", "set", "tuple", "len", "range", "type", 
+            "sum", "max", "min", "abs", "round", "open", "enumerate", "zip", "map", "filter", "lower", "upper", 
+            "append", "split", "join", "strip", "replace"
+        ];
+
+        function smartHint(cm) {
+            const cursor = cm.getCursor();
+            const token = cm.getTokenAt(cursor);
+            const start = token.start;
+            const end = cursor.ch;
+            const line = cursor.line;
             
-            // 2. Получаем все слова из текущего текста
+            // Получаем все слова из текущего текста
             const text = cm.getValue();
             const words = text.match(/[a-zA-Z_]\w*/g) || [];
             
-            // 3. Объединяем и убираем дубликаты
-            const allHints = new Set([...pythonHint.list, ...words]);
+            // Объединяем ключевые слова и слова из кода
+            const allWords = new Set([...pyKeywords, ...words]);
             
-            // 4. Возвращаем отфильтрованный и отсортированный список
+            // Фильтруем по тому, что уже введено
+            const currentWord = token.string;
+            const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord));
+            
             return {
-                list: Array.from(allHints).sort(),
-                from: cm.getCursor(),
-                to: cm.getCursor()
+                list: filtered.sort(),
+                from: CodeMirror.Pos(line, start),
+                to: CodeMirror.Pos(line, end)
             };
         }
 
@@ -910,7 +922,7 @@ ${errorText}`;
                 indentUnit: 4,
                 lineWrapping: true,
                 extraKeys: {
-                    "Ctrl-Space": function(cm) { cm.showHint({ hint: customHint, completeSingle: false }); },
+                    "Ctrl-Space": function(cm) { cm.showHint({ hint: smartHint, completeSingle: false }); },
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
@@ -969,7 +981,7 @@ ${errorText}`;
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => {
-                        cm.showHint({ hint: customHint, completeSingle: false });
+                        cm.showHint({ hint: smartHint, completeSingle: false });
                     }, 300);
                 }
             });
