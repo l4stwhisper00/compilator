@@ -511,11 +511,12 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
+        let tabInterval = null; // Для зажатия Tab
 
         // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (LLM7) ---
         const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
-        // Используем deepseek-r1, она стабильна и умна для кода
-        const KEYLESS_AI_MODEL = "deepseek-r1"; 
+        // Используем qwen-2.5-72b, она стабильнее
+        const KEYLESS_AI_MODEL = "qwen-2.5-72b"; 
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -687,24 +688,47 @@ ${errorText}`;
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
-                    "Cmd-F": "findPersistent",
-                    
-                    // === ИСПРАВЛЕННЫЙ TAB И ENTER ===
-                    // Tab: листает подсказки или ставит отступ
-                    "Tab": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.widget.selectNext();
-                        } else {
-                            cm.replaceSelection("    ", "end");
+                    "Cmd-F": "findPersistent"
+                }
+            });
+
+            // === КАСТОМНАЯ ЛОГИКА ДЛЯ TAB (ЗАЖАТИЕ) И ENTER ===
+            editor.on('keydown', function(cm, event) {
+                if (event.key === 'Tab') {
+                    if (cm.state.completionActive) {
+                        event.preventDefault(); // Блокируем стандартный Tab
+                        if (!tabInterval) {
+                            // Сразу выбираем следующий
+                            cm.state.completionActive.widget.selectNext(); 
+                            // Запускаем таймер (каждые 1500 мс = 1.5 сек)
+                            tabInterval = setInterval(() => {
+                                if (cm.state.completionActive) {
+                                    cm.state.completionActive.widget.selectNext();
+                                } else {
+                                    clearInterval(tabInterval);
+                                    tabInterval = null;
+                                }
+                            }, 1500);
                         }
-                    },
-                    // Enter: выбирает подсказку или переносит строку
-                    "Enter": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.pick();
-                        } else {
-                            cm.execCommand("newlineAndIndent");
-                        }
+                    } else {
+                        // Если подсказки нет, Tab ставит отступ
+                        event.preventDefault();
+                        cm.replaceSelection("    ", "end");
+                    }
+                } else if (event.key === 'Enter') {
+                    if (cm.state.completionActive) {
+                        event.preventDefault();
+                        cm.state.completionActive.pick(); // Вставить выбранное слово
+                    }
+                }
+            });
+
+            // Останавливаем таймер, когда отпускаем Tab
+            editor.on('keyup', function(cm, event) {
+                if (event.key === 'Tab') {
+                    if (tabInterval) {
+                        clearInterval(tabInterval);
+                        tabInterval = null;
                     }
                 }
             });
