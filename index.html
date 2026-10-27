@@ -22,6 +22,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/python-hint.min.js"></script>
+    <!-- ДОБАВЛЕН ANYWORD HINT для подсказок переменных -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
@@ -54,6 +56,7 @@
             --syn-def: #e5c07b;
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
+            --syn-property: #56b6c2; /* Новый цвет для методов (.lower и т.д.) */
             
             --editor-font-size: 15px;
         }
@@ -82,6 +85,7 @@
             --syn-def: #00627a;
             --syn-builtin: #0033b3;
             --syn-variable: #1f1f1f;
+            --syn-property: #008080; 
         }
 
         [data-theme="neon"] {
@@ -108,6 +112,7 @@
             --syn-def: #bd93f9;
             --syn-builtin: #ff007f;
             --syn-variable: #e0def4;
+            --syn-property: #8be9fd;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -251,6 +256,10 @@
         .cm-s-custom .cm-builtin { color: var(--syn-builtin); }
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
+        
+        /* --- ПОДСВЕТКА МЕТОДОВ (.lower, .append и т.д.) --- */
+        .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
+        .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
 
         .CodeMirror-dialog {
             background: var(--bg-surface) !important; color: var(--text-primary) !important;
@@ -606,11 +615,30 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
         const providers = {
             deepseek: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" },
             custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
         };
+
+        // --- КАСТОМНЫЕ ПОДСКАЗКИ (PYTHON + ПЕРЕМЕННЫЕ ИЗ КОДА) ---
+        function customHint(cm) {
+            // 1. Получаем стандартные подсказки Python (print, if, for...)
+            const pythonHint = CodeMirror.pythonHint(cm) || { list: [] };
+            
+            // 2. Получаем все слова из текущего текста
+            const text = cm.getValue();
+            const words = text.match(/[a-zA-Z_]\w*/g) || [];
+            
+            // 3. Объединяем и убираем дубликаты
+            const allHints = new Set([...pythonHint.list, ...words]);
+            
+            // 4. Возвращаем отфильтрованный и отсортированный список
+            return {
+                list: Array.from(allHints).sort(),
+                from: cm.getCursor(),
+                to: cm.getCursor()
+            };
+        }
 
         // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
         function toggleAI() {
@@ -882,7 +910,7 @@ ${errorText}`;
                 indentUnit: 4,
                 lineWrapping: true,
                 extraKeys: {
-                    "Ctrl-Space": "autocomplete",
+                    "Ctrl-Space": function(cm) { cm.showHint({ hint: customHint, completeSingle: false }); },
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
@@ -941,7 +969,7 @@ ${errorText}`;
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => {
-                        cm.showHint({ hint: CodeMirror.pythonHint, completeSingle: false });
+                        cm.showHint({ hint: customHint, completeSingle: false });
                     }, 300);
                 }
             });
@@ -966,13 +994,11 @@ ${errorText}`;
             lastError = "";
         }
 
-        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ С ПРОГРЕСС-БАРОМ И ТЕСТОМ ---
         async function initPyodide() {
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
             
             try {
-                // Имитируем прогресс для UX, пока идет загрузка
                 let progress = 0;
                 const progressInterval = setInterval(() => {
                     if (progress < 90) {
@@ -1000,7 +1026,6 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // Переопределяем input
                 pyodide.runPython(`
 import builtins
 def custom_input(prompt=""):
@@ -1012,7 +1037,6 @@ def custom_input(prompt=""):
 builtins.input = custom_input
                 `);
 
-                // === ГЛАВНЫЙ ФИКС: Тестовый запуск ===
                 let isReady = false;
                 let attempts = 0;
                 
@@ -1029,7 +1053,6 @@ builtins.input = custom_input
 
                 if (!isReady) throw new Error("Pyodide не смог инициализироваться");
 
-                // Если дошли сюда — всё точно работает
                 progressBar.style.width = '100%';
                 progressText.innerText = '100%';
                 
@@ -1048,7 +1071,7 @@ builtins.input = custom_input
 
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
-                document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
+                document.getElementById('py-status').innerHTML = '<i class="ph ph-fill ph-x-circle"></i> Ошибка загрузки';
                 
                 document.querySelector('.loading-text').innerText = "Ошибка загрузки";
                 document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
