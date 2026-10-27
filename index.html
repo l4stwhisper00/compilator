@@ -511,12 +511,11 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
-        let tabInterval = null; // Для зажатия Tab
 
         // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (LLM7) ---
         const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
-        // Используем самую стабильную модель на этом сервере
-        const KEYLESS_AI_MODEL = "gpt-4o-mini"; 
+        // Используем deepseek-r1, она стабильна и умна для кода
+        const KEYLESS_AI_MODEL = "deepseek-r1"; 
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -540,7 +539,6 @@ else:
             const allWords = new Set([...pyKeywords, ...words]);
             const currentWord = token.string;
             
-            // Убираем само введенное слово из подсказок
             const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord) && w !== currentWord);
             
             return {
@@ -691,49 +689,22 @@ ${errorText}`;
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
                     
-                    // Enter вставляет подсказку, если она открыта. Иначе переносит строку.
+                    // === ИСПРАВЛЕННЫЙ TAB И ENTER ===
+                    // Tab: листает подсказки или ставит отступ
+                    "Tab": function(cm) {
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.widget.selectNext();
+                        } else {
+                            cm.replaceSelection("    ", "end");
+                        }
+                    },
+                    // Enter: выбирает подсказку или переносит строку
                     "Enter": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.pick(); 
+                            cm.state.completionActive.pick();
                         } else {
-                            cm.execCommand("newlineAndIndent"); 
+                            cm.execCommand("newlineAndIndent");
                         }
-                    }
-                }
-            });
-
-            // === КАСТОМНАЯ ЛОГИКА ДЛЯ TAB (ЗАЖАТИЕ) ===
-            editor.on('keydown', function(cm, event) {
-                if (event.key === 'Tab') {
-                    if (cm.state.completionActive) {
-                        event.preventDefault(); // Блокируем стандартное поведение Tab
-                        if (!tabInterval) {
-                            // Первое нажатие - сразу вниз
-                            cm.state.completionActive.widget.selectNext(); 
-                            // Запускаем таймер для прокрутки при зажатии (каждые 300 мс)
-                            tabInterval = setInterval(() => {
-                                if (cm.state.completionActive) {
-                                    cm.state.completionActive.widget.selectNext();
-                                } else {
-                                    clearInterval(tabInterval);
-                                    tabInterval = null;
-                                }
-                            }, 300);
-                        }
-                    } else {
-                        // Если подсказки нет, Tab ставит отступ
-                        event.preventDefault();
-                        cm.replaceSelection("    ", "end");
-                    }
-                }
-            });
-
-            // Останавливаем таймер, когда отпускаем Tab
-            editor.on('keyup', function(cm, event) {
-                if (event.key === 'Tab') {
-                    if (tabInterval) {
-                        clearInterval(tabInterval);
-                        tabInterval = null;
                     }
                 }
             });
