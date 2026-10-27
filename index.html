@@ -514,9 +514,9 @@ else:
         let pyodide;
         let lastError = "";
 
-        // --- НАСТРОЙКИ СТАБИЛЬНОГО БЕСПЛАТНОГО ИИ (POLLINATIONS) ---
-        const KEYLESS_AI_URL = "https://text.pollinations.ai/openai";
-        const KEYLESS_AI_MODEL = "openai"; 
+        // --- НАСТРОЙКИ СТАБИЛЬНОГО БЕСПЛАТНОГО ИИ (LLM7) ---
+        const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
+        const KEYLESS_AI_MODEL = "gpt-oss:20b"; 
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -616,7 +616,8 @@ ${errorText}`;
                 const response = await fetch(KEYLESS_AI_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer unused'
                     },
                     body: JSON.stringify({
                         model: KEYLESS_AI_MODEL,
@@ -629,7 +630,9 @@ ${errorText}`;
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
+                    const errData = await response.json().catch(() => ({}));
+                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
+                    throw new Error(errMsg);
                 }
 
                 const data = await response.json();
@@ -690,19 +693,24 @@ ${errorText}`;
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
-                    // ГЛАВНЫЙ ФИКС: Enter всегда делает новую строку, даже если открыта подсказка
+                    
+                    // === ИСПРАВЛЕННАЯ ЛОГИКА ===
+                    
+                    // Enter вставляет подсказку, если она открыта. Иначе переносит строку.
                     "Enter": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.close();
+                            cm.state.completionActive.pick(); // Вставить выбранное слово
+                        } else {
+                            cm.execCommand("newlineAndIndent"); // Обычный перенос строки
                         }
-                        cm.execCommand("newlineAndIndent");
                     },
-                    // Tab выбирает подсказку или ставит отступ
+                    
+                    // Tab листает вниз по подсказкам, если она открыта. Иначе делает отступ.
                     "Tab": function(cm) {
                         if (cm.state.completionActive) {
-                            cm.state.completionActive.pick();
+                            cm.state.completionActive.widget.selectNext(); // Листать вниз
                         } else {
-                            cm.replaceSelection("    ", "end");
+                            cm.replaceSelection("    ", "end"); // Обычный отступ
                         }
                     }
                 }
