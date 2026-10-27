@@ -53,7 +53,7 @@
             --syn-def: #e5c07b;
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
-            --syn-property: #56b6c2; /* Бирюзовый цвет для методов (.lower и т.д.) */
+            --syn-property: #56b6c2; 
             
             --editor-font-size: 15px;
         }
@@ -254,7 +254,6 @@
         .cm-s-custom .cm-variable { color: var(--syn-variable); }
         .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
         
-        /* Подсветка методов */
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
 
@@ -416,7 +415,6 @@
 </head>
 <body data-theme="dark">
 
-    <!-- ПРЕЛОАДЕР С ПРОГРЕСС-БАРОМ -->
     <div id="loading-overlay">
         <div class="loading-text">Загрузка Python</div>
         <div class="progress-container">
@@ -536,73 +534,20 @@ print("Итоговая цена:", itog)
                 <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата">
                     <i class="ph ph-trash"></i>
                 </button>
-                <button class="settings-btn" onclick="toggleAISettings()" title="Настройки API">
-                    <i class="ph ph-gear"></i>
-                </button>
             </div>
         </div>
 
-        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
-        <div id="ai-onboarding" class="ai-onboarding">
-            <h3>Подключение ИИ-Наставника</h3>
-            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
-            
-            <div class="warning-box">
-                <i class="ph-fill ph-warning-circle"></i>
-                <div>
-                    <strong>ВАЖНО!</strong><br>
-                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
-                </div>
-            </div>
-
-            <div class="provider-buttons">
-                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="deepseek-btn">
-                    <i class="ph ph-brain"></i> Получить ключ DeepSeek
-                </a>
-            </div>
-
-            <div class="input-group">
-                <label>Вставь полученный ключ сюда:</label>
-                <input type="password" id="onboarding-key" placeholder="sk-...">
-            </div>
-            
-            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
-        </div>
-
-        <!-- ЧАТ -->
-        <div class="ai-messages" id="ai-messages" style="display: none;">
+        <!-- ЧАТ (Экран подключения убран, сразу работает) -->
+        <div class="ai-messages" id="ai-messages">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
-                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
             </div>
         </div>
 
-        <div class="ai-input-area" id="ai-input-area">
+        <div class="ai-input-area" id="ai-input-area" style="display: flex;">
             <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
-        </div>
-
-        <!-- Настройки API -->
-        <div class="ai-settings" id="ai-settings">
-            <label>Провайдер:
-                <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="deepseek">DeepSeek (Рекомендуется)</option>
-                    <option value="custom">Свой вариант (OpenAI, Mistral и др.)</option>
-                </select>
-            </label>
-            <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://api.deepseek.com/chat/completions">
-            </label>
-            <label>API Ключ (Token):
-                <input type="password" id="ai-api-key" placeholder="sk-...">
-            </label>
-            <label>Модель:
-                <input type="text" id="ai-model" placeholder="deepseek-chat">
-            </label>
-            
-            <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
-            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
         </div>
     </div>
 
@@ -612,10 +557,9 @@ print("Итоговая цена:", itog)
         let pyodide;
         let lastError = "";
 
-        const providers = {
-            deepseek: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" },
-            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
-        };
+        // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (KEYLESS) ---
+        const KEYLESS_AI_URL = "https://keylessai.thryx.workers.dev/v1/chat/completions";
+        const KEYLESS_AI_MODEL = "gpt-4o"; // Или "claude-3-5-sonnet-latest"
 
         // --- УМНЫЕ ПОДСКАЗКИ (БЕЗ ОШИБОК) ---
         const pyKeywords = [
@@ -634,14 +578,9 @@ print("Итоговая цена:", itog)
             const end = cursor.ch;
             const line = cursor.line;
             
-            // Получаем все слова из текущего текста
             const text = cm.getValue();
             const words = text.match(/[a-zA-Z_]\w*/g) || [];
-            
-            // Объединяем ключевые слова и слова из кода
             const allWords = new Set([...pyKeywords, ...words]);
-            
-            // Фильтруем по тому, что уже введено
             const currentWord = token.string;
             const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord));
             
@@ -652,39 +591,15 @@ print("Итоговая цена:", itog)
             };
         }
 
-        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
+        // --- ЛОГИКА ЧАТА ---
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display === 'flex') {
                 panel.style.display = 'none';
             } else {
                 panel.style.display = 'flex';
-                checkAIConnection();
-            }
-        }
-
-        function checkAIConnection() {
-            const savedKey = localStorage.getItem('ai_api_key');
-            const onboarding = document.getElementById('ai-onboarding');
-            const messages = document.getElementById('ai-messages');
-            const inputArea = document.getElementById('ai-input-area');
-            const headerBtns = document.getElementById('ai-header-buttons');
-            const settings = document.getElementById('ai-settings');
-
-            settings.style.display = 'none';
-
-            if (savedKey) {
-                onboarding.style.display = 'none';
-                messages.style.display = 'flex';
-                inputArea.style.display = 'flex';
-                headerBtns.style.display = 'flex';
                 document.getElementById('ai-input').focus();
                 scrollToAIBottom();
-            } else {
-                onboarding.style.display = 'flex';
-                messages.style.display = 'none';
-                inputArea.style.display = 'none';
-                headerBtns.style.display = 'none';
             }
         }
 
@@ -695,81 +610,6 @@ print("Итоговая цена:", itog)
             scrollToAIBottom();
         }
 
-        function connectFromOnboarding() {
-            const key = document.getElementById('onboarding-key').value.trim();
-            if (!key) {
-                alert("Пожалуйста, вставь ключ!");
-                return;
-            }
-
-            localStorage.setItem('ai_provider', 'deepseek');
-            localStorage.setItem('ai_api_url', providers.deepseek.url);
-            localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', providers.deepseek.model);
-
-            checkAIConnection();
-        }
-
-        function toggleAISettings() {
-            const settings = document.getElementById('ai-settings');
-            const inputArea = document.getElementById('ai-input-area');
-            const messages = document.getElementById('ai-messages');
-            
-            if (settings.style.display === 'flex') {
-                settings.style.display = 'none';
-                inputArea.style.display = 'flex';
-                messages.style.display = 'flex';
-            } else {
-                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'deepseek';
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.deepseek.url;
-                document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.deepseek.model;
-
-                settings.style.display = 'flex';
-                inputArea.style.display = 'none';
-                messages.style.display = 'none';
-            }
-        }
-
-        function onProviderChange() {
-            const p = document.getElementById('ai-provider').value;
-            document.getElementById('ai-api-url').value = providers[p].url;
-            document.getElementById('ai-model').value = providers[p].model;
-        }
-
-        function saveAISettings() {
-            const provider = document.getElementById('ai-provider').value;
-            const url = document.getElementById('ai-api-url').value.trim();
-            const key = document.getElementById('ai-api-key').value.trim();
-            const model = document.getElementById('ai-model').value.trim();
-            
-            if (!url || !key || !model) {
-                alert("Заполни все поля!");
-                return;
-            }
-
-            localStorage.setItem('ai_provider', provider);
-            localStorage.setItem('ai_api_url', url);
-            localStorage.setItem('ai_api_key', key);
-            localStorage.setItem('ai_model', model);
-            
-            toggleAISettings();
-            checkAIConnection();
-            alert("Настройки сохранены!");
-        }
-
-        function logoutAI() {
-            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
-                localStorage.removeItem('ai_provider');
-                localStorage.removeItem('ai_api_url');
-                localStorage.removeItem('ai_api_key');
-                localStorage.removeItem('ai_model');
-                toggleAISettings();
-                checkAIConnection();
-            }
-        }
-
-        // --- ЛОГИКА ЧАТА ---
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
@@ -786,15 +626,6 @@ print("Итоговая цена:", itog)
         }
 
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.deepseek.url;
-            const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.deepseek.model;
-
-            if (!apiKey) {
-                alert("Сначала подключи ИИ!");
-                return;
-            }
-
             const input = document.getElementById('ai-input');
             const text = input.value.trim();
             if (!text) return;
@@ -824,44 +655,22 @@ ${errorText}`;
 
             const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
 
-            async function fetchWithRetry(maxRetries = 3, initialDelay = 1000) {
-                let delay = initialDelay;
-                for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${apiKey}`
-                            },
-                            body: JSON.stringify({
-                                model: model,
-                                messages: [
-                                    { role: "system", content: systemPrompt },
-                                    { role: "user", content: text }
-                                ],
-                                temperature: 0.3
-                            })
-                        });
-
-                        if (response.status === 429 && attempt < maxRetries) {
-                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов, ждем ${delay / 1000} сек...`;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2;
-                            continue;
-                        }
-
-                        return response;
-                    } catch (err) {
-                        if (attempt === maxRetries) throw err;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                    }
-                }
-            }
-
             try {
-                const response = await fetchWithRetry();
+                const response = await fetch(KEYLESS_AI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Токен не нужен!
+                    },
+                    body: JSON.stringify({
+                        model: KEYLESS_AI_MODEL,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ],
+                        temperature: 0.3
+                    })
+                });
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
