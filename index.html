@@ -326,13 +326,13 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
-        
+
         // =====================================================================
         // ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ CLOUDFLARE WORKER (с https:// и до .workers.dev)
         // =====================================================================
         const PROXY_URL = "https://compilatorrr.zxcdedinside944.workers.dev"; 
         
-        // Модель, которую будет использовать твой прокси (llama-3.1-8b-instant или llama-3.3-70b-versatile)
+        // Модель, которую будет использовать твой прокси
         const AI_MODEL = "llama-3.1-8b-instant";
 
         // --- КРАСИВОЕ МОДАЛЬНОЕ ОКНО ВВОДА ---
@@ -344,7 +344,9 @@ else:
                 const btnOk = document.getElementById('modal-ok');
                 const btnCancel = document.getElementById('modal-cancel');
 
-                promptText.innerText = message;
+                // Если текст пустой, ставим дефолтный
+                promptText.innerText = message.trim() !== "" ? message : "Введите данные:";
+                
                 inputField.value = '';
                 modal.style.display = 'flex';
                 setTimeout(() => inputField.focus(), 50);
@@ -469,12 +471,17 @@ ${errorText}`;
                     })
                 });
 
+                const data = await response.json();
+
+                // === ПРОВЕРКА ОШИБОК СЕРВЕРА ===
                 if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.error?.message || `Ошибка сервера: ${response.status}`);
+                    throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
+                }
+                
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error("Нейросеть вернула пустой ответ. Проверьте ключ API и модель.");
                 }
 
-                const data = await response.json();
                 const aiResponse = data.choices[0].message.content;
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
@@ -632,7 +639,7 @@ ${errorText}`;
                 pyodide = await loadPyodide({
                     stdout: (text) => {
                         const output = document.getElementById('output');
-                        output.innerText += text + "\n";
+                        output.innerText += text;
                         scrollToBottom();
                     },
                     stderr: (text) => {
@@ -647,23 +654,37 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // === ЗАМЕНА СТАНДАРТНОГО INPUT НА КРАСИВОЕ ОКНО ===
+                // === ПЕРЕХВАТ ВВОДА ===
                 pyodide.setStdin({
                     stdin: () => {
                         return new Promise((resolve) => {
-                            showCustomPrompt("Введите данные (Python):").then(val => {
+                            const outputDiv = document.getElementById('output');
+                            const lines = outputDiv.innerText.split('\n');
+                            let promptText = lines[lines.length - 1].trim();
+                            if (promptText === "") promptText = "Введите данные:";
+
+                            showCustomPrompt(promptText).then(val => {
                                 if (val === null) {
-                                    resolve("\n"); // При отмене просто пустая строка
+                                    resolve("\n");
                                 } else {
-                                    // Выводим введенное в консоль для наглядности
-                                    document.getElementById('output').innerText += "> " + val + "\n";
-                                    scrollToBottom();
+                                    // НЕ вставляем в DOM напрямую, чтобы не ломать поток
                                     resolve(val + "\n");
                                 }
                             });
                         });
                     }
                 });
+
+                // Хак для того, чтобы введенный текст отображался в консоли
+                await pyodide.runPythonAsync(`
+import builtins
+_original_input = builtins.input
+def input_with_echo(prompt=""):
+    res = _original_input(prompt)
+    print(res)
+    return res
+builtins.input = input_with_echo
+                `);
 
                 let isReady = false;
                 let attempts = 0;
@@ -711,6 +732,7 @@ ${errorText}`;
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
             lastError = "";
+            
             const code = editor.getValue();
 
             try {
