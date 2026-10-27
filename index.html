@@ -511,12 +511,13 @@ else:
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
-        let tabInterval = null; // Для зажатия Tab
+        let tabTimeout = null;
+        let tabInterval = null;
 
         // --- НАСТРОЙКИ БЕСПЛАТНОГО ИИ (LLM7) ---
         const KEYLESS_AI_URL = "https://api.llm7.io/v1/chat/completions";
-        // Используем qwen-2.5-72b, она стабильнее
-        const KEYLESS_AI_MODEL = "qwen-2.5-72b"; 
+        // Используем стабильную llama-3.1-8b
+        const KEYLESS_AI_MODEL = "llama-3.1-8b"; 
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -688,19 +689,36 @@ ${errorText}`;
                     "Ctrl-Enter": function() { runPython(); },
                     "Cmd-Enter": function() { runPython(); },
                     "Ctrl-F": "findPersistent",
-                    "Cmd-F": "findPersistent"
+                    "Cmd-F": "findPersistent",
+                    "Enter": function(cm) {
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.pick(); // Вставить подсказку
+                        } else {
+                            cm.execCommand("newlineAndIndent"); // Перенос строки
+                        }
+                    },
+                    "Tab": function(cm) {
+                        if (!cm.state.completionActive) {
+                            // Если подсказок нет, просто ставим отступ
+                            cm.replaceSelection("    ", "end");
+                        }
+                        // Если подсказки есть, событие keydown обработает всё само
+                    }
                 }
             });
 
-            // === КАСТОМНАЯ ЛОГИКА ДЛЯ TAB (ЗАЖАТИЕ) И ENTER ===
+            // === ЛОГИКА ЗАЖАТИЯ TAB ===
             editor.on('keydown', function(cm, event) {
-                if (event.key === 'Tab') {
-                    if (cm.state.completionActive) {
-                        event.preventDefault(); // Блокируем стандартный Tab
-                        if (!tabInterval) {
-                            // Сразу выбираем следующий
-                            cm.state.completionActive.widget.selectNext(); 
-                            // Запускаем таймер (каждые 1500 мс = 1.5 сек)
+                if (event.key === 'Tab' && cm.state.completionActive) {
+                    event.preventDefault(); // Блокируем стандартный Tab
+                    
+                    // Если это первое нажатие
+                    if (!tabTimeout) {
+                        // Сразу выбираем следующий пункт
+                        cm.state.completionActive.widget.selectNext(); 
+                        
+                        // Запускаем таймер для листания при зажатии
+                        tabTimeout = setTimeout(() => {
                             tabInterval = setInterval(() => {
                                 if (cm.state.completionActive) {
                                     cm.state.completionActive.widget.selectNext();
@@ -708,28 +726,17 @@ ${errorText}`;
                                     clearInterval(tabInterval);
                                     tabInterval = null;
                                 }
-                            }, 1500);
-                        }
-                    } else {
-                        // Если подсказки нет, Tab ставит отступ
-                        event.preventDefault();
-                        cm.replaceSelection("    ", "end");
-                    }
-                } else if (event.key === 'Enter') {
-                    if (cm.state.completionActive) {
-                        event.preventDefault();
-                        cm.state.completionActive.pick(); // Вставить выбранное слово
+                            }, 1500); // Интервал 1.5 секунды
+                        }, 500); // Задержка перед началом авто-листания (0.5 сек)
                     }
                 }
             });
 
-            // Останавливаем таймер, когда отпускаем Tab
+            // Останавливаем таймеры, когда отпускаем Tab
             editor.on('keyup', function(cm, event) {
                 if (event.key === 'Tab') {
-                    if (tabInterval) {
-                        clearInterval(tabInterval);
-                        tabInterval = null;
-                    }
+                    if (tabTimeout) { clearTimeout(tabTimeout); tabTimeout = null; }
+                    if (tabInterval) { clearInterval(tabInterval); tabInterval = null; }
                 }
             });
 
