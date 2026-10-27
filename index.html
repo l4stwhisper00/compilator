@@ -41,6 +41,7 @@
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
+            --task-color: #10b981; /* Зеленый для практики */
             
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
@@ -134,31 +135,78 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* --- КНОПКИ И ПАНЕЛИ (ИИ и Задания) --- */
-        #ai-toggle-btn, #tasks-toggle-btn { position: fixed; width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: #111; border: none; box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4); cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 28px; z-index: 900; transition: transform 0.2s, background 0.2s; }
-        #ai-toggle-btn:hover, #tasks-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
-        
-        #tasks-toggle-btn { bottom: 50px; right: 100px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); }
-        #tasks-toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+        /* === ВЫЕЗЖАЮЩИЕ ПАНЕЛИ (САЙДБАРЫ) === */
+        .side-panel {
+            position: fixed;
+            right: 0;
+            display: flex;
+            height: 65vh;
+            min-height: 400px;
+            max-height: 700px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+        }
 
-        #ai-chat-panel, #tasks-panel { position: fixed; bottom: 120px; right: 30px; width: 400px; height: 600px; max-height: calc(100vh - 150px); background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 900; overflow: hidden; animation: chatOpen 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #tasks-panel { right: 100px; }
+        .side-panel.ai-panel {
+            top: 12vh;
+            transform: translateX(calc(100% - 50px));
+        }
+
+        .side-panel.tasks-panel {
+            bottom: 12vh;
+            transform: translateX(calc(100% - 50px));
+        }
+
+        /* Выезжает при наведении (для ПК) */
+        .side-panel:hover, .side-panel.open {
+            transform: translateX(0);
+        }
+
+        .side-tab {
+            width: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 24px;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            transition: background 0.2s;
+        }
+
+        .ai-panel .side-tab { background: var(--accent); color: #111; }
+        .ai-panel .side-tab:hover { background: var(--accent-hover); }
         
-        @keyframes chatOpen { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        
+        .tasks-panel .side-tab { background: var(--task-color); color: #111; }
+        .tasks-panel .side-tab:hover { background: #34d399; }
+
+        .side-content {
+            width: 400px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-right: none;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary); }
         .ai-header-left { display: flex; align-items: center; gap: 10px; }
         .ai-header-left i { color: var(--accent); font-size: 20px; }
-        #ai-header-buttons { display: flex; gap: 10px; align-items: center; }
         .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
-        .ai-header .settings-btn:hover { color: var(--accent); }
-        
+        .ai-header .settings-btn:hover { color: var(--text-primary); }
+
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
-        
+
         .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .ai-input-area input { flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
         .ai-input-area input:focus { border-color: var(--accent); }
@@ -166,19 +214,25 @@
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* --- СПЕЦИАЛЬНО ДЛЯ ЗАДАНИЙ --- */
+        /* === ЗАДАНИЯ === */
         .tasks-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .tasks-content select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); margin-bottom: 10px; }
-        .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.4; }
-        .task-item strong { color: var(--accent); }
+        .task-search-area { display: flex; gap: 10px; margin-bottom: 10px; }
+        .task-search-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); outline: none; }
+        .task-search-area input:focus { border-color: var(--task-color); }
+        .task-search-area button { background: var(--task-color); color: #111; border: none; border-radius: 8px; padding: 0 15px; font-weight: 600; cursor: pointer; }
+        .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--task-color); font-size: 14px; line-height: 1.4; }
+        .task-item strong { color: var(--task-color); }
 
         @media (max-width: 900px) {
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            #ai-chat-panel, #tasks-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
-            #ai-toggle-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
-            #tasks-toggle-btn { bottom: 20px; right: 80px; width: 50px; height: 50px; font-size: 24px; }
+            
+            .side-panel { height: 70vh; }
+            .side-panel.ai-panel { top: 10vh; transform: translateX(calc(100% - 40px)); }
+            .side-panel.tasks-panel { bottom: 10vh; transform: translateX(calc(100% - 40px)); }
+            .side-tab { width: 40px; font-size: 20px; }
+            .side-content { width: calc(100vw - 60px); }
         }
     </style>
 </head>
@@ -237,50 +291,55 @@ asyncio.ensure_future(get_currency())
     </main>
 
     <footer>
-        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></div>
+        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></span></div>
         <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
-    <!-- Кнопка заданий -->
-    <button id="tasks-toggle-btn" onclick="toggleTasks()" title="Задания для практики"><i class="ph ph-notebook"></i></button>
-
-    <!-- Кнопка ИИ -->
-    <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник"><i class="ph-fill ph-robot"></i></button>
-
-    <!-- Панель заданий -->
-    <div id="tasks-panel">
-        <div class="ai-header">
-            <div class="ai-header-left"><i class="ph ph-notebook"></i> Практика</div>
-            <button class="settings-btn" onclick="toggleTasks()"><i class="ph ph-x"></i></button>
+    <!-- Выезжающая панель ИИ -->
+    <div class="side-panel ai-panel" id="ai-panel">
+        <div class="side-tab" onclick="toggleMobilePanel('ai-panel')">
+            <i class="ph-fill ph-robot"></i>
         </div>
-        <div class="tasks-content">
-            <select id="topic-select" onchange="loadTasks()">
-                <option value="conditions">Условия (if / else)</option>
-                <option value="loops">Циклы (for / while)</option>
-                <option value="lists">Списки и массивы</option>
-                <option value="functions">Функции</option>
-            </select>
-            <div id="task-list"></div>
+        <div class="side-content">
+            <div class="ai-header">
+                <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
+                <div id="ai-header-buttons" style="display: flex;">
+                    <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата"><i class="ph ph-trash"></i></button>
+                </div>
+            </div>
+            <div class="ai-messages" id="ai-messages">
+                <div class="message ai" id="ai-welcome-message">
+                    Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
+                    <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+                </div>
+            </div>
+            <div class="ai-input-area" id="ai-input-area">
+                <input type="text" id="ai-input" placeholder="В чем проблема?" onkeydown="if(event.key==='Enter') sendToAI()">
+                <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+            </div>
         </div>
     </div>
 
-    <!-- Панель ИИ -->
-    <div id="ai-chat-panel">
-        <div class="ai-header">
-            <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
-            <div id="ai-header-buttons" style="display: flex;">
-                <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата"><i class="ph ph-trash"></i></button>
-            </div>
+    <!-- Выезжающая панель Практики -->
+    <div class="side-panel tasks-panel" id="tasks-panel">
+        <div class="side-tab" onclick="toggleMobilePanel('tasks-panel')">
+            <i class="ph ph-notebook"></i>
         </div>
-        <div class="ai-messages" id="ai-messages">
-            <div class="message ai" id="ai-welcome-message">
-                Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
-                <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+        <div class="side-content">
+            <div class="ai-header">
+                <div class="ai-header-left"><i class="ph ph-notebook"></i> Практика</div>
             </div>
-        </div>
-        <div class="ai-input-area" id="ai-input-area">
-            <input type="text" id="ai-input" placeholder="В чем проблема или что не понятно?" onkeydown="if(event.key==='Enter') sendToAI()">
-            <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+            <div class="tasks-content">
+                <div class="task-search-area">
+                    <input type="text" id="topic-input" placeholder="Например: словари, рекурсия" onkeydown="if(event.key==='Enter') generateTasks()">
+                    <button onclick="generateTasks()" id="gen-btn">Найти</button>
+                </div>
+                <div id="task-list">
+                    <div style="color: var(--text-secondary); text-align: center; margin-top: 20px;">
+                        Введи тему выше, и ИИ придумает 3 задания для практики.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -295,32 +354,6 @@ asyncio.ensure_future(get_currency())
         // =====================================================================
         const PROXY_URL = "https://text.pollinations.ai/openai"; 
         const AI_MODEL = "openai";
-
-        // =====================================================================
-        // БАЗА ЗАДАНИЙ
-        // =====================================================================
-        const TASKS_DATA = {
-            conditions: [
-                "<strong>Задание 1.</strong> Напиши программу, которая просит ввести возраст. Если возраст меньше 18, выведи 'Доступ запрещен', иначе — 'Добро пожаловать'.",
-                "<strong>Задание 2.</strong> Введи два числа. Выведи наибольшее из них.",
-                "<strong>Задание 3.</strong> Введи число. Проверь, является ли оно четным или нечетным (подсказка: используй %)."
-            ],
-            loops: [
-                "<strong>Задание 1.</strong> С помощью цикла for выведи все числа от 1 до 10.",
-                "<strong>Задание 2.</strong> Найди сумму всех чисел от 1 до 100 с помощью цикла.",
-                "<strong>Задание 3.</strong> Выведи таблицу умножения на 7 (от 1 до 10)."
-            ],
-            lists: [
-                "<strong>Задание 1.</strong> Создай список из 5 любых чисел и выведи его на экран.",
-                "<strong>Задание 2.</strong> Найди максимальное и минимальное число в списке (подсказка: max() и min()).",
-                "<strong>Задание 3.</strong> Создай список и выведи только те числа, которые больше 10."
-            ],
-            functions: [
-                "<strong>Задание 1.</strong> Напиши функцию, которая принимает имя и выводит приветствие.",
-                "<strong>Задание 2.</strong> Напиши функцию, которая считает площадь прямоугольника по двум сторонам.",
-                "<strong>Задание 3.</strong> Напиши функцию, которая принимает число и возвращает его квадрат."
-            ]
-        };
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -346,39 +379,64 @@ asyncio.ensure_future(get_currency())
             return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
-        // --- ЛОГИКА ЗАДАНИЙ ---
-        function toggleTasks() {
-            const panel = document.getElementById('tasks-panel');
-            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-            if (panel.style.display === 'flex') {
-                loadTasks(); // Загружаем задания при открытии
+        // --- МОБИЛЬНАЯ ЛОГИКА ПАНЕЛЕЙ ---
+        // На телефонах нет hover, поэтому по клику добавляем/убираем класс .open
+        function toggleMobilePanel(panelId) {
+            if (window.innerWidth <= 900) {
+                const panel = document.getElementById(panelId);
+                panel.classList.toggle('open');
             }
         }
 
-        function loadTasks() {
-            const topic = document.getElementById('topic-select').value;
-            const tasks = TASKS_DATA[topic];
+        // --- ЛОГИКА ЗАДАНИЙ ---
+        async function generateTasks() {
+            const topic = document.getElementById('topic-input').value.trim();
+            if (!topic) return;
+
             const listContainer = document.getElementById('task-list');
+            const genBtn = document.getElementById('gen-btn');
             
-            listContainer.innerHTML = ''; // Очищаем старые
-            tasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.innerHTML = task;
-                listContainer.appendChild(div);
-            });
+            listContainer.innerHTML = '<div style="text-align: center; color: var(--task-color);"><i class="ph ph-spinner-gap ph-spin"></i> Генерируем задания...</div>';
+            genBtn.disabled = true;
+
+            const systemPrompt = `Ты — учитель информатики. Напиши ровно 3 задания по программированию на Python на тему "${topic}".
+Задания должны быть четкими, понятными и располагаться по возрастанию сложности.
+НИ В КОЕМ СЛУЧАЕ не пиши решение или готовый код. Только тексты заданий.
+Формат вывода: строго список из 3 пунктов. Начни каждый пункт с "Задание 1.", "Задание 2." и т.д. Не используй таблицы и сложный markdown.`;
+
+            try {
+                const response = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: `Дай мне задания по теме: ${topic}` }
+                        ],
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.choices || data.choices.length === 0) throw new Error("Нейросеть тупит");
+
+                const text = data.choices[0].message.content;
+                
+                listContainer.innerHTML = ''; 
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task-item';
+                taskDiv.innerHTML = text.replace(/\n/g, '<br><br>').replace(/(Задание \d+:?)/g, '<strong>$1</strong>');
+                listContainer.appendChild(taskDiv);
+
+            } catch (err) {
+                listContainer.innerHTML = `<div style="color: var(--error);">Ошибка: ${err.message}</div>`;
+            } finally {
+                genBtn.disabled = false;
+            }
         }
 
         // --- ЛОГИКА ЧАТА ---
-        function toggleAI() {
-            const panel = document.getElementById('ai-chat-panel');
-            panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
-            if (panel.style.display === 'flex') {
-                document.getElementById('ai-input').focus();
-                scrollToAIBottom();
-            }
-        }
-
         function clearAIChat() {
             const msgs = document.getElementById('ai-messages');
             msgs.innerHTML = document.getElementById('ai-welcome-message').outerHTML;
@@ -439,14 +497,8 @@ ${errorText}`;
                 });
 
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
-                }
-                
-                if (!data.choices || data.choices.length === 0) {
-                    throw new Error("Нейросеть вернула пустой ответ.");
-                }
+                if (!response.ok) throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
+                if (!data.choices || data.choices.length === 0) throw new Error("Нейросеть вернула пустой ответ.");
 
                 const aiResponse = data.choices[0].message.content;
                 loadingDiv.remove();
@@ -620,7 +672,6 @@ ${errorText}`;
                 progressBar.style.width = '95%';
                 progressText.innerText = 'Инициализация...';
 
-                // === НАДЕЖНЫЙ ПЕРЕХВАТ ВВОДА ===
                 pyodide.runPython(`
 import builtins
 import js
