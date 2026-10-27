@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Питон | Онлайн-компилятор</title>
+    <title>Питон в браузере | Онлайн-компилятор Python</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,7 @@
     
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- CodeMirror Core & Addons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
@@ -25,6 +26,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
 
+    <!-- Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
 
     <style>
@@ -127,45 +129,35 @@
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        /* Красивый загрузчик */
+        /* --- ПРЕЛОАДЕР С ПРОГРЕСС-БАРОМ --- */
         #loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.5s ease-out, visibility 0.5s;
         }
-        #loading-overlay.hidden { opacity: 0; visibility: hidden; }
+        #loading-overlay.hidden {
+            opacity: 0; visibility: hidden;
+        }
+        .loading-text { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; letter-spacing: 1px;}
+        .loading-subtext { font-size: 13px; color: var(--text-secondary); margin-top: 15px;}
         
-        .loader-container {
-            display: flex; flex-direction: column; align-items: center; gap: 15px; width: 320px;
-        }
-        .loader-text {
-            font-size: 22px; font-weight: 600; color: var(--text-primary); letter-spacing: 1px;
-            display: flex; align-items: center; gap: 5px;
-        }
-        .dots::after {
-            content: ''; display: inline-block; width: 20px; text-align: left;
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-        @keyframes dots {
-            0%, 20% { content: ''; }
-            40% { content: '.'; }
-            60% { content: '..'; }
-            80%, 100% { content: '...'; }
+        .progress-container {
+            width: 300px;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
         }
         .progress-bar {
-            width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; position: relative;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            border-radius: 4px;
+            transition: width 0.2s ease;
+            box-shadow: 0 0 10px var(--accent);
         }
-        .progress-fill {
-            position: absolute; top: 0; left: 0; height: 100%; width: 30%;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            animation: progress 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        @keyframes progress {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(400%); }
-        }
-        .loading-subtext { font-size: 13px; color: var(--text-secondary); }
 
         header {
             display: flex; justify-content: space-between; align-items: center;
@@ -196,9 +188,6 @@
 
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
-        
-        button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; display: none; }
-        button.stop-btn:hover { background: #ff3333; box-shadow: 0 0 15px rgba(255, 82, 82, 0.5); }
 
         .font-size-control {
             display: flex; align-items: center; gap: 8px;
@@ -301,48 +290,6 @@
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); font-weight: 500; }
 
-        /* Блок переменных */
-        .variables-wrapper {
-            height: 200px; background: var(--bg-surface); border-top: 1px solid var(--border);
-            display: flex; flex-direction: column; flex-shrink: 0;
-        }
-        .variables-header {
-            padding: 8px 15px; font-size: 13px; font-weight: 600; color: var(--text-secondary);
-            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; cursor: pointer;
-        }
-        .variables-content {
-            flex: 1; overflow-y: auto; padding: 10px 15px; font-family: 'Fira Code', monospace; font-size: 13px;
-        }
-        .var-row {
-            display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed var(--border);
-        }
-        .var-name { color: var(--accent); font-weight: 500; }
-        .var-type { color: var(--text-secondary); font-size: 11px; font-style: italic; margin-left: 8px; }
-        .var-value { color: var(--text-primary); text-align: right; word-break: break-all; }
-        .empty-vars { color: var(--text-secondary); font-style: italic; font-size: 13px; text-align: center; margin-top: 20px; }
-
-        /* Кнопка Объясни ошибку в терминале */
-        .ask-ai-btn {
-            background: rgba(255, 157, 92, 0.15);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            margin-top: 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-        }
-        .ask-ai-btn:hover {
-            background: var(--accent);
-            color: #111;
-        }
-
         footer {
             height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
@@ -353,9 +300,9 @@
         #py-status.loading { color: var(--accent); }
         #py-status.ready { color: var(--success); }
 
-        /* Изменено положение кнопки и чата */
+        /* --- ИИ НАСТАВНИК (ЧАТ) --- */
         #ai-toggle-btn {
-            position: fixed; bottom: 250px; right: 30px;
+            position: fixed; bottom: 50px; right: 30px;
             width: 60px; height: 60px; border-radius: 50%;
             background: var(--accent); color: #111; border: none;
             box-shadow: 0 4px 15px rgba(255, 157, 92, 0.4);
@@ -365,8 +312,8 @@
         #ai-toggle-btn:hover { transform: scale(1.1); background: var(--accent-hover); }
 
         #ai-chat-panel {
-            position: fixed; bottom: 320px; right: 30px;
-            width: 400px; height: 600px; max-height: calc(100vh - 350px);
+            position: fixed; bottom: 120px; right: 30px;
+            width: 400px; height: 600px; max-height: calc(100vh - 150px);
             background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border); border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
@@ -400,28 +347,32 @@
         .warning-box div { font-size: 12px; color: var(--text-primary); line-height: 1.4; font-weight: 500; }
         .warning-box strong { color: var(--error); text-transform: uppercase; }
 
-        .ai-onboarding .provider-buttons { display: flex; flex-direction: column; gap: 10px; margin: 10px 0; }
-        .ai-onboarding .provider-buttons button {
-            width: 100%; text-align: center; padding: 14px 10px; border-radius: 8px; font-size: 15px; font-weight: 600; 
-            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: none;
+        .ai-onboarding .provider-buttons { display: flex; gap: 10px; margin: 10px 0; }
+        .ai-onboarding .provider-buttons a {
+            flex: 1; text-align: center; padding: 12px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;
+            transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-        .ai-onboarding .provider-buttons .pollinations-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
-        .ai-onboarding .provider-buttons .pollinations-btn:hover { background: var(--accent); color: #111; }
+        .ai-onboarding .provider-buttons .deepseek-btn { background: rgba(255, 157, 92, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .ai-onboarding .provider-buttons .deepseek-btn:hover { background: var(--accent); color: #111; }
+        
+        .ai-onboarding .input-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .ai-onboarding .input-group label { font-size: 13px; color: var(--text-secondary); }
+        .ai-onboarding .input-group input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-primary); outline: none; font-family: 'Fira Code', monospace;
+        }
+        .ai-onboarding .input-group input:focus { border-color: var(--accent); }
+        .ai-onboarding .connect-btn {
+            background: var(--accent); color: #111; border: none; border-radius: 8px;
+            padding: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 10px;
+        }
+        .ai-onboarding .connect-btn:hover { background: var(--accent-hover); }
         
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
-        .message code {
-            background: rgba(0,0,0,0.25); padding: 2px 5px; border-radius: 4px;
-            font-family: 'Fira Code', monospace; font-size: 0.92em;
-        }
-        .message pre {
-            background: rgba(0,0,0,0.25); padding: 10px 12px; border-radius: 6px;
-            overflow-x: auto; margin: 6px 0; font-family: 'Fira Code', monospace; font-size: 0.9em;
-        }
-        .message pre code { background: none; padding: 0; }
         .message.ai .logout-warning {
             display: block; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--warning-border);
             font-size: 12px; color: var(--error); font-weight: 600;
@@ -452,28 +403,26 @@
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            
-            /* Мобильная адаптация для кнопки и чата */
-            #ai-toggle-btn { bottom: 190px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
-            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 250px; height: calc(100vh - 280px); }
-            .variables-wrapper { height: 150px; }
+            #ai-chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 80px; height: calc(100vh - 100px); }
+            #ai-toggle-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
         }
     </style>
 </head>
 <body data-theme="dark">
 
+    <!-- ПРЕЛОАДЕР С ПРОГРЕСС-БАРОМ -->
     <div id="loading-overlay">
-        <div class="loader-container">
-            <div class="loader-text">Загрузка Python<span class="dots"></span></div>
-            <div class="progress-bar"><div class="progress-fill"></div></div>
-            <div class="loading-subtext">Это займет пару секунд</div>
+        <div class="loading-text">Загрузка Python</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
         </div>
+        <div class="loading-subtext" id="progress-text">0%</div>
     </div>
 
     <header>
         <div class="logo">
             <i class="ph ph-terminal-window"></i>
-            Питон
+            Питон в браузере
         </div>
         <div class="controls">
             <div class="font-size-control" title="Размер шрифта">
@@ -499,11 +448,6 @@
             <button onclick="clearOutput()" title="Очистить консоль">
                 <i class="ph ph-trash"></i> Очистить
             </button>
-            
-            <button id="stop-btn" class="stop-btn" onclick="stopPython()">
-                <i class="ph-fill ph-stop"></i> Остановить
-            </button>
-            
             <button id="run-btn" class="run-btn" onclick="runPython()" disabled>
                 <i class="ph-fill ph-play"></i> Запустить
             </button>
@@ -515,7 +459,7 @@
             <div class="panel-header">
                 <div class="panel-header-left">
                     <div class="tab">
-                        <i class="ph ph-file-py"></i> <span id="filename-display">main.py</span>
+                        <i class="ph ph-file-py"></i> main.py
                     </div>
                 </div>
                 <div style="font-size: 12px; opacity: 0.7;">
@@ -523,7 +467,15 @@
                 </div>
             </div>
             <div class="editor-container">
-                <textarea id="code-editor"></textarea>
+                <textarea id="code-editor">
+x = int(input("Введи число товаров: "))
+y = int(input("Введи цену товара: "))
+a = float(input("Введи скидку на товар без %: "))
+
+z = a / 100
+itog = x * y * z
+print("Итоговая цена:", itog)
+                </textarea>
             </div>
         </div>
 
@@ -546,16 +498,6 @@
                 </div>
                 <div id="output">Ожидание запуска кода...</div>
             </div>
-            
-            <!-- Панель переменных -->
-            <div class="variables-wrapper">
-                <div class="variables-header">
-                    <span><i class="ph ph-list-dashes"></i> Инспектор переменных</span>
-                </div>
-                <div class="variables-content" id="variables-content">
-                    <div class="empty-vars">Запустите код, чтобы увидеть переменные</div>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -572,10 +514,12 @@
         </div>
     </footer>
 
+    <!-- Кнопка вызова ИИ -->
     <button id="ai-toggle-btn" onclick="toggleAI()" title="ИИ-Наставник">
         <i class="ph-fill ph-robot"></i>
     </button>
 
+    <!-- Окно ИИ -->
     <div id="ai-chat-panel">
         <div class="ai-header">
             <div class="ai-header-left">
@@ -592,29 +536,39 @@
             </div>
         </div>
 
+        <!-- ЭКРАН ПОДКЛЮЧЕНИЯ -->
         <div id="ai-onboarding" class="ai-onboarding">
             <h3>Подключение ИИ-Наставника</h3>
+            <p>ИИ помогает разобраться в коде. Получи бесплатный ключ на платформе DeepSeek и вставь его ниже.</p>
             
-            <div class="warning-box" style="flex-direction: column; text-align: center;">
-                <i class="ph ph-check-circle" style="margin: 0 auto; color: var(--success);"></i>
-                <div style="margin-top: 8px;">
-                    <strong>Подключение бесплатного ИИ</strong>
+            <div class="warning-box">
+                <i class="ph-fill ph-warning-circle"></i>
+                <div>
+                    <strong>ВАЖНО!</strong><br>
+                    Если вы работаете за общим компьютером (в классе), после окончания работы ОБЯЗАТЕЛЬНО нажмите <b>«Выйти и удалить ключ»</b> в настройках (шестеренка), чтобы следующий ученик не потратил ваши лимиты!
                 </div>
             </div>
 
-            <p>Сервис работает без ключей и регистраций. Если сервер перегружен, просто отправьте сообщение еще раз.</p>
-
             <div class="provider-buttons">
-                <button class="pollinations-btn" onclick="connectPollinations()">
-                    <i class="ph ph-lightning"></i> Подключить Pollinations
-                </button>
+                <a href="https://platform.deepseek.com/api_keys" target="_blank" class="deepseek-btn">
+                    <i class="ph ph-brain"></i> Получить ключ DeepSeek
+                </a>
             </div>
+
+            <div class="input-group">
+                <label>Вставь полученный ключ сюда:</label>
+                <input type="password" id="onboarding-key" placeholder="sk-...">
+            </div>
+            
+            <button class="connect-btn" onclick="connectFromOnboarding()">Подключить</button>
         </div>
 
+        <!-- ЧАТ -->
         <div class="ai-messages" id="ai-messages" style="display: none;">
             <div class="message ai" id="ai-welcome-message">
                 Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
                 <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+                <span class="logout-warning"><i class="ph ph-warning"></i> Не забудь выйти (удалить ключ) после работы за общим ПК!</span>
             </div>
         </div>
 
@@ -623,30 +577,26 @@
             <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
         </div>
 
+        <!-- Настройки API -->
         <div class="ai-settings" id="ai-settings">
-            <div class="warning-box">
-                <i class="ph-fill ph-info"></i>
-                <div>Настройки Pollinations. Если хотите, можете ввести свой API-ключ от OpenAI или DeepSeek в поле ниже.</div>
-            </div>
-
             <label>Провайдер:
                 <select id="ai-provider" onchange="onProviderChange()">
-                    <option value="pollinations">Pollinations (Бесплатно, без ключа)</option>
-                    <option value="custom">Свой вариант (OpenAI и др.)</option>
+                    <option value="deepseek">DeepSeek (Рекомендуется)</option>
+                    <option value="custom">Свой вариант (OpenAI, Mistral и др.)</option>
                 </select>
             </label>
             <label>API URL (Endpoint):
-                <input type="text" id="ai-api-url" placeholder="https://text.pollinations.ai/openai">
+                <input type="text" id="ai-api-url" placeholder="https://api.deepseek.com/chat/completions">
             </label>
             <label>API Ключ (Token):
-                <input type="password" id="ai-api-key" placeholder="Не требуется для Pollinations">
+                <input type="password" id="ai-api-key" placeholder="sk-...">
             </label>
             <label>Модель:
-                <input type="text" id="ai-model" placeholder="openai">
+                <input type="text" id="ai-model" placeholder="deepseek-chat">
             </label>
             
             <button class="save-btn" onclick="saveAISettings()"><i class="ph ph-check"></i> Сохранить настройки</button>
-            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Сбросить настройки</button>
+            <button class="logout-btn" onclick="logoutAI()"><i class="ph ph-sign-out"></i> Выйти и удалить ключ</button>
         </div>
     </div>
 
@@ -655,36 +605,14 @@
         let pyodideReady = false;
         let pyodide;
         let lastError = "";
-        let currentFileName = "main.py";
-        let chatHistory = [];
 
+        // --- НАСТРОЙКИ ПРОВАЙДЕРОВ ---
         const providers = {
-            pollinations: { 
-                url: "https://text.pollinations.ai/openai", 
-                model: "openai", 
-                needsKey: false 
-            },
-            custom: { 
-                url: "https://api.openai.com/v1/chat/completions", 
-                model: "gpt-4o-mini", 
-                needsKey: true 
-            }
+            deepseek: { url: "https://api.deepseek.com/chat/completions", model: "deepseek-chat" },
+            custom: { url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" }
         };
 
-        function escapeHTML(str) {
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        function renderAIMarkdown(text) {
-            let safe = escapeHTML(text);
-            safe = safe.replace(/```(?:\w+)?\n?([\s\S]*?)```/g, (_, code) => `<pre><code>${code.replace(/\n$/, '')}</code></pre>`);
-            safe = safe.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-            safe = safe.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-            safe = safe.replace(/(^|\n)- (.+)/g, '$1• $2');
-            safe = safe.replace(/\n/g, '<br>');
-            return safe;
-        }
-
+        // --- ЛОГИКА ОНБОРДИНГА И НАСТРОЕК ---
         function toggleAI() {
             const panel = document.getElementById('ai-chat-panel');
             if (panel.style.display === 'flex') {
@@ -696,10 +624,7 @@
         }
 
         function checkAIConnection() {
-            const provider = localStorage.getItem('ai_provider') || 'pollinations';
             const savedKey = localStorage.getItem('ai_api_key');
-            const needsKey = providers[provider]?.needsKey ?? true;
-
             const onboarding = document.getElementById('ai-onboarding');
             const messages = document.getElementById('ai-messages');
             const inputArea = document.getElementById('ai-input-area');
@@ -708,7 +633,7 @@
 
             settings.style.display = 'none';
 
-            if (!needsKey || savedKey) {
+            if (savedKey) {
                 onboarding.style.display = 'none';
                 messages.style.display = 'flex';
                 inputArea.style.display = 'flex';
@@ -723,21 +648,26 @@
             }
         }
 
-        function connectPollinations() {
-            localStorage.setItem('ai_provider', 'pollinations');
-            localStorage.setItem('ai_api_url', providers.pollinations.url);
-            localStorage.setItem('ai_model', providers.pollinations.model);
-            localStorage.removeItem('ai_api_key');
-            checkAIConnection();
-        }
-
         function clearAIChat() {
-            if (!confirm("Очистить историю диалога?")) return;
-            chatHistory = [];
             const msgs = document.getElementById('ai-messages');
             const welcomeHTML = document.getElementById('ai-welcome-message').outerHTML;
             msgs.innerHTML = welcomeHTML;
             scrollToAIBottom();
+        }
+
+        function connectFromOnboarding() {
+            const key = document.getElementById('onboarding-key').value.trim();
+            if (!key) {
+                alert("Пожалуйста, вставь ключ!");
+                return;
+            }
+
+            localStorage.setItem('ai_provider', 'deepseek');
+            localStorage.setItem('ai_api_url', providers.deepseek.url);
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_model', providers.deepseek.model);
+
+            checkAIConnection();
         }
 
         function toggleAISettings() {
@@ -750,11 +680,10 @@
                 inputArea.style.display = 'flex';
                 messages.style.display = 'flex';
             } else {
-                const currentProvider = localStorage.getItem('ai_provider') || 'pollinations';
-                document.getElementById('ai-provider').value = currentProvider;
-                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers[currentProvider]?.url || '';
+                document.getElementById('ai-provider').value = localStorage.getItem('ai_provider') || 'deepseek';
+                document.getElementById('ai-api-url').value = localStorage.getItem('ai_api_url') || providers.deepseek.url;
                 document.getElementById('ai-api-key').value = localStorage.getItem('ai_api_key') || '';
-                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers[currentProvider]?.model || '';
+                document.getElementById('ai-model').value = localStorage.getItem('ai_model') || providers.deepseek.model;
 
                 settings.style.display = 'flex';
                 inputArea.style.display = 'none';
@@ -764,33 +693,25 @@
 
         function onProviderChange() {
             const p = document.getElementById('ai-provider').value;
-            document.getElementById('ai-api-url').value = providers[p]?.url || '';
-            document.getElementById('ai-model').value = providers[p]?.model || '';
-            
-            const keyInput = document.getElementById('ai-api-key');
-            if (providers[p]?.needsKey) {
-                keyInput.disabled = false;
-                keyInput.placeholder = "sk-...";
-            } else {
-                keyInput.disabled = true;
-                keyInput.value = '';
-                keyInput.placeholder = "Не требуется";
-            }
+            document.getElementById('ai-api-url').value = providers[p].url;
+            document.getElementById('ai-model').value = providers[p].model;
         }
 
         function saveAISettings() {
             const provider = document.getElementById('ai-provider').value;
             const url = document.getElementById('ai-api-url').value.trim();
+            const key = document.getElementById('ai-api-key').value.trim();
             const model = document.getElementById('ai-model').value.trim();
-            let key = document.getElementById('ai-api-key').value.trim();
             
-            if (!url || !model) { alert("Заполни URL и Модель!"); return; }
-            if (providers[provider]?.needsKey && !key) { alert("Для этого провайдера нужен API-ключ!"); return; }
+            if (!url || !key || !model) {
+                alert("Заполни все поля!");
+                return;
+            }
 
             localStorage.setItem('ai_provider', provider);
             localStorage.setItem('ai_api_url', url);
+            localStorage.setItem('ai_api_key', key);
             localStorage.setItem('ai_model', model);
-            if (key) localStorage.setItem('ai_api_key', key); else localStorage.removeItem('ai_api_key');
             
             toggleAISettings();
             checkAIConnection();
@@ -798,64 +719,39 @@
         }
 
         function logoutAI() {
-            if(confirm("Сбросить настройки ИИ и удалить сохраненный ключ?")) {
+            if(confirm("Вы уверены, что хотите удалить ключ из этого браузера? Вам придется ввести его заново.")) {
                 localStorage.removeItem('ai_provider');
                 localStorage.removeItem('ai_api_url');
                 localStorage.removeItem('ai_api_key');
                 localStorage.removeItem('ai_model');
-                chatHistory = [];
                 toggleAISettings();
                 checkAIConnection();
             }
         }
 
+        // --- ЛОГИКА ЧАТА ---
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
         }
 
-        function addMessage(text, sender, rawHTML = false) {
+        function addMessage(text, sender) {
             const msgs = document.getElementById('ai-messages');
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            if (rawHTML) div.innerHTML = text;
-            else if (sender === 'ai') div.innerHTML = renderAIMarkdown(text);
-            else div.textContent = text;
+            div.innerHTML = text.replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>');
             msgs.appendChild(div);
             scrollToAIBottom();
             return div;
         }
 
-        function askAIAboutError(errMsg) {
-            const panel = document.getElementById('ai-chat-panel');
-            if (panel.style.display !== 'flex') {
-                toggleAI();
-            }
-            
-            const provider = localStorage.getItem('ai_provider') || 'pollinations';
-            const savedKey = localStorage.getItem('ai_api_key');
-            const needsKey = providers[provider]?.needsKey ?? true;
-            
-            if (needsKey && !savedKey) {
-                alert("Сначала подключи ИИ-Наставника (нажми на кнопку подключения в чате)!");
-                return;
-            }
-
-            const input = document.getElementById('ai-input');
-            input.value = "Помоги разобраться с ошибкой, которая появилась при запуске кода.";
-            sendToAI();
-        }
-
         async function sendToAI() {
-            const apiUrl = localStorage.getItem('ai_api_url') || providers.pollinations.url;
+            const apiUrl = localStorage.getItem('ai_api_url') || providers.deepseek.url;
             const apiKey = localStorage.getItem('ai_api_key');
-            const model = localStorage.getItem('ai_model') || providers.pollinations.model;
+            const model = localStorage.getItem('ai_model') || providers.deepseek.model;
 
-            const provider = localStorage.getItem('ai_provider') || 'pollinations';
-            const needsKey = providers[provider]?.needsKey ?? true;
-            
-            if (needsKey && !apiKey) {
-                alert("Сначала подключи ИИ или введи ключ!");
+            if (!apiKey) {
+                alert("Сначала подключи ИИ!");
                 return;
             }
 
@@ -869,14 +765,6 @@
             const currentCode = editor.getValue();
             const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
             
-            let userMessageForAI = text;
-            if (currentCode.trim().length > 0) {
-                userMessageForAI += `\n\nВот мой код, который сейчас в редакторе:\n\`\`\`python\n${currentCode}\n\`\`\``;
-            } else {
-                userMessageForAI += `\n\n(Примечание: сейчас мой редактор кода пустой)`;
-            }
-            if (errorText) userMessageForAI += errorText;
-
             const systemPrompt = `Ты — дружелюбный и опытный учитель информатики. Твоя задача — помочь ученику разобраться с его кодом на Python.
 КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать готовый код (полный или куски, которые можно просто скопировать).
 Вместо этого:
@@ -885,41 +773,39 @@
 3. Задай наводящий вопрос или дай теоретическую подсказку, чтобы ученик сам дошел до решения.
 4. Будь вежливым и поддерживай ученика.
 
-Если ученик спрашивает, видишь ли ты код, опиши, что ты видишь в его текущем коде, или вежливо скажи, что редактор пуст.`;
+Текущий код ученика:
+\`\`\`python
+${currentCode}
+\`\`\`
+${errorText}`;
 
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
 
-            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
+            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
 
-            chatHistory.push({ role: "user", content: userMessageForAI });
-
-            async function fetchWithRetry(maxRetries = 3) {
-                let delay = 2000; 
+            async function fetchWithRetry(maxRetries = 3, initialDelay = 1000) {
+                let delay = initialDelay;
                 for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000); 
                     try {
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-
                         const response = await fetch(apiUrl, {
                             method: 'POST',
-                            headers: headers,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKey}`
+                            },
                             body: JSON.stringify({
                                 model: model,
                                 messages: [
                                     { role: "system", content: systemPrompt },
-                                    ...chatHistory.slice(-6)
+                                    { role: "user", content: text }
                                 ],
                                 temperature: 0.3
-                            }),
-                            signal: controller.signal
+                            })
                         });
-                        clearTimeout(timeoutId);
 
-                        if ((response.status >= 500 || response.status === 429) && attempt < maxRetries) {
-                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Сервер перегружен. Ждём ${delay/1000} сек... (попытка ${attempt}/${maxRetries})`;
+                        if (response.status === 429 && attempt < maxRetries) {
+                            loadingDiv.innerHTML = `<i class="ph ph-hourglass-high ph-spin"></i> Лимит запросов, ждем ${delay / 1000} сек...`;
                             await new Promise(resolve => setTimeout(resolve, delay));
                             delay *= 2;
                             continue;
@@ -927,10 +813,7 @@
 
                         return response;
                     } catch (err) {
-                        clearTimeout(timeoutId);
-                        if (err.name === 'AbortError') throw new Error("Сервер не ответил за 30 секунд.");
                         if (attempt === maxRetries) throw err;
-                        loadingDiv.innerHTML = `<i class="ph ph-warning-circle ph-spin"></i> Сетевая ошибка. Пробуем ещё раз...`;
                         await new Promise(resolve => setTimeout(resolve, delay));
                         delay *= 2;
                     }
@@ -942,34 +825,26 @@
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    const errMsg = errData.error?.message || errData.message || `${response.status} ${response.statusText}`;
+                    const errMsg = errData.error?.message || `${response.status} ${response.statusText}`;
                     throw new Error(errMsg);
                 }
 
                 const data = await response.json();
-                const aiResponse = data.choices?.[0]?.message?.content;
-                if (!aiResponse) throw new Error("Пустой ответ от сервера.");
+                const aiResponse = data.choices[0].message.content;
 
                 loadingDiv.remove();
                 addMessage(aiResponse, 'ai');
-                chatHistory.push({ role: "assistant", content: aiResponse });
 
             } catch (err) {
                 loadingDiv.remove();
-                let msg = `Ошибка: ${err.message}`;
-                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-                    msg = 'Не удалось подключиться к серверу. Сервер перегружен или недоступен. Попробуйте отправить сообщение еще раз через 5 секунд.';
-                } else if (err.message.includes('Something went wrong')) {
-                    msg = 'Сервера Pollinations сейчас перегружены. Подождите 5-10 секунд и нажмите отправить еще раз.';
-                }
-                addMessage(msg, 'ai', false);
-                chatHistory.pop();
+                addMessage(`<span class="output-error">Ошибка: ${err.message}</span>`, 'ai');
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
             }
         }
 
+        // --- ОСНОВНАЯ ЛОГИКА ---
         function scrollToBottom() {
             const output = document.getElementById('output');
             output.scrollTop = output.scrollHeight;
@@ -981,7 +856,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = currentFileName || 'main.py';
+            a.download = 'main.py';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -998,20 +873,6 @@
         }
 
         window.onload = function() {
-            const currentVersion = "14.0-moved-btn";
-            if (localStorage.getItem('ide_version') !== currentVersion) {
-                localStorage.removeItem('python_ide_code');
-                localStorage.removeItem('ai_api_key');
-                localStorage.removeItem('ai_provider');
-                localStorage.setItem('ide_version', currentVersion);
-            }
-
-            const savedTheme = localStorage.getItem('python_ide_theme');
-            if (savedTheme) {
-                document.body.setAttribute('data-theme', savedTheme);
-                document.getElementById('theme-select').value = savedTheme;
-            }
-
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
                 theme: "custom", 
@@ -1027,8 +888,11 @@
                     "Ctrl-F": "findPersistent",
                     "Cmd-F": "findPersistent",
                     "Tab": function(cm) {
-                        if (cm.state.completionActive) cm.state.completionActive.widget.selectActive();
-                        else cm.replaceSelection("    ", "end");
+                        if (cm.state.completionActive) {
+                            cm.state.completionActive.widget.selectActive();
+                        } else {
+                            cm.replaceSelection("    ", "end");
+                        }
                     }
                 }
             });
@@ -1048,11 +912,9 @@
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = (ev) => {
-                    editor.setValue(ev.target.result);
-                    currentFileName = file.name;
-                    document.getElementById('filename-display').textContent = file.name;
-                    e.target.value = '';
+                reader.onload = function(e) {
+                    editor.setValue(e.target.result);
+                    this.value = '';
                 };
                 reader.readAsText(file);
             });
@@ -1074,13 +936,12 @@
                 editor.refresh();
             });
 
-            let hintTimeout;
+            let timeout;
             editor.on("inputRead", function(cm, change) {
-                if (change.origin === 'paste' || change.origin === 'setValue') return;
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
-                    clearTimeout(hintTimeout);
-                    hintTimeout = setTimeout(() => {
-                        cm.showHint({ hint: CodeMirror.hint.python, completeSingle: false });
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        cm.showHint({ hint: CodeMirror.pythonHint, completeSingle: false });
                     }, 300);
                 }
             });
@@ -1092,38 +953,54 @@
 
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
+
             setTimeout(initPyodide, 100);
         };
 
         function changeTheme(theme) {
             document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('python_ide_theme', theme);
         }
 
         function clearOutput() {
             document.getElementById('output').innerText = "";
-            document.getElementById('variables-content').innerHTML = '<div class="empty-vars">Запустите код, чтобы увидеть переменные</div>';
             lastError = "";
         }
 
+        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ С ПРОГРЕСС-БАРОМ И ТЕСТОМ ---
         async function initPyodide() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
             try {
+                // Имитируем прогресс для UX, пока идет загрузка
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    if (progress < 90) {
+                        progress += Math.random() * 5;
+                        progressBar.style.width = Math.min(progress, 90) + '%';
+                        progressText.innerText = Math.floor(Math.min(progress, 90)) + '%';
+                    }
+                }, 200);
+
                 pyodide = await loadPyodide({
                     stdout: (text) => {
                         const output = document.getElementById('output');
-                        output.appendChild(document.createTextNode(text + "\n"));
+                        output.innerText += text + "\n";
                         scrollToBottom();
                     },
                     stderr: (text) => {
                         const output = document.getElementById('output');
-                        const span = document.createElement('span');
-                        span.className = 'output-error';
-                        span.textContent = text + "\n";
-                        output.appendChild(span);
+                        output.innerHTML += `<span class="output-error">${text}</span>\n`;
                         scrollToBottom();
+                        lastError = text;
                     }
                 });
 
+                clearInterval(progressInterval);
+                progressBar.style.width = '95%';
+                progressText.innerText = 'Инициализация...';
+
+                // Переопределяем input
                 pyodide.runPython(`
 import builtins
 def custom_input(prompt=""):
@@ -1135,111 +1012,74 @@ def custom_input(prompt=""):
 builtins.input = custom_input
                 `);
 
+                // === ГЛАВНЫЙ ФИКС: Тестовый запуск ===
+                let isReady = false;
+                let attempts = 0;
+                
+                while (!isReady && attempts < 10) {
+                    try {
+                        await pyodide.runPythonAsync('print("Test")');
+                        isReady = true;
+                    } catch (e) {
+                        attempts++;
+                        console.log(`Инициализация... попытка ${attempts}`);
+                        await new Promise(r => setTimeout(r, 500));
+                    }
+                }
+
+                if (!isReady) throw new Error("Pyodide не смог инициализироваться");
+
+                // Если дошли сюда — всё точно работает
+                progressBar.style.width = '100%';
+                progressText.innerText = '100%';
+                
                 const status = document.getElementById('py-status');
-                status.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
+                status.innerHTML = '<i class="ph ph-fill ph-check-circle"></i> Python готов';
                 status.className = "status-item ready";
+                
                 document.getElementById('run-btn').disabled = false;
                 pyodideReady = true;
 
-                const overlay = document.getElementById('loading-overlay');
-                overlay.classList.add('hidden');
-                setTimeout(() => overlay.remove(), 500);
+                setTimeout(() => {
+                    const overlay = document.getElementById('loading-overlay');
+                    overlay.classList.add('hidden');
+                    setTimeout(() => overlay.remove(), 500);
+                }, 300);
 
             } catch (error) {
                 console.error("Ошибка Pyodide:", error);
                 document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-x-circle"></i> Ошибка загрузки';
-                document.querySelector('.loader-text').innerText = "Ошибка загрузки";
+                
+                document.querySelector('.loading-text').innerText = "Ошибка загрузки";
                 document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
-                document.querySelector('.progress-fill').style.background = "var(--error)";
+                progressBar.style.background = "var(--error)";
             }
         }
 
         async function runPython() {
-            if (!pyodideReady) return;
+            if (!pyodideReady) {
+                return;
+            }
+
             const runBtn = document.getElementById('run-btn');
-            const stopBtn = document.getElementById('stop-btn');
-            
-            runBtn.style.display = 'none';
-            stopBtn.style.display = 'flex';
-            stopBtn.disabled = false;
+            runBtn.disabled = true;
 
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ""; 
-            
-            const varsContent = document.getElementById('variables-content');
-            varsContent.innerHTML = '<div class="empty-vars">Выполняется...</div>';
-            
             lastError = "";
+            
             const code = editor.getValue();
 
             try {
                 await pyodide.runPythonAsync(code);
-                const span = document.createElement('span');
-                span.className = 'output-success';
-                span.textContent = '\n\n[Успешно завершено]';
-                outputDiv.appendChild(span);
-                
-                // Собираем переменные
-                try {
-                    const varsJson = pyodide.runPython(`
-import json
-def _get_vars():
-    res = {}
-    for k, v in globals().items():
-        if k.startswith('__') or k in ('custom_input', 'builtins', 'js', '_get_vars'): continue
-        if callable(v): continue
-        res[k] = {'type': type(v).__name__, 'value': repr(v)}
-    return json.dumps(res)
-_get_vars()
-                    `);
-                    const varsObj = JSON.parse(varsJson);
-                    varsContent.innerHTML = '';
-                    if (Object.keys(varsObj).length === 0) {
-                        varsContent.innerHTML = '<div class="empty-vars">Нет созданных переменных</div>';
-                    } else {
-                        for (const [name, info] of Object.entries(varsObj)) {
-                            const row = document.createElement('div');
-                            row.className = 'var-row';
-                            row.innerHTML = `
-                                <div><span class="var-name">${escapeHTML(name)}</span><span class="var-type">${escapeHTML(info.type)}</span></div>
-                                <div class="var-value">${escapeHTML(info.value)}</div>
-                            `;
-                            varsContent.appendChild(row);
-                        }
-                    }
-                } catch(e) {
-                    varsContent.innerHTML = '<div class="empty-vars">Не удалось прочитать переменные</div>';
-                }
-
+                outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
             } catch (error) {
-                const span = document.createElement('span');
-                span.className = 'output-error';
-                span.textContent = `\n\n[Ошибка выполнения]:\n${error.message}`;
-                outputDiv.appendChild(span);
+                outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
                 lastError = error.message;
-
-                // Добавляем кнопку "Спросить ИИ"
-                const askBtn = document.createElement('button');
-                askBtn.className = 'ask-ai-btn';
-                askBtn.innerHTML = '<i class="ph ph-robot"></i> Объясни ошибку';
-                askBtn.onclick = () => askAIAboutError(error.message);
-                outputDiv.appendChild(askBtn);
-                
-                varsContent.innerHTML = '<div class="empty-vars">Код упал с ошибкой</div>';
             } finally {
-                runBtn.style.display = 'flex';
-                stopBtn.style.display = 'none';
                 runBtn.disabled = false;
                 scrollToBottom();
                 editor.refresh();
-            }
-        }
-
-        // Функция кнопки СТОП
-        function stopPython() {
-            if (confirm("Остановить выполнение? Страница будет перезагружена, но ваш код сохранится.")) {
-                localStorage.setItem('python_ide_code', editor.getValue());
-                location.reload();
             }
         }
     </script>
