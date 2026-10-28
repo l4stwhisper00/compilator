@@ -7,6 +7,7 @@
     <title>Питон в браузере | Онлайн-компилятор Python</title>
 
     <script>
+        // Применяем тему до отрисовки, чтобы не было "вспышки"
         (function () {
             try {
                 var t = localStorage.getItem('python_ide_theme');
@@ -70,22 +71,55 @@
         }
 
         [data-theme="light"] {
-            --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
-            --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5;
-            --text-primary: #1f1f1f; --text-secondary: #5f6670; --accent: #005cbf; --accent-hover: #004494;
-            --accent-glow: rgba(0, 92, 191, 0.3); --on-accent: #fff;
-            --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #008000; --error: #c00000;
-            --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c;
-            --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080;
+            --bg-body: #f2f4f8; 
+            --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
+            --bg-panel: rgba(255, 255, 255, 0.8); 
+            --bg-surface: #ffffff; 
+            --bg-surface-hover: #f1f3f5;
+            --text-primary: #1f1f1f; 
+            --text-secondary: #5f6670; 
+            --accent: #005cbf; 
+            --accent-hover: #004494;
+            --accent-glow: rgba(0, 92, 191, 0.3); 
+            --on-accent: #fff;
+            --border: rgba(0, 0, 0, 0.1); 
+            --console-bg: rgba(248, 250, 252, 0.9); 
+            --success: #008000; 
+            --error: #c00000;
+            --syn-keyword: #0033b3; 
+            --syn-string: #067d17; 
+            --syn-number: #1750eb; 
+            --syn-comment: #8c8c8c;
+            --syn-def: #00627a; 
+            --syn-builtin: #0033b3; 
+            --syn-variable: #1f1f1f; 
+            --syn-property: #008080;
         }
+        
         [data-theme="neon"] {
-            --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
-            --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b;
-            --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399;
-            --accent-glow: rgba(255, 0, 127, 0.4); --on-accent: #fff;
-            --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff4d6d;
-            --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4;
-            --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd;
+            --bg-body: #05000a; 
+            --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
+            --bg-panel: rgba(20, 10, 30, 0.7); 
+            --bg-surface: #120a1c; 
+            --bg-surface-hover: #26133b;
+            --text-primary: #e0def4; 
+            --text-secondary: #8b7ca4; 
+            --accent: #ff007f; 
+            --accent-hover: #ff3399;
+            --accent-glow: rgba(255, 0, 127, 0.4); 
+            --on-accent: #fff;
+            --border: rgba(255, 0, 127, 0.2); 
+            --console-bg: rgba(10, 5, 15, 0.9); 
+            --success: #00f0ff; 
+            --error: #ff4d6d;
+            --syn-keyword: #ff007f; 
+            --syn-string: #00f0ff; 
+            --syn-number: #f1fa8c; 
+            --syn-comment: #6272a4;
+            --syn-def: #bd93f9; 
+            --syn-builtin: #ff007f; 
+            --syn-variable: #e0def4; 
+            --syn-property: #8be9fd;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -93,12 +127,17 @@
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--bg-body); background-image: var(--glow-bg);
+            background-color: var(--bg-body); 
+            background-image: var(--glow-bg);
             color: var(--text-primary);
-            height: 100vh; height: 100dvh;
-            display: flex; flex-direction: column; overflow: hidden;
+            height: 100vh; 
+            height: 100dvh;
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
             transition: background 0.4s;
         }
+        
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
@@ -110,7 +149,13 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ---- Загрузка ---- */
-        #loading-overlay { position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; transition: opacity 0.5s ease-out, visibility 0.5s; }
+        #loading-overlay { 
+            position: fixed; inset: 0; 
+            background: var(--bg-body); 
+            z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; 
+            transition: opacity 0.5s ease-out, visibility 0.5s; 
+        }
         #loading-overlay.hidden { opacity: 0; visibility: hidden; }
         .loading-text { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
         .loading-subtext { font-size: 13px; color: var(--text-secondary); text-align: center; max-width: 360px; }
@@ -119,7 +164,14 @@
         .progress-bar.failed { background: var(--error); box-shadow: none; }
 
         /* ---- Шапка ---- */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; min-height: 56px; background: var(--bg-panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 10; flex-shrink: 0; }
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 20px; min-height: 56px; 
+            background: var(--bg-panel); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+            border-bottom: 1px solid var(--border); 
+            z-index: 10; flex-shrink: 0; 
+        }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
         .logo-text {
@@ -135,9 +187,17 @@
             50% { background-position: 100% 50%; }
         }
         .controls { display: flex; gap: 12px; align-items: center; }
-        button, select { display: flex; align-items: center; gap: 6px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; }
+        button, select { 
+            display: flex; align-items: center; gap: 6px; 
+            background: var(--bg-surface); color: var(--text-primary); 
+            border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; 
+            font-family: inherit; font-size: 13px; font-weight: 500; 
+            cursor: pointer; 
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; 
+        }
         button:hover:not(:disabled), select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .icon-btn { padding: 8px; }
         button.run-btn { background: var(--accent); color: var(--on-accent); border: none; box-shadow: 0 0 10px var(--accent-glow); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px var(--accent-glow); }
@@ -166,8 +226,13 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        .font-size-control { display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 0 12px; border-radius: 8px; height: 35px; }
+        .font-size-control { 
+            display: flex; align-items: center; gap: 8px; 
+            background: var(--bg-surface); border: 1px solid var(--border); 
+            padding: 0 12px; border-radius: 8px; height: 35px; 
+        }
         .font-size-control output { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
+        
         input[type=range] { -webkit-appearance: none; appearance: none; width: 80px; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
         input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--border); border-radius: 2px; }
@@ -176,8 +241,22 @@
 
         /* ---- Основная область ---- */
         main { display: flex; flex: 1; min-height: 0; padding: 16px; gap: 16px; }
-        .panel { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; height: 42px; flex-shrink: 0; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 15px; font-size: 13px; color: var(--text-secondary); }
+        
+        .panel { 
+            display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; 
+            background: var(--bg-panel); 
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
+            border-radius: 12px; border: 1px solid var(--border); 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+            overflow: hidden; 
+        }
+        .panel-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            height: 42px; flex-shrink: 0; 
+            background: var(--bg-surface); 
+            border-bottom: 1px solid var(--border); 
+            padding: 0 15px; font-size: 13px; color: var(--text-secondary); 
+        }
         .panel-header-left { display: flex; align-items: center; gap: 8px; }
 
         /* ---- Вкладки ---- */
@@ -195,6 +274,7 @@
         }
         .tabs-scroll::-webkit-scrollbar { height: 3px; }
         .tabs-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+        
         .editor-tab {
             display: flex; align-items: center; gap: 6px;
             padding: 0 10px 0 12px; height: 42px;
@@ -214,6 +294,7 @@
             border-top-color: var(--accent);
         }
         .editor-tab i { color: var(--accent); font-size: 14px; flex-shrink: 0; }
+        
         .tab-name { padding: 2px 0; outline: none; border-radius: 3px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
         .tab-name[contenteditable="true"] {
             background: var(--bg-body);
@@ -222,6 +303,7 @@
             max-width: none;
             text-overflow: clip;
         }
+        
         .tab-close {
             background: transparent; border: none; padding: 2px;
             border-radius: 3px; color: var(--text-secondary);
@@ -233,6 +315,7 @@
         .editor-tab:hover .tab-close,
         .editor-tab.active .tab-close { opacity: 1; }
         .tab-close:hover { background: var(--error); color: #fff; border-color: transparent; }
+        
         .tab-add-btn {
             background: transparent; border: none; border-left: 1px solid var(--border);
             color: var(--text-secondary); padding: 0 14px; height: 42px;
@@ -253,17 +336,26 @@
             z-index: 5;
         }
         .editor-container.typing::after { opacity: 1; }
+        
         @keyframes fadeIn {
             from { opacity: 0.4; }
             to { opacity: 1; }
         }
         .editor-container.fade-in .CodeMirror { animation: fadeIn 0.25s ease-out; }
 
-        .CodeMirror { position: absolute; inset: 0; height: 100% !important; font-family: 'Fira Code', monospace; font-size: var(--editor-font-size) !important; line-height: 1.6; background: transparent !important; }
+        .CodeMirror { 
+            position: absolute; inset: 0; 
+            height: 100% !important; 
+            font-family: 'Fira Code', monospace; 
+            font-size: var(--editor-font-size) !important; 
+            line-height: 1.6; 
+            background: transparent !important; 
+        }
         .CodeMirror-lines { padding-bottom: 70px; }
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
         .CodeMirror-selected { background: var(--accent-glow) !important; }
+        
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
@@ -277,8 +369,10 @@
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
         .cm-s-custom .CodeMirror-matchingbracket { color: var(--accent) !important; text-decoration: underline; }
+        
         .CodeMirror-dialog { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; }
         .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
+        
         .CodeMirror-hints { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important; padding: 6px 0 !important; z-index: 1000 !important; }
         .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 16px !important; cursor: pointer !important; }
         li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent-glow) !important; }
@@ -288,17 +382,32 @@
         .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        .dot.red { background: #ff5f56; } 
+        .dot.yellow { background: #ffbd2e; } 
+        .dot.green { background: #27c93f; }
         .copy-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 16px; padding: 4px; }
         .copy-btn:hover:not(:disabled) { color: var(--accent); background: transparent; }
-        #output { flex: 1; padding: 20px 20px 40px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.6; min-height: 0; cursor: text; }
+        
+        #output { 
+            flex: 1; padding: 20px 20px 40px; 
+            font-family: 'Fira Code', monospace; font-size: 14px; 
+            overflow-y: auto; white-space: pre-wrap; word-break: break-word; 
+            line-height: 1.6; min-height: 0; cursor: text; 
+        }
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); }
         .output-info { color: var(--text-secondary); }
         .output-input { color: var(--accent); }
 
         /* ---- Подвал ---- */
-        footer { height: 30px; flex-shrink: 0; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        footer { 
+            height: 30px; flex-shrink: 0; 
+            background: var(--bg-panel); 
+            border-top: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 20px; font-size: 12px; color: var(--text-secondary); 
+            z-index: 10; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+        }
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
         .status-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         #py-status.loading, #py-status.running { color: var(--accent); }
@@ -354,6 +463,7 @@
         .note-action:hover:not(:disabled) { color: var(--accent); background: var(--bg-surface-hover); border-color: transparent; }
         .note-action.active { color: var(--accent); }
         .note-action:disabled { opacity: 0.3; cursor: not-allowed; }
+        
         #note-text {
             background: var(--bg-body);
             border: none;
@@ -458,7 +568,7 @@
         <textarea id="note-text" spellcheck="false" placeholder="Что нужно сделать?&#10;• Дописать функцию факториала&#10;• Проверить на отрицательных числах&#10;• Сдать до пятницы"></textarea>
     </div>
 
-    <!-- Код Web Worker -->
+    <!-- Код Web Worker (Replay Execution Mode) -->
     <script type="text/plain" id="py-worker-src">
 'use strict';
 
@@ -470,8 +580,7 @@ let outBuf = '';
 let outKind = 'stdout';
 let lastFlush = 0;
 let currentCode = '';
-let inputs = [];
-let needInput = '';
+let currentInputs = [];
 
 const RUNNER_SRC = [
     'import sys, traceback, builtins',
@@ -480,9 +589,9 @@ const RUNNER_SRC = [
     '        if prompt:',
     '            sys.stdout.write(str(prompt))',
     '            sys.stdout.flush()',
-    '        from js import ide_stdin',
-    '        val = ide_stdin(prompt)',
-    '        if val is None:',
+    '        import js',
+    '        val = js.get_ide_input(prompt)',
+    '        if val is None or val == "\\x00EOF\\x00":',
     '            print()',
     '            raise EOFError()',
     '        print(val)',
@@ -552,16 +661,16 @@ async function init(msg) {
     maxOutput = msg.maxOutput || Infinity;
     importScripts(msg.indexURL + 'pyodide.js');
     pyodide = await loadPyodide({ indexURL: msg.indexURL });
-
+    
     pyodide.setStdout(makeWriter('stdout'));
     pyodide.setStderr(makeWriter('stderr'));
-
-    pyodide.globals.set("ide_stdin", (prompt) => {
-        if (inputs.length > 0) {
-            return inputs.shift();
+    
+    // Функция моста для input
+    pyodide.globals.set("get_ide_input", (prompt) => {
+        if (currentInputs.length > 0) {
+            return currentInputs.shift();
         }
-        needInput = prompt || "Введите данные:";
-        throw new Error("__IDE_NEED_INPUT__");
+        throw new Error("__IDE_NEED_INPUT__:" + (prompt || ""));
     });
 
     pyodide.runPython(RUNNER_SRC);
@@ -571,8 +680,18 @@ async function init(msg) {
 
 async function run(msg) {
     currentCode = msg.code;
+    if (msg.inputs) {
+        currentInputs = [...msg.inputs];
+    } else {
+        currentInputs = [];
+    }
+
+    sent = 0;
+    outBuf = '';
+    outKind = 'stdout';
+    lastFlush = Date.now();
+
     if (!msg.isReplay) {
-        inputs = [];
         try {
             await pyodide.loadPackagesFromImports(currentCode, {
                 messageCallback: (t) => postMessage({ type: 'info', text: t }),
@@ -582,20 +701,18 @@ async function run(msg) {
             postMessage({ type: 'info', text: 'Не удалось загрузить пакеты: ' + ((e && e.message) || e) });
         }
         postMessage({ type: 'started' });
+    } else {
+        postMessage({ type: 'started' });
     }
 
     try {
-        postMessage({ type: 'clear_output' });
-        sent = 0;
-        outBuf = '';
-        outKind = 'stdout';
-
         let rc = runner(currentCode);
         flush();
         postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
     } catch (e) {
         if (e.message && e.message.includes("__IDE_NEED_INPUT__")) {
-            postMessage({ type: 'input_request', prompt: needInput });
+            let pText = e.message.split("__IDE_NEED_INPUT__:")[1];
+            postMessage({ type: 'need_input', prompt: pText });
         } else {
             flush();
             postMessage({ type: 'run_error', text: String((e && e.message) || e) });
@@ -609,9 +726,6 @@ self.onmessage = (e) => {
         init(msg).catch(err => postMessage({ type: 'init_error', text: String((err && err.message) || err) }));
     } else if (msg.type === 'run') {
         run(msg).catch(err => postMessage({ type: 'run_error', text: String((err && err.message) || err) }));
-    } else if (msg.type === 'input_response') {
-        inputs.push(msg.value);
-        run({ code: currentCode, isReplay: true }).catch(err => postMessage({ type: 'run_error', text: String((err && err.message) || err) }));
     }
 };
     </script>
@@ -620,12 +734,13 @@ self.onmessage = (e) => {
     (() => {
         'use strict';
 
+        // ---- Конфигурация ----
         const CONFIG = {
             PYODIDE_URL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
-            TIMEOUT_MS: 10000,
-            INIT_SLOW_MS: 25000,
-            MAX_OUTPUT_CHARS: 200000,
-            MAX_FILE_BYTES: 1024 * 1024,
+            TIMEOUT_MS: 10000,          // Жёсткий лимит на выполнение без ввода
+            INIT_SLOW_MS: 25000,        // Через сколько показать "Загрузка идёт дольше обычного"
+            MAX_OUTPUT_CHARS: 200000,   // Лимит вывода в консоль
+            MAX_FILE_BYTES: 1024 * 1024 // Лимит загружаемого файла (1 МБ)
         };
 
         const THEMES = ['dark', 'light', 'neon'];
@@ -659,7 +774,7 @@ self.onmessage = (e) => {
 
         const store = {
             get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-            set(k, v) { try { localStorage.setItem(k, v); } catch { /* квота */ } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch { /* квота или приватный режим */ } },
         };
 
         function icon(cls) {
@@ -995,3 +1110,584 @@ self.onmessage = (e) => {
                 this.el.hidden = true;
                 this.open = false;
                 store.set(KEYS.noteOpen, '0');
+            },
+
+            toggle() {
+                if (this.open && this.pinned) {
+                    this.pinned = false;
+                    this.applyPinned();
+                    this.hide();
+                } else if (this.open) {
+                    this.hide();
+                } else {
+                    this.show();
+                }
+            },
+
+            togglePin() {
+                this.pinned = !this.pinned;
+                this.applyPinned();
+                if (this.pinned) this.show();
+            },
+
+            applyPinned() {
+                this.el.classList.toggle('pinned', this.pinned);
+                $('note-pin-btn').classList.toggle('active', this.pinned);
+                $('note-pin-btn').title = this.pinned ? 'Открепить' : 'Закрепить';
+                $('note-close-btn').disabled = this.pinned;
+                store.set(KEYS.notePinned, this.pinned ? '1' : '0');
+            },
+        };
+
+        // ================= Python (Web Worker, Replay Input) =================
+
+        const Py = {
+            worker: null, url: null, ready: false, running: false,
+            runTimer: 0, initTimer: 0, inputs: []
+        };
+
+        function setStatus(kind, text) {
+            const el = $('py-status');
+            const icons = {
+                loading: 'ph ph-spinner-gap spin',
+                ready: 'ph-fill ph-check-circle',
+                error: 'ph ph-x-circle',
+                running: 'ph-fill ph-play-circle',
+            };
+            el.className = 'status-item ' + kind;
+            el.replaceChildren(icon(icons[kind]), document.createTextNode(' ' + text));
+        }
+
+        function updateRunButtons() {
+            const runBtn = $('run-btn');
+            runBtn.hidden = Py.running;
+            runBtn.disabled = !Py.ready;
+            $('stop-btn').hidden = !Py.running;
+        }
+
+        const Overlay = {
+            timer: 0, progress: 0,
+            el: () => $('loading-overlay'),
+
+            render() {
+                $('progress-bar').style.width = this.progress + '%';
+                $('progress-text').textContent = Math.floor(this.progress) + '%';
+            },
+            show() {
+                const bar = $('progress-bar');
+                bar.classList.remove('failed');
+                $('loading-title').textContent = 'Загрузка Python';
+                $('retry-btn').hidden = true;
+                this.progress = 0;
+                this.render();
+                this.el().classList.remove('hidden');
+                clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    this.progress = Math.min(this.progress + Math.random() * 4 + 1, 92);
+                    this.render();
+                }, 300);
+            },
+            done() {
+                clearInterval(this.timer);
+                if (this.el().classList.contains('hidden')) return;
+                this.progress = 100;
+                this.render();
+                setTimeout(() => this.el().classList.add('hidden'), 250);
+            },
+            slow() {
+                if (this.el().classList.contains('hidden')) return;
+                $('progress-text').textContent = 'Загрузка идёт дольше обычного. Проверьте интернет или VPN.';
+                $('retry-btn').hidden = false;
+            },
+            fail(msg) {
+                clearInterval(this.timer);
+                this.el().classList.remove('hidden');
+                $('loading-title').textContent = 'Ошибка загрузки';
+                $('progress-text').textContent = msg;
+                $('progress-bar').classList.add('failed');
+                $('retry-btn').hidden = false;
+            },
+        };
+
+        function stopWorker() {
+            clearTimeout(Py.initTimer);
+            if (Py.worker) {
+                Py.worker.terminate();
+                Py.worker = null;
+            }
+            if (Py.url) {
+                URL.revokeObjectURL(Py.url);
+                Py.url = null;
+            }
+        }
+
+        function startWorker({ overlay = false } = {}) {
+            stopWorker();
+            Py.ready = false;
+            updateRunButtons();
+            setStatus('loading', overlay ? 'Загрузка Python...' : 'Перезапуск Python...');
+            if (overlay) Overlay.show();
+
+            const src = $('py-worker-src').textContent;
+            Py.url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+
+            let w;
+            try {
+                w = new Worker(Py.url);
+            } catch (err) {
+                onInitFailed('Не удалось создать Web Worker: ' + err.message);
+                return;
+            }
+            Py.worker = w;
+
+            w.onmessage = (e) => { if (w === Py.worker) handleWorkerMessage(e.data); };
+            w.onerror = (e) => {
+                if (w !== Py.worker) return;
+                e.preventDefault();
+                onWorkerCrash(e.message || 'неизвестная ошибка');
+            };
+
+            Py.initTimer = setTimeout(() => { if (!Py.ready) Overlay.slow(); }, CONFIG.INIT_SLOW_MS);
+
+            w.postMessage({
+                type: 'init',
+                indexURL: CONFIG.PYODIDE_URL,
+                maxOutput: CONFIG.MAX_OUTPUT_CHARS,
+            });
+        }
+
+        function handleWorkerMessage(m) {
+            switch (m.type) {
+                case 'ready':
+                    clearTimeout(Py.initTimer);
+                    Py.ready = true;
+                    setStatus('ready', `Python готов · Pyodide ${m.version}`);
+                    Overlay.done();
+                    updateRunButtons();
+                    break;
+                case 'init_error':
+                    onInitFailed(m.text);
+                    break;
+                case 'out': {
+                    const cls = m.kind === 'stderr' ? 'output-error' : m.kind === 'echo' ? 'output-input' : '';
+                    Out.write(m.text, cls);
+                    break;
+                }
+                case 'info':
+                    Out.write(m.text + '\n', 'output-info', true);
+                    break;
+                case 'started':
+                    if (Py.running) startRunTimer();
+                    break;
+                case 'need_input':
+                    clearTimeout(Py.runTimer); // Пауза таймаута, пока пользователь думает
+                    setTimeout(() => {
+                        const val = prompt(m.prompt || 'Введите данные:');
+                        if (val === null) {
+                            Py.inputs.push("\x00EOF\x00");
+                        } else {
+                            Py.inputs.push(val);
+                        }
+                        Out.clear(); // Очищаем консоль перед быстрым перезапуском
+                        Py.worker.postMessage({ type: 'run', code: editor.getValue(), inputs: Py.inputs, isReplay: true });
+                        startRunTimer(); // Возобновляем таймаут
+                    }, 50);
+                    break;
+                case 'done':
+                    onRunFinished(m.code);
+                    break;
+                case 'run_error':
+                    Out.write('\n[Внутренняя ошибка]: ' + m.text + '\n', 'output-error', true);
+                    finishRun();
+                    startWorker();
+                    break;
+            }
+        }
+
+        function onInitFailed(text) {
+            stopWorker();
+            Py.ready = false;
+            finishRun();
+            setStatus('error', 'Ошибка загрузки');
+            Overlay.fail('Не удалось загрузить Python. Проверьте интернет или VPN. (' + text + ')');
+        }
+
+        function onWorkerCrash(text) {
+            if (!Py.ready) { onInitFailed(text); return; }
+            Out.write('\n[Критическая ошибка воркера]: ' + text + '\n', 'output-error', true);
+            finishRun();
+            startWorker();
+        }
+
+        // ---- Запуск и остановка ----
+
+        function startRunTimer() {
+            clearTimeout(Py.runTimer);
+            Py.runTimer = setTimeout(() => {
+                Out.write(
+                    `\n[ОШИБКА]: Превышено время выполнения (${CONFIG.TIMEOUT_MS / 1000} с).\n` +
+                    'Возможно, в коде бесконечный цикл. Измените его и попробуйте снова.\n',
+                    'output-error', true
+                );
+                hardKill('timeout');
+            }, CONFIG.TIMEOUT_MS);
+        }
+
+        function finishRun() {
+            clearTimeout(Py.runTimer);
+            Py.running = false;
+            if (Py.ready) setStatus('ready', 'Python готов');
+            updateRunButtons();
+        }
+
+        function onRunFinished(code) {
+            const reason = Py.stopReason;
+            finishRun();
+            if (reason === 'user') {
+                Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
+            } else if (reason === 'timeout') {
+                // сообщение уже выведено
+            } else if (code === 0) {
+                Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
+            } else {
+                Out.write(`\n[Программа завершилась с кодом ${code}]\n`, 'output-error', true);
+            }
+        }
+
+        function hardKill(reason) {
+            stopWorker();
+            finishRun();
+            if (reason === 'user') Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
+            Out.write('[Python перезапускается...]\n', 'output-info', true);
+            startWorker();
+        }
+
+        function runPython() {
+            if (Py.running) return;
+            if (!Py.ready) {
+                Out.write('Python ещё загружается, подождите немного...\n', 'output-info', true);
+                return;
+            }
+            const code = editor.getValue();
+            if (!code.trim()) return;
+
+            // Статический анализ на бесконечные циклы
+            const problems = detectInfiniteLoops(code);
+            if (problems.length) {
+                const list = problems.map(p => `  • строка ${p.line}:  ${p.code}`).join('\n');
+                const runAnyway = confirm(
+                    '⚠️ Обнаружен бесконечный цикл!\n\n' + list + '\n\n' +
+                    'В этом цикле нет break / return / raise / exit, поэтому он никогда не завершится.\n\n' +
+                    `OK — всё равно запустить (выполнение остановится через ${CONFIG.TIMEOUT_MS / 1000} с),\n` +
+                    'Отмена — вернуться к редактированию.'
+                );
+                if (!runAnyway) {
+                    Out.clear();
+                    Out.write('⚠️ Запуск отменён: обнаружен бесконечный цикл\n', 'output-error', true);
+                    Out.write(`Строки: ${problems.map(p => p.line).join(', ')}\nИзмените код и попробуйте снова.\n`, '', true);
+                    editor.setCursor({ line: problems[0].line - 1, ch: 0 });
+                    editor.focus();
+                    return;
+                }
+            }
+
+            Out.clear();
+            Py.running = true;
+            Py.stopReason = null;
+            Py.inputs = []; // Сброс истории ввода
+            
+            setStatus('running', 'Выполняется...');
+            updateRunButtons();
+
+            Py.worker.postMessage({ type: 'run', code, inputs: [] });
+        }
+
+        // ================= Статический анализ =================
+
+        // Заменяет строки и комментарии заглушками, сохраняя переводы строк
+        function stripPython(code) {
+            let out = '';
+            let i = 0;
+            const n = code.length;
+            while (i < n) {
+                const c = code[i];
+                if (c === '#') {
+                    while (i < n && code[i] !== '\n') i++;
+                    continue;
+                }
+                if (c === '"' || c === "'") {
+                    const triple = code.startsWith(c + c + c, i);
+                    const q = triple ? c + c + c : c;
+                    out += c + c;
+                    i += q.length;
+                    while (i < n) {
+                        if (code[i] === '\\') {
+                            if (code[i + 1] === '\n') out += '\n';
+                            i += 2;
+                            continue;
+                        }
+                        if (code.startsWith(q, i)) { i += q.length; break; }
+                        if (code[i] === '\n') {
+                            out += '\n';
+                            i++;
+                            if (!triple) break;
+                            continue;
+                        }
+                        i++;
+                    }
+                    continue;
+                }
+                out += c;
+                i++;
+            }
+            return out;
+        }
+
+        function detectInfiniteLoops(code) {
+            const lines = stripPython(code).split('\n');
+            const original = code.split('\n');
+
+            // Строки-продолжения (внутри скобок или после "\") не влияют на отступы
+            const cont = new Array(lines.length).fill(false);
+            let depth = 0;
+            let backslash = false;
+            for (let i = 0; i < lines.length; i++) {
+                cont[i] = depth > 0 || backslash;
+                for (const ch of lines[i]) {
+                    if (ch === '(' || ch === '[' || ch === '{') depth++;
+                    else if (ch === ')' || ch === ']' || ch === '}') depth = Math.max(0, depth - 1);
+                }
+                backslash = /\\\s*$/.test(lines[i]);
+            }
+
+            const WHILE = /^([ \t]*)while\s*\(?\s*(?:True|[1-9]\d*)\s*\)?\s*:(.*)$/;
+            const EXIT = /\b(?:break|return|raise|yield)\b|\b(?:exit|quit|_exit)\s*\(/;
+            const problems = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                if (cont[i]) continue;
+                const m = lines[i].match(WHILE);
+                if (!m) continue;
+                const base = m[1].length;
+                let hasExit = EXIT.test(m[2]);
+                for (let j = i + 1; j < lines.length && !hasExit; j++) {
+                    const l = lines[j];
+                    if (!l.trim()) continue;
+                    if (!cont[j] && l.match(/^[ \t]*/)[0].length <= base) break;
+                    if (EXIT.test(l)) hasExit = true;
+                }
+                if (!hasExit) problems.push({ line: i + 1, code: (original[i] || '').trim() });
+            }
+            return problems;
+        }
+
+        // ================= Автодополнение =================
+
+        const PY_WORDS = [
+            'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue',
+            'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in',
+            'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
+            'print', 'input', 'int', 'float', 'str', 'list', 'dict', 'set', 'tuple', 'bool', 'len', 'range', 'type',
+            'sum', 'max', 'min', 'abs', 'round', 'open', 'enumerate', 'zip', 'map', 'filter', 'sorted', 'reversed',
+            'isinstance', 'lower', 'upper', 'append', 'extend', 'insert', 'remove', 'pop', 'split', 'join',
+            'strip', 'replace', 'find', 'count', 'index', 'keys', 'values', 'items', 'format', 'startswith', 'endswith',
+        ];
+
+        function smartHint(cm) {
+            const cur = cm.getCursor();
+            const line = cm.getLine(cur.line);
+            let start = cur.ch;
+            while (start > 0 && /\w/.test(line[start - 1])) start--;
+            const word = line.slice(start, cur.ch);
+            if (!word || /^\d/.test(word)) return null;
+
+            const words = new Set(PY_WORDS);
+            for (const m of cm.getValue().matchAll(/[A-Za-z_]\w{2,}/g)) words.add(m[0]);
+            const list = [...words].filter(w => w.startsWith(word) && w !== word).sort();
+            if (!list.length) return null;
+            return { list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, cur.ch) };
+        }
+
+        // ================= Прочие действия =================
+
+        function downloadCode() {
+            const t = Tabs.getActive();
+            const name = (t && t.name) || 'main.py';
+            const blob = new Blob([editor.getValue()], { type: 'text/x-python;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        async function copyOutput() {
+            const i = $('copy-btn').querySelector('i');
+            try {
+                await navigator.clipboard.writeText(Out.text());
+                i.className = 'ph ph-check';
+            } catch {
+                i.className = 'ph ph-x';
+            }
+            setTimeout(() => { i.className = 'ph ph-copy'; }, 1500);
+        }
+
+        function clearOutput() {
+            Out.clear();
+        }
+
+        function applyTheme(theme) {
+            if (!THEMES.includes(theme)) theme = 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            $('theme-select').value = theme;
+            store.set(KEYS.theme, theme);
+        }
+
+        function applyFontSize(size) {
+            const n = Math.min(28, Math.max(10, parseInt(size, 10) || 15));
+            $('font-size-slider').value = n;
+            $('font-size-val').textContent = n + 'px';
+            document.documentElement.style.setProperty('--editor-font-size', n + 'px');
+            if (editor) editor.refresh();
+            return n;
+        }
+
+        function loadFile(file) {
+            if (!file) return;
+            if (file.size > CONFIG.MAX_FILE_BYTES) {
+                Out.write(`Файл слишком большой (максимум ${CONFIG.MAX_FILE_BYTES / 1024} КБ).\n`, 'output-error', true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                editor.setValue(String(reader.result));
+                editor.focus();
+            };
+            reader.onerror = () => Out.write('Не удалось прочитать файл.\n', 'output-error', true);
+            reader.readAsText(file, 'utf-8');
+        }
+
+        // ================= Инициализация =================
+
+        function init() {
+            Out.el = $('output');
+
+            applyTheme(document.documentElement.getAttribute('data-theme'));
+
+            editor = CodeMirror.fromTextArea($('code-editor'), {
+                mode: { name: 'python', version: 3 },
+                theme: 'custom',
+                lineNumbers: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                tabSize: 4,
+                indentWithTabs: false,
+                lineWrapping: true,
+                extraKeys: {
+                    'Ctrl-Space': (cm) => cm.showHint({ hint: smartHint, completeSingle: false }),
+                    'Ctrl-Enter': () => runPython(),
+                    'Cmd-Enter': () => runPython(),
+                    'Ctrl-F': 'findPersistent',
+                    'Cmd-F': 'findPersistent',
+                    'Ctrl-/': 'toggleComment',
+                    'Cmd-/': 'toggleComment',
+                    'Tab': (cm) => {
+                        if (cm.somethingSelected()) cm.execCommand('indentMore');
+                        else cm.execCommand('insertSoftTab');
+                    },
+                    'Shift-Tab': 'indentLess',
+                },
+            });
+
+            Tabs.init();
+            $('tab-add-btn').addEventListener('click', () => Tabs.add());
+
+            editor.on('change', () => {
+                if (syncingEditor) return;
+                Tabs.setCode(editor.getValue());
+            });
+            window.addEventListener('pagehide', () => {
+                Tabs.saveCursor();
+                Tabs.saveNow();
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    Tabs.saveCursor();
+                    Tabs.saveNow();
+                }
+            });
+
+            let typingTimer = 0;
+            const ec = $('editor-container');
+            editor.on('inputRead', () => {
+                ec.classList.add('typing');
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => ec.classList.remove('typing'), 700);
+            });
+
+            let hintTimeout = 0;
+            editor.on('inputRead', (cm, change) => {
+                if (!/^[A-Za-z_]/.test(change.text[0] || '')) return;
+                const type = cm.getTokenTypeAt(cm.getCursor()) || '';
+                if (/string|comment/.test(type)) return;
+                clearTimeout(hintTimeout);
+                hintTimeout = setTimeout(() => cm.showHint({ hint: smartHint, completeSingle: false }), 300);
+            });
+
+            editor.on('cursorActivity', (cm) => {
+                const pos = cm.getCursor();
+                $('cursor-position').textContent = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
+            });
+
+            applyFontSize(store.get(KEYS.font) || 15);
+            $('font-size-slider').addEventListener('input', (e) => {
+                store.set(KEYS.font, String(applyFontSize(e.target.value)));
+            });
+
+            Note.init();
+
+            $('theme-select').addEventListener('change', (e) => applyTheme(e.target.value));
+            $('open-btn').addEventListener('click', () => $('file-upload').click());
+            $('file-upload').addEventListener('change', (e) => {
+                loadFile(e.target.files[0]);
+                e.target.value = '';
+            });
+            $('download-btn').addEventListener('click', downloadCode);
+            $('clear-btn').addEventListener('click', clearOutput);
+            $('run-btn').addEventListener('click', runPython);
+            $('stop-btn').addEventListener('click', () => hardKill('user'));
+            $('copy-btn').addEventListener('click', copyOutput);
+            $('retry-btn').addEventListener('click', () => startWorker({ overlay: true }));
+
+            document.querySelectorAll('button').forEach(attachRipple);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !editor.hasFocus()) {
+                    const tag = e.target.tagName;
+                    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+                        e.preventDefault();
+                        runPython();
+                    }
+                }
+            });
+
+            let resizeRaf = 0;
+            window.addEventListener('resize', () => {
+                cancelAnimationFrame(resizeRaf);
+                resizeRaf = requestAnimationFrame(() => editor.refresh());
+            });
+            setTimeout(() => editor.refresh(), 100);
+
+            startWorker({ overlay: true });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
+    </script>
+</body>
+</html>
