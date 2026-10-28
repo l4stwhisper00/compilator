@@ -439,7 +439,6 @@
     <footer>
         <div class="status-left"><span class="status-item loading" id="py-status"><i class="ph ph-spinner-gap spin" aria-hidden="true"></i> Загрузка Python...</span></div>
         <div class="status-right">
-            <span class="status-item" id="input-mode"></span>
             <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
             <span class="status-item">UTF-8</span>
             <span class="status-item">Python 3</span>
@@ -465,20 +464,32 @@
 
 let pyodide = null;
 let runner = null;
-let ctl = null;
-let stdinData = null;
-let interruptBuf = null;
-let stdinQueue = [];
 let maxOutput = Infinity;
 let sent = 0;
 let outBuf = '';
 let outKind = 'stdout';
 let lastFlush = 0;
-const stdinDecoder = new TextDecoder('utf-8');
+let currentCode = '';
+let inputs = [];
+let needInput = '';
 
 const RUNNER_SRC = [
-    'import sys, traceback',
+    'import sys, traceback, builtins',
     'def _ide_run(src):',
+    '    def custom_input(prompt=""):',
+    '        if prompt:',
+    '            sys.stdout.write(str(prompt))',
+    '            sys.stdout.flush()',
+    '        from js import ide_stdin',
+    '        val = ide_stdin(prompt)',
+    '        if val is None:',
+    '            print()',
+    '            raise EOFError()',
+    '        print(val)',
+    '        return val',
+    '',
+    '    builtins.input = custom_input',
+    '',
     '    ns = {"__name__": "__main__"}',
     '    rc = 0',
     '    try:',
@@ -495,6 +506,8 @@ const RUNNER_SRC = [
     '        print("\\nKeyboardInterrupt", file=sys.stderr)',
     '        rc = 130',
     '    except BaseException as e:',
+    '        if "__IDE_NEED_INPUT__" in str(e):',
+    '            raise',
     '        tb = e.__traceback__',
     '        while tb is not None and tb.tb_frame.f_code.co_filename != "main.py":',
     '            tb = tb.tb_next',
@@ -535,71 +548,59 @@ function makeWriter(kind) {
     };
 }
 
-function readStdin() {
-    flush();
-    if (!ctl) {
-        if (stdinQueue.length) {
-            const line = stdinQueue.shift();
-            emit('echo', line);
-            flush();
-            return line;
-        }
-        postMessage({ type: 'stdin_eof' });
-        return undefined;
-    }
-    Atomics.store(ctl, 0, 0);
-    postMessage({ type: 'input_request' });
-    Atomics.wait(ctl, 0, 0);
-    if (Atomics.load(ctl, 0) === 2) return undefined;
-    const len = Atomics.load(ctl, 1);
-    return stdinDecoder.decode(stdinData.slice(0, len)) + '\n';
-}
-
 async function init(msg) {
     maxOutput = msg.maxOutput || Infinity;
     importScripts(msg.indexURL + 'pyodide.js');
     pyodide = await loadPyodide({ indexURL: msg.indexURL });
+
     pyodide.setStdout(makeWriter('stdout'));
     pyodide.setStderr(makeWriter('stderr'));
-    pyodide.setStdin({ stdin: readStdin });
-    if (msg.sab) {
-        ctl = new Int32Array(msg.sab.ctl);
-        stdinData = new Uint8Array(msg.sab.data);
-        interruptBuf = new Uint8Array(msg.sab.interrupt);
-        pyodide.setInterruptBuffer(interruptBuf);
-    }
+
+    pyodide.globals.set("ide_stdin", (prompt) => {
+        if (inputs.length > 0) {
+            return inputs.shift();
+        }
+        needInput = prompt || "Введите данные:";
+        throw new Error("__IDE_NEED_INPUT__");
+    });
+
     pyodide.runPython(RUNNER_SRC);
     runner = pyodide.globals.get('_ide_run');
     postMessage({ type: 'ready', version: pyodide.version });
 }
 
 async function run(msg) {
-    let s = typeof msg.stdin === 'string' ? msg.stdin.replace(/\r\n?/g, '\n') : '';
-    if (s.endsWith('\n')) s = s.slice(0, -1);
-    stdinQueue = s ? s.split('\n').map(l => l + '\n') : [];
-    sent = 0;
-    outBuf = '';
-    lastFlush = Date.now();
-    if (interruptBuf) interruptBuf[0] = 0;
-    try {
-        await pyodide.loadPackagesFromImports(msg.code, {
-            messageCallback: (t) => postMessage({ type: 'info', text: t }),
-            errorCallback: (t) => postMessage({ type: 'info', text: t }),
-        });
-    } catch (e) {
-        postMessage({ type: 'info', text: 'Не удалось загрузить пакеты: ' + ((e && e.message) || e) });
+    currentCode = msg.code;
+    if (!msg.isReplay) {
+        inputs = [];
+        try {
+            await pyodide.loadPackagesFromImports(currentCode, {
+                messageCallback: (t) => postMessage({ type: 'info', text: t }),
+                errorCallback: (t) => postMessage({ type: 'info', text: t }),
+            });
+        } catch (e) {
+            postMessage({ type: 'info', text: 'Не удалось загрузить пакеты: ' + ((e && e.message) || e) });
+        }
+        postMessage({ type: 'started' });
     }
-    postMessage({ type: 'started' });
-    let rc;
+
     try {
-        rc = runner(msg.code);
-    } catch (e) {
+        postMessage({ type: 'clear_output' });
+        sent = 0;
+        outBuf = '';
+        outKind = 'stdout';
+
+        let rc = runner(currentCode);
         flush();
-        postMessage({ type: 'run_error', text: String((e && e.message) || e) });
-        return;
+        postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
+    } catch (e) {
+        if (e.message && e.message.includes("__IDE_NEED_INPUT__")) {
+            postMessage({ type: 'input_request', prompt: needInput });
+        } else {
+            flush();
+            postMessage({ type: 'run_error', text: String((e && e.message) || e) });
+        }
     }
-    flush();
-    postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
 }
 
 self.onmessage = (e) => {
@@ -608,6 +609,9 @@ self.onmessage = (e) => {
         init(msg).catch(err => postMessage({ type: 'init_error', text: String((err && err.message) || err) }));
     } else if (msg.type === 'run') {
         run(msg).catch(err => postMessage({ type: 'run_error', text: String((err && err.message) || err) }));
+    } else if (msg.type === 'input_response') {
+        inputs.push(msg.value);
+        run({ code: currentCode, isReplay: true }).catch(err => postMessage({ type: 'run_error', text: String((err && err.message) || err) }));
     }
 };
     </script>
@@ -619,11 +623,9 @@ self.onmessage = (e) => {
         const CONFIG = {
             PYODIDE_URL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
             TIMEOUT_MS: 10000,
-            INTERRUPT_GRACE_MS: 1500,
             INIT_SLOW_MS: 25000,
             MAX_OUTPUT_CHARS: 200000,
             MAX_FILE_BYTES: 1024 * 1024,
-            STDIN_BYTES: 64 * 1024,
         };
 
         const THEMES = ['dark', 'light', 'neon'];
@@ -652,8 +654,6 @@ self.onmessage = (e) => {
             '    print(x * y * z)',
             '',
         ].join('\n');
-
-        const SAB_OK = typeof SharedArrayBuffer === 'function' && window.crossOriginIsolated === true;
 
         const $ = (id) => document.getElementById(id);
 
@@ -995,732 +995,3 @@ self.onmessage = (e) => {
                 this.el.hidden = true;
                 this.open = false;
                 store.set(KEYS.noteOpen, '0');
-            },
-
-            toggle() {
-                if (this.open && this.pinned) {
-                    this.pinned = false;
-                    this.applyPinned();
-                    this.hide();
-                } else if (this.open) {
-                    this.hide();
-                } else {
-                    this.show();
-                }
-            },
-
-            togglePin() {
-                this.pinned = !this.pinned;
-                this.applyPinned();
-                if (this.pinned) this.show();
-            },
-
-            applyPinned() {
-                this.el.classList.toggle('pinned', this.pinned);
-                $('note-pin-btn').classList.toggle('active', this.pinned);
-                $('note-pin-btn').title = this.pinned ? 'Открепить' : 'Закрепить';
-                $('note-close-btn').disabled = this.pinned;
-                store.set(KEYS.notePinned, this.pinned ? '1' : '0');
-            },
-        };
-
-        // ================= Python (Web Worker или Main Thread) =================
-
-        const Py = {
-            worker: null, url: null, ready: false, running: false,
-            waitingInput: false, stopReason: null, stdinEof: false,
-            runTimer: 0, killTimer: 0, initTimer: 0, sab: null,
-            main: { pyodide: null }
-        };
-
-        if (SAB_OK) {
-            Py.sab = {
-                ctl: new SharedArrayBuffer(8),
-                data: new SharedArrayBuffer(CONFIG.STDIN_BYTES),
-                interrupt: new SharedArrayBuffer(1),
-            };
-        }
-
-        function setStatus(kind, text) {
-            const el = $('py-status');
-            const icons = {
-                loading: 'ph ph-spinner-gap spin',
-                ready: 'ph-fill ph-check-circle',
-                error: 'ph ph-x-circle',
-                running: 'ph-fill ph-play-circle',
-            };
-            el.className = 'status-item ' + kind;
-            el.replaceChildren(icon(icons[kind]), document.createTextNode(' ' + text));
-        }
-
-        function updateRunButtons() {
-            const runBtn = $('run-btn');
-            runBtn.hidden = Py.running;
-            runBtn.disabled = !Py.ready;
-            $('stop-btn').hidden = !Py.running || !SAB_OK; // Скрываем стоп, если нет SAB
-        }
-
-        const Overlay = {
-            timer: 0, progress: 0,
-            el: () => $('loading-overlay'),
-
-            render() {
-                $('progress-bar').style.width = this.progress + '%';
-                $('progress-text').textContent = Math.floor(this.progress) + '%';
-            },
-            show() {
-                const bar = $('progress-bar');
-                bar.classList.remove('failed');
-                $('loading-title').textContent = 'Загрузка Python';
-                $('retry-btn').hidden = true;
-                this.progress = 0;
-                this.render();
-                this.el().classList.remove('hidden');
-                clearInterval(this.timer);
-                this.timer = setInterval(() => {
-                    this.progress = Math.min(this.progress + Math.random() * 4 + 1, 92);
-                    this.render();
-                }, 300);
-            },
-            done() {
-                clearInterval(this.timer);
-                if (this.el().classList.contains('hidden')) return;
-                this.progress = 100;
-                this.render();
-                setTimeout(() => this.el().classList.add('hidden'), 250);
-            },
-            slow() {
-                if (this.el().classList.contains('hidden')) return;
-                $('progress-text').textContent = 'Загрузка идёт дольше обычного. Проверьте интернет или VPN.';
-                $('retry-btn').hidden = false;
-            },
-            fail(msg) {
-                clearInterval(this.timer);
-                this.el().classList.remove('hidden');
-                $('loading-title').textContent = 'Ошибка загрузки';
-                $('progress-text').textContent = msg;
-                $('progress-bar').classList.add('failed');
-                $('retry-btn').hidden = false;
-            },
-        };
-
-        function stopWorker() {
-            clearTimeout(Py.initTimer);
-            if (Py.worker) {
-                Py.worker.terminate();
-                Py.worker = null;
-            }
-            if (Py.url) {
-                URL.revokeObjectURL(Py.url);
-                Py.url = null;
-            }
-        }
-
-        function startWorker({ overlay = false } = {}) {
-            stopWorker();
-            Py.ready = false;
-            updateRunButtons();
-            setStatus('loading', overlay ? 'Загрузка Python...' : 'Перезапуск Python...');
-            if (overlay) Overlay.show();
-
-            if (Py.sab) {
-                Atomics.store(new Int32Array(Py.sab.ctl), 0, 0);
-                new Uint8Array(Py.sab.interrupt)[0] = 0;
-            }
-
-            const src = $('py-worker-src').textContent;
-            Py.url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
-
-            let w;
-            try {
-                w = new Worker(Py.url);
-            } catch (err) {
-                onInitFailed('Не удалось создать Web Worker: ' + err.message);
-                return;
-            }
-            Py.worker = w;
-
-            w.onmessage = (e) => { if (w === Py.worker) handleWorkerMessage(e.data); };
-            w.onerror = (e) => {
-                if (w !== Py.worker) return;
-                e.preventDefault();
-                onWorkerCrash(e.message || 'неизвестная ошибка');
-            };
-
-            Py.initTimer = setTimeout(() => { if (!Py.ready) Overlay.slow(); }, CONFIG.INIT_SLOW_MS);
-
-            w.postMessage({
-                type: 'init',
-                indexURL: CONFIG.PYODIDE_URL,
-                sab: Py.sab,
-                maxOutput: CONFIG.MAX_OUTPUT_CHARS,
-            });
-        }
-
-        async function startMainThreadPy({ overlay = false } = {}) {
-            if (Py.main.pyodide) {
-                Py.ready = true;
-                updateRunButtons();
-                setStatus('ready', 'Python готов');
-                if (overlay) Overlay.done();
-                return;
-            }
-
-            Py.ready = false;
-            updateRunButtons();
-            setStatus('loading', 'Загрузка Python...');
-            if (overlay) Overlay.show();
-
-            try {
-                if (!window.loadPyodide) {
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = CONFIG.PYODIDE_URL + 'pyodide.js';
-                        script.onload = resolve;
-                        script.onerror = () => reject(new Error('Ошибка загрузки скрипта Pyodide'));
-                        document.head.appendChild(script);
-                    });
-                }
-
-                const py = await loadPyodide({ indexURL: CONFIG.PYODIDE_URL });
-
-                py.setStdout({ batched: (msg) => Out.write(msg) });
-                py.setStderr({ batched: (msg) => Out.write(msg, 'output-error') });
-                py.setStdin({
-                    stdin: () => {
-                        const text = Out.el.textContent || '';
-                        const lastLine = text.split('\n').pop().trim();
-                        const promptText = lastLine || 'Введите данные:';
-                        const val = prompt(promptText);
-                        const eof = val === null;
-                        Out.write(eof ? '^D\n' : val + '\n', 'output-input', true);
-                        return eof ? undefined : val + '\n';
-                    }
-                });
-
-                Py.main.pyodide = py;
-                Py.ready = true;
-                setStatus('ready', 'Python готов');
-                Overlay.done();
-                updateRunButtons();
-            } catch (err) {
-                setStatus('error', 'Ошибка загрузки');
-                Overlay.fail('Не удалось загрузить Python: ' + err.message);
-            }
-        }
-
-        function handleWorkerMessage(m) {
-            switch (m.type) {
-                case 'ready':
-                    clearTimeout(Py.initTimer);
-                    Py.ready = true;
-                    setStatus('ready', `Python готов · Pyodide ${m.version}`);
-                    Overlay.done();
-                    updateRunButtons();
-                    break;
-                case 'init_error':
-                    onInitFailed(m.text);
-                    break;
-                case 'out': {
-                    const cls = m.kind === 'stderr' ? 'output-error' : m.kind === 'echo' ? 'output-input' : '';
-                    Out.write(m.text, cls);
-                    break;
-                }
-                case 'info':
-                    Out.write(m.text + '\n', 'output-info', true);
-                    break;
-                case 'started':
-                    if (Py.running) startRunTimer();
-                    break;
-                case 'input_request':
-                    clearTimeout(Py.runTimer);
-                    Py.waitingInput = true;
-                    setStatus('running', 'Ожидание ввода...');
-                    askInput();
-                    break;
-                case 'stdin_eof':
-                    Py.stdinEof = true;
-                    break;
-                case 'done':
-                    onRunFinished(m.code);
-                    break;
-                case 'run_error':
-                    Out.write('\n[Внутренняя ошибка]: ' + m.text + '\n', 'output-error', true);
-                    finishRun();
-                    startWorker();
-                    break;
-            }
-        }
-
-        function onInitFailed(text) {
-            stopWorker();
-            Py.ready = false;
-            finishRun();
-            setStatus('error', 'Ошибка загрузки');
-            Overlay.fail('Не удалось загрузить Python. Проверьте интернет или VPN. (' + text + ')');
-        }
-
-        function onWorkerCrash(text) {
-            if (!Py.ready) { onInitFailed(text); return; }
-            Out.write('\n[Критическая ошибка воркера]: ' + text + '\n', 'output-error', true);
-            finishRun();
-            startWorker();
-        }
-
-        // ---- Ввод через prompt() ----
-
-        function askInput() {
-            Out.flush();
-            const text = Out.el.textContent || '';
-            const lastLine = text.split('\n').pop().trim();
-            const promptText = lastLine || 'Введите данные:';
-
-            setTimeout(() => {
-                const value = prompt(promptText);
-                const eof = value === null;
-
-                if (!Py.sab) {
-                    Py.waitingInput = false;
-                    finishRun();
-                    return;
-                }
-
-                Out.write(eof ? '^D\n' : value + '\n', 'output-input', true);
-                Py.waitingInput = false;
-                setStatus('running', 'Выполняется...');
-
-                const ctl = new Int32Array(Py.sab.ctl);
-                if (eof) {
-                    Atomics.store(ctl, 0, 2);
-                } else {
-                    const bytes = new TextEncoder().encode(value).subarray(0, CONFIG.STDIN_BYTES);
-                    new Uint8Array(Py.sab.data).set(bytes);
-                    Atomics.store(ctl, 1, bytes.length);
-                    Atomics.store(ctl, 0, 1);
-                }
-                Atomics.notify(ctl, 0);
-                startRunTimer();
-            }, 50);
-        }
-
-        // ---- Запуск и остановка ----
-
-        function startRunTimer() {
-            clearTimeout(Py.runTimer);
-            Py.runTimer = setTimeout(() => {
-                Out.write(
-                    `\n[ОШИБКА]: Превышено время выполнения (${CONFIG.TIMEOUT_MS / 1000} с).\n` +
-                    'Возможно, в коде бесконечный цикл. Измените его и попробуйте снова.\n',
-                    'output-error', true
-                );
-                interruptRun('timeout');
-            }, CONFIG.TIMEOUT_MS);
-        }
-
-        function finishRun() {
-            clearTimeout(Py.runTimer);
-            clearTimeout(Py.killTimer);
-            Py.running = false;
-            Py.waitingInput = false;
-            Py.stopReason = null;
-            if (Py.ready) setStatus('ready', 'Python готов');
-            updateRunButtons();
-        }
-
-        function onRunFinished(code) {
-            const reason = Py.stopReason;
-            const eof = Py.stdinEof;
-            finishRun();
-            if (reason === 'user') {
-                Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
-            } else if (reason === 'timeout') {
-                // сообщение уже выведено
-            } else if (code === 0) {
-                Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
-            } else {
-                Out.write(`\n[Программа завершилась с кодом ${code}]\n`, 'output-error', true);
-                if (eof && !SAB_OK) {
-                    Out.write('Подсказка: для input() нужны заголовки COOP/COEP (иначе программа получит EOF).\n', 'output-info', true);
-                }
-            }
-        }
-
-        function interruptRun(reason) {
-            if (!Py.running) return;
-            Py.stopReason = reason;
-            clearTimeout(Py.runTimer);
-            if (Py.sab && Py.ready && !Py.waitingInput) {
-                new Uint8Array(Py.sab.interrupt)[0] = 2;
-                clearTimeout(Py.killTimer);
-                Py.killTimer = setTimeout(() => hardKill(reason), CONFIG.INTERRUPT_GRACE_MS);
-            } else {
-                hardKill(reason);
-            }
-        }
-
-        function hardKill(reason) {
-            stopWorker();
-            finishRun();
-            if (reason === 'user') Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
-            Out.write('[Python перезапускается...]\n', 'output-info', true);
-            if (SAB_OK) startWorker();
-            else startMainThreadPy();
-        }
-
-        async function runMainThread(code) {
-            try {
-                await Py.main.pyodide.runPythonAsync(code);
-                Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
-            } catch (err) {
-                Out.write('\n[Ошибка выполнения]:\n' + (err.message || err) + '\n', 'output-error', true);
-            } finally {
-                finishRun();
-            }
-        }
-
-        function runPython() {
-            if (Py.running) return;
-            if (!Py.ready) {
-                Out.write('Python ещё загружается, подождите немного...\n', 'output-info', true);
-                return;
-            }
-            const code = editor.getValue();
-            if (!code.trim()) return;
-
-            const problems = detectInfiniteLoops(code);
-            if (problems.length) {
-                const list = problems.map(p => `  • строка ${p.line}:  ${p.code}`).join('\n');
-                const runAnyway = confirm(
-                    '⚠️ Обнаружен бесконечный цикл!\n\n' + list + '\n\n' +
-                    'В этом цикле нет break / return / raise / exit, поэтому он никогда не завершится.\n\n' +
-                    (SAB_OK
-                        ? `OK — всё равно запустить (выполнение остановится через ${CONFIG.TIMEOUT_MS / 1000} с),\n`
-                        : 'OK — всё равно запустить (ВНИМАНИЕ: страница зависнет, так как сайт не поддерживает Worker!)\n') +
-                    'Отмена — вернуться к редактированию.'
-                );
-                if (!runAnyway) {
-                    Out.clear();
-                    Out.write('⚠️ Запуск отменён: обнаружен бесконечный цикл\n', 'output-error', true);
-                    Out.write(`Строки: ${problems.map(p => p.line).join(', ')}\nИзмените код и попробуйте снова.\n`, '', true);
-                    editor.setCursor({ line: problems[0].line - 1, ch: 0 });
-                    editor.focus();
-                    return;
-                }
-            }
-
-            Out.clear();
-            Py.running = true;
-            Py.stopReason = null;
-            Py.stdinEof = false;
-            setStatus('running', 'Выполняется...');
-            updateRunButtons();
-
-            if (SAB_OK) {
-                Py.worker.postMessage({ type: 'run', code, stdin: null });
-            } else {
-                runMainThread(code);
-            }
-        }
-
-        // ================= Статический анализ =================
-
-        function stripPython(code) {
-            let out = '';
-            let i = 0;
-            const n = code.length;
-            while (i < n) {
-                const c = code[i];
-                if (c === '#') {
-                    while (i < n && code[i] !== '\n') i++;
-                    continue;
-                }
-                if (c === '"' || c === "'") {
-                    const triple = code.startsWith(c + c + c, i);
-                    const q = triple ? c + c + c : c;
-                    out += c + c;
-                    i += q.length;
-                    while (i < n) {
-                        if (code[i] === '\\') {
-                            if (code[i + 1] === '\n') out += '\n';
-                            i += 2;
-                            continue;
-                        }
-                        if (code.startsWith(q, i)) { i += q.length; break; }
-                        if (code[i] === '\n') {
-                            out += '\n';
-                            i++;
-                            if (!triple) break;
-                            continue;
-                        }
-                        i++;
-                    }
-                    continue;
-                }
-                out += c;
-                i++;
-            }
-            return out;
-        }
-
-        function detectInfiniteLoops(code) {
-            const lines = stripPython(code).split('\n');
-            const original = code.split('\n');
-
-            const cont = new Array(lines.length).fill(false);
-            let depth = 0;
-            let backslash = false;
-            for (let i = 0; i < lines.length; i++) {
-                cont[i] = depth > 0 || backslash;
-                for (const ch of lines[i]) {
-                    if (ch === '(' || ch === '[' || ch === '{') depth++;
-                    else if (ch === ')' || ch === ']' || ch === '}') depth = Math.max(0, depth - 1);
-                }
-                backslash = /\\\s*$/.test(lines[i]);
-            }
-
-            const WHILE = /^([ \t]*)while\s*\(?\s*(?:True|[1-9]\d*)\s*\)?\s*:(.*)$/;
-            const EXIT = /\b(?:break|return|raise|yield)\b|\b(?:exit|quit|_exit)\s*\(/;
-            const problems = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                if (cont[i]) continue;
-                const m = lines[i].match(WHILE);
-                if (!m) continue;
-                const base = m[1].length;
-                let hasExit = EXIT.test(m[2]);
-                for (let j = i + 1; j < lines.length && !hasExit; j++) {
-                    const l = lines[j];
-                    if (!l.trim()) continue;
-                    if (!cont[j] && l.match(/^[ \t]*/)[0].length <= base) break;
-                    if (EXIT.test(l)) hasExit = true;
-                }
-                if (!hasExit) problems.push({ line: i + 1, code: (original[i] || '').trim() });
-            }
-            return problems;
-        }
-
-        // ================= Автодополнение =================
-
-        const PY_WORDS = [
-            'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue',
-            'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in',
-            'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
-            'print', 'input', 'int', 'float', 'str', 'list', 'dict', 'set', 'tuple', 'bool', 'len', 'range', 'type',
-            'sum', 'max', 'min', 'abs', 'round', 'open', 'enumerate', 'zip', 'map', 'filter', 'sorted', 'reversed',
-            'isinstance', 'lower', 'upper', 'append', 'extend', 'insert', 'remove', 'pop', 'split', 'join',
-            'strip', 'replace', 'find', 'count', 'index', 'keys', 'values', 'items', 'format', 'startswith', 'endswith',
-        ];
-
-        function smartHint(cm) {
-            const cur = cm.getCursor();
-            const line = cm.getLine(cur.line);
-            let start = cur.ch;
-            while (start > 0 && /\w/.test(line[start - 1])) start--;
-            const word = line.slice(start, cur.ch);
-            if (!word || /^\d/.test(word)) return null;
-
-            const words = new Set(PY_WORDS);
-            for (const m of cm.getValue().matchAll(/[A-Za-z_]\w{2,}/g)) words.add(m[0]);
-            const list = [...words].filter(w => w.startsWith(word) && w !== word).sort();
-            if (!list.length) return null;
-            return { list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, cur.ch) };
-        }
-
-        // ================= Прочие действия =================
-
-        function downloadCode() {
-            const t = Tabs.getActive();
-            const name = (t && t.name) || 'main.py';
-            const blob = new Blob([editor.getValue()], { type: 'text/x-python;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = name;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        async function copyOutput() {
-            const i = $('copy-btn').querySelector('i');
-            try {
-                await navigator.clipboard.writeText(Out.text());
-                i.className = 'ph ph-check';
-            } catch {
-                i.className = 'ph ph-x';
-            }
-            setTimeout(() => { i.className = 'ph ph-copy'; }, 1500);
-        }
-
-        function clearOutput() {
-            Out.clear();
-        }
-
-        function applyTheme(theme) {
-            if (!THEMES.includes(theme)) theme = 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
-            $('theme-select').value = theme;
-            store.set(KEYS.theme, theme);
-        }
-
-        function applyFontSize(size) {
-            const n = Math.min(28, Math.max(10, parseInt(size, 10) || 15));
-            $('font-size-slider').value = n;
-            $('font-size-val').textContent = n + 'px';
-            document.documentElement.style.setProperty('--editor-font-size', n + 'px');
-            if (editor) editor.refresh();
-            return n;
-        }
-
-        function loadFile(file) {
-            if (!file) return;
-            if (file.size > CONFIG.MAX_FILE_BYTES) {
-                Out.write(`Файл слишком большой (максимум ${CONFIG.MAX_FILE_BYTES / 1024} КБ).\n`, 'output-error', true);
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = () => {
-                editor.setValue(String(reader.result));
-                editor.focus();
-            };
-            reader.onerror = () => Out.write('Не удалось прочитать файл.\n', 'output-error', true);
-            reader.readAsText(file, 'utf-8');
-        }
-
-        // ================= Инициализация =================
-
-        function init() {
-            Out.el = $('output');
-
-            applyTheme(document.documentElement.getAttribute('data-theme'));
-
-            editor = CodeMirror.fromTextArea($('code-editor'), {
-                mode: { name: 'python', version: 3 },
-                theme: 'custom',
-                lineNumbers: true,
-                autoCloseBrackets: true,
-                matchBrackets: true,
-                indentUnit: 4,
-                tabSize: 4,
-                indentWithTabs: false,
-                lineWrapping: true,
-                extraKeys: {
-                    'Ctrl-Space': (cm) => cm.showHint({ hint: smartHint, completeSingle: false }),
-                    'Ctrl-Enter': () => runPython(),
-                    'Cmd-Enter': () => runPython(),
-                    'Ctrl-F': 'findPersistent',
-                    'Cmd-F': 'findPersistent',
-                    'Ctrl-/': 'toggleComment',
-                    'Cmd-/': 'toggleComment',
-                    'Tab': (cm) => {
-                        if (cm.somethingSelected()) cm.execCommand('indentMore');
-                        else cm.execCommand('insertSoftTab');
-                    },
-                    'Shift-Tab': 'indentLess',
-                },
-            });
-
-            Tabs.init();
-            $('tab-add-btn').addEventListener('click', () => Tabs.add());
-
-            editor.on('change', () => {
-                if (syncingEditor) return;
-                Tabs.setCode(editor.getValue());
-            });
-            window.addEventListener('pagehide', () => {
-                Tabs.saveCursor();
-                Tabs.saveNow();
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    Tabs.saveCursor();
-                    Tabs.saveNow();
-                }
-            });
-
-            let typingTimer = 0;
-            const ec = $('editor-container');
-            editor.on('inputRead', () => {
-                ec.classList.add('typing');
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => ec.classList.remove('typing'), 700);
-            });
-
-            let hintTimeout = 0;
-            editor.on('inputRead', (cm, change) => {
-                if (!/^[A-Za-z_]/.test(change.text[0] || '')) return;
-                const type = cm.getTokenTypeAt(cm.getCursor()) || '';
-                if (/string|comment/.test(type)) return;
-                clearTimeout(hintTimeout);
-                hintTimeout = setTimeout(() => cm.showHint({ hint: smartHint, completeSingle: false }), 300);
-            });
-
-            editor.on('cursorActivity', (cm) => {
-                const pos = cm.getCursor();
-                $('cursor-position').textContent = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
-            });
-
-            applyFontSize(store.get(KEYS.font) || 15);
-            $('font-size-slider').addEventListener('input', (e) => {
-                store.set(KEYS.font, String(applyFontSize(e.target.value)));
-            });
-
-            Note.init();
-
-            $('theme-select').addEventListener('change', (e) => applyTheme(e.target.value));
-            $('open-btn').addEventListener('click', () => $('file-upload').click());
-            $('file-upload').addEventListener('change', (e) => {
-                loadFile(e.target.files[0]);
-                e.target.value = '';
-            });
-            $('download-btn').addEventListener('click', downloadCode);
-            $('clear-btn').addEventListener('click', clearOutput);
-            $('run-btn').addEventListener('click', runPython);
-            $('stop-btn').addEventListener('click', () => interruptRun('user'));
-            $('copy-btn').addEventListener('click', copyOutput);
-            $('retry-btn').addEventListener('click', () => {
-                if (SAB_OK) startWorker({ overlay: true });
-                else startMainThreadPy({ overlay: true });
-            });
-
-            document.querySelectorAll('button').forEach(attachRipple);
-
-            if (SAB_OK) {
-                $('input-mode').textContent = 'input() через диалог (Worker)';
-                $('input-mode').title = 'Быстрый режим с таймаутом и защитой от зависаний';
-            } else {
-                $('input-mode').textContent = 'input() через диалог (Медленный режим)';
-                $('input-mode').title = 'Сайт не поддерживает SharedArrayBuffer. Python работает прямо на странице. Вкладка может зависнуть.';
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !editor.hasFocus()) {
-                    const tag = e.target.tagName;
-                    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-                        e.preventDefault();
-                        runPython();
-                    }
-                }
-            });
-
-            let resizeRaf = 0;
-            window.addEventListener('resize', () => {
-                cancelAnimationFrame(resizeRaf);
-                resizeRaf = requestAnimationFrame(() => editor.refresh());
-            });
-            setTimeout(() => editor.refresh(), 100);
-
-            if (SAB_OK) {
-                startWorker({ overlay: true });
-            } else {
-                startMainThreadPy({ overlay: true });
-            }
-        }
-
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-        else init();
-    })();
-    </script>
-</body>
-</html>
