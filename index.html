@@ -24,8 +24,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
-
     <style>
         :root {
             --bg-body: #0b0b0e;
@@ -82,6 +80,11 @@
         .icon-btn { padding: 8px; }
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
+        
+        /* Стили для кнопки Стоп */
+        button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; display: none; }
+        button.stop-btn:hover { background: #d32f2f; box-shadow: 0 0 15px rgba(255, 82, 82, 0.5); }
+        
         .font-size-control { display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 0 12px; border-radius: 8px; height: 35px; }
         .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
         input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
@@ -141,7 +144,7 @@
         
         .bottom-controls {
             position: fixed;
-            bottom: 45px; /* Чуть выше футера */
+            bottom: 45px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -164,90 +167,46 @@
             font-size: 24px;
         }
 
-        .round-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-        }
+        .round-btn:hover { transform: translateY(-5px) scale(1.05); }
 
-        .btn-ai {
-            background: var(--accent);
-        }
-        .btn-ai:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 6px 20px rgba(255, 157, 92, 0.5);
-        }
+        .btn-ai { background: var(--accent); }
+        .btn-ai:hover { background: var(--accent-hover); box-shadow: 0 6px 20px rgba(255, 157, 92, 0.5); }
 
-        .btn-tasks {
-            background: var(--task-color);
-        }
-        .btn-tasks:hover {
-            background: #34d399;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-        }
+        .btn-tasks { background: var(--task-color); }
+        .btn-tasks:hover { background: #34d399; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5); }
 
         /* Затемнение фона */
         .drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
             z-index: 1100;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s;
         }
-
-        .drawer-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .drawer-overlay.active { opacity: 1; visibility: visible; }
 
         /* Выезжающие панели */
         .side-panel {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 400px;
-            height: 100%;
+            position: fixed; top: 0; right: 0; width: 400px; height: 100%;
             background: var(--bg-panel);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-left: 1px solid var(--border);
             box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-            z-index: 1200;
-            display: flex;
-            flex-direction: column;
+            z-index: 1200; display: flex; flex-direction: column;
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .side-panel.open {
-            transform: translateX(0);
-        }
+        .side-panel.open { transform: translateX(0); }
 
         .panel-topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--text-primary);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+            font-weight: 600; font-size: 16px; color: var(--text-primary);
         }
 
         .panel-topbar .close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 24px;
-            padding: 4px;
-            transition: color 0.2s;
+            background: transparent; border: none; color: var(--text-secondary);
+            cursor: pointer; font-size: 24px; padding: 4px; transition: color 0.2s;
         }
         .panel-topbar .close-btn:hover { color: var(--error); }
 
@@ -300,7 +259,10 @@
             <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py"><i class="ph ph-folder-open"></i></button>
             <button class="icon-btn" onclick="downloadCode()" title="Скачать код"><i class="ph ph-download-simple"></i></button>
             <button onclick="clearOutput()" title="Очистить консоль"><i class="ph ph-trash"></i> Очистить</button>
+            
+            <!-- Кнопки Запуска/Стопа -->
             <button id="run-btn" class="run-btn" onclick="runPython()" disabled><i class="ph-fill ph-play"></i> Запустить</button>
+            <button id="stop-btn" class="stop-btn" onclick="stopExecution()"><i class="ph-fill ph-stop"></i> Стоп</button>
         </div>
     </header>
 
@@ -308,24 +270,18 @@
         <div class="panel">
             <div class="panel-header"><div class="panel-header-left"><div class="tab"><i class="ph ph-file-py"></i> main.py</div></div><div style="font-size: 12px; opacity: 0.7;"><i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск</div></div>
             <div class="editor-container"><textarea id="code-editor">
-import pyodide.http
-import asyncio
+# Попробуй запустить бесконечный цикл:
+# while True:
+#     pass
 
-# Пример: как получить данные из интернета (курс валют)
-# Мы используем твой Cloudflare Worker как прокси (обходим CORS)
-async def get_currency():
-    # ВАЖНО: Замени URL на свой воркер!
-    worker_url = "https://compilatorrr.zxcdedinside944.workers.dev/?url=https://api.exchangerate-api.com/v4/latest/USD"
-    
-    print("Загрузка данных...")
-    try:
-        response = await pyodide.http.pyfetch(worker_url)
-        data = await response.json()
-        print(f"Курс доллара к рублю: {data['rates']['RUB']}")
-    except Exception as e:
-        print("Ошибка:", e)
+x = int(input("Введите целое число: "))
+y = int(input("Введите целое число: "))
+z = int(input("Введите целое число: "))
 
-asyncio.ensure_future(get_currency())
+if x == 0 or y == 0 or z == 0:
+    print(x + y + z)
+else:
+    print(x * y * z)
             </textarea></div>
         </div>
         <div class="panel">
@@ -398,12 +354,53 @@ asyncio.ensure_future(get_currency())
 
     <script>
         let editor;
-        let pyodideReady = false;
-        let pyodide;
-        let lastError = "";
+        let worker = null;
+        let executionTimer = null;
+        const TIMEOUT_MS = 5000; // 5 секунд таймаут
 
         const PROXY_URL = "https://text.pollinations.ai/openai"; 
         const AI_MODEL = "openai";
+
+        // Код для Web Worker (выполняется в фоне)
+        const workerCode = `
+            importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
+            let pyodide;
+            self.onmessage = async (e) => {
+                const { type, code, value } = e.data;
+                if (type === 'init') {
+                    try {
+                        pyodide = await loadPyodide();
+                        pyodide.setStdout({ batched: (msg) => self.postMessage({ type: 'stdout', msg }) });
+                        pyodide.setStderr({ batched: (msg) => self.postMessage({ type: 'stderr', msg }) });
+                        
+                        pyodide.setStdin({
+                            stdin: () => {
+                                return new Promise((resolve) => {
+                                    self.postMessage({ type: 'input_request' });
+                                    self._resolveInput = resolve;
+                                });
+                            }
+                        });
+                        
+                        self.postMessage({ type: 'ready' });
+                    } catch (err) {
+                        self.postMessage({ type: 'init_error', msg: err.message });
+                    }
+                } else if (type === 'run') {
+                    try {
+                        await pyodide.runPythonAsync(code);
+                        self.postMessage({ type: 'done' });
+                    } catch (err) {
+                        self.postMessage({ type: 'error', msg: err.message });
+                    }
+                } else if (type === 'input_response') {
+                    if (self._resolveInput) {
+                        self._resolveInput(value);
+                        self._resolveInput = null;
+                    }
+                }
+            };
+        `;
 
         // --- УМНЫЕ ПОДСКАЗКИ ---
         const pyKeywords = [
@@ -519,7 +516,6 @@ asyncio.ensure_future(get_currency())
             addMessage(text, 'user');
 
             const currentCode = editor.getValue();
-            const errorText = lastError ? `\n\nПоследняя ошибка в консоли:\n${lastError}` : "";
             
             const systemPrompt = `Ты — учитель информатики. Твой ответ должен быть коротким, понятным и написаным ТОЛЬКО обычным текстом. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать таблицы (символ |), сложный Markdown или списки с палками. 
 Если у ученика есть ошибка в коде, объясни в чем она и как ее исправить. Если код правильный, просто скажи ему об этом. НЕ пиши готовый код за ученика.
@@ -527,8 +523,7 @@ asyncio.ensure_future(get_currency())
 Код ученика:
 \`\`\`python
 ${currentCode}
-\`\`\`
-${errorText}`;
+\`\`\``;
 
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
@@ -564,7 +559,117 @@ ${errorText}`;
             }
         }
 
-        // --- ОСНОВНАЯ ЛОГИКА ---
+        // --- ОСНОВНАЯ ЛОГИКА ВЫПОЛНЕНИЯ ---
+        function createWorker() {
+            if (worker) worker.terminate();
+            
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            worker = new Worker(URL.createObjectURL(blob));
+            
+            worker.onmessage = function(e) {
+                const data = e.data;
+                const outputDiv = document.getElementById('output');
+                
+                if (data.type === 'ready') {
+                    document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
+                    document.getElementById('py-status').className = "status-item ready";
+                    document.getElementById('run-btn').disabled = false;
+                    
+                    // Скрываем прелоадер
+                    const overlay = document.getElementById('loading-overlay');
+                    if (overlay) overlay.classList.add('hidden');
+                } else if (data.type === 'init_error') {
+                    outputDiv.appendChild(createSpan("Ошибка инициализации: " + data.msg, true));
+                } else if (data.type === 'stdout') {
+                    outputDiv.appendChild(createSpan(data.msg, false));
+                    scrollToBottom();
+                } else if (data.type === 'stderr') {
+                    outputDiv.appendChild(createSpan(data.msg, true));
+                    scrollToBottom();
+                } else if (data.type === 'input_request') {
+                    clearTimeout(executionTimer); // Стопаем таймер на время ввода
+                    
+                    let lines = outputDiv.innerText.split('\n');
+                    let promptText = lines[lines.length - 1].trim();
+                    if (!promptText) promptText = "Введите данные:";
+                    
+                    setTimeout(() => {
+                        let val = prompt(promptText);
+                        if (val === null) val = "";
+                        
+                        outputDiv.appendChild(createSpan(val + '\n', false));
+                        scrollToBottom();
+                        
+                        worker.postMessage({ type: 'input_response', value: val + '\n' });
+                        startTimer(); // Возобновляем таймер после ввода
+                    }, 50);
+                } else if (data.type === 'done') {
+                    clearTimeout(executionTimer);
+                    finishExecution();
+                    outputDiv.appendChild(createSpan('\n[Успешно завершено]', false, 'output-success'));
+                    scrollToBottom();
+                } else if (data.type === 'error') {
+                    clearTimeout(executionTimer);
+                    finishExecution();
+                    outputDiv.appendChild(createSpan('\n[Ошибка выполнения]:\n' + data.msg, true));
+                    scrollToBottom();
+                }
+            };
+        }
+
+        function createSpan(text, isError = false, customClass = '') {
+            const span = document.createElement('span');
+            if (isError) span.className = 'output-error';
+            else if (customClass) span.className = customClass;
+            span.innerText = text;
+            return span;
+        }
+
+        function startTimer() {
+            clearTimeout(executionTimer);
+            executionTimer = setTimeout(() => {
+                worker.terminate();
+                finishExecution();
+                
+                const outputDiv = document.getElementById('output');
+                outputDiv.appendChild(createSpan(`\n\n[ОШИБКА]: Превышено время выполнения (${TIMEOUT_MS / 1000} секунд).\nВозможно, ваш код содержит бесконечный цикл. Пожалуйста, измените его.`, true));
+                scrollToBottom();
+                createWorker();
+            }, TIMEOUT_MS);
+        }
+
+        function finishExecution() {
+            document.getElementById('run-btn').disabled = false;
+            document.getElementById('run-btn').style.display = 'flex';
+            document.getElementById('stop-btn').style.display = 'none';
+        }
+
+        function runPython() {
+            const code = editor.getValue();
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = "";
+            
+            document.getElementById('run-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'flex';
+            
+            worker.postMessage({ type: 'run', code: code });
+            startTimer();
+        }
+
+        function stopExecution() {
+            if (worker) {
+                worker.terminate();
+                createWorker();
+                
+                const outputDiv = document.getElementById('output');
+                outputDiv.appendChild(createSpan('\n[ВЫПОЛНЕНИЕ ПРЕРВАНО ПОЛЬЗОВАТЕЛЕМ]', true));
+                scrollToBottom();
+                
+                finishExecution();
+            }
+        }
+
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
         function scrollToBottom() {
             const output = document.getElementById('output');
             output.scrollTop = output.scrollHeight;
@@ -680,7 +785,9 @@ ${errorText}`;
 
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
-            setTimeout(initPyodide, 100);
+            
+            // Запуск воркера
+            createWorker();
         };
 
         function changeTheme(theme) {
@@ -688,113 +795,7 @@ ${errorText}`;
         }
 
         function clearOutput() {
-            document.getElementById('output').innerText = "";
-            lastError = "";
-        }
-
-        async function initPyodide() {
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            
-            try {
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    if (progress < 90) {
-                        progress += Math.random() * 5;
-                        progressBar.style.width = Math.min(progress, 90) + '%';
-                        progressText.innerText = Math.floor(Math.min(progress, 90)) + '%';
-                    }
-                }, 200);
-
-                pyodide = await loadPyodide({
-                    stdout: (text) => {
-                        const output = document.getElementById('output');
-                        output.innerText += text;
-                        scrollToBottom();
-                    },
-                    stderr: (text) => {
-                        const output = document.getElementById('output');
-                        output.innerHTML += `<span class="output-error">${text}</span>\n`;
-                        scrollToBottom();
-                        lastError = text;
-                    }
-                });
-
-                clearInterval(progressInterval);
-                progressBar.style.width = '95%';
-                progressText.innerText = 'Инициализация...';
-
-                pyodide.runPython(`
-import builtins
-import js
-def custom_input(prompt=""):
-    res = js.prompt(prompt)
-    if res is None:
-        return ""
-    return res
-builtins.input = custom_input
-                `);
-
-                let isReady = false;
-                let attempts = 0;
-                while (!isReady && attempts < 10) {
-                    try {
-                        await pyodide.runPythonAsync('print("Test")');
-                        isReady = true;
-                    } catch (e) {
-                        attempts++;
-                        await new Promise(r => setTimeout(r, 500));
-                    }
-                }
-
-                if (!isReady) throw new Error("Pyodide не смог инициализироваться");
-
-                progressBar.style.width = '100%';
-                progressText.innerText = '100%';
-                
-                const status = document.getElementById('py-status');
-                status.innerHTML = '<i class="ph ph-fill ph-check-circle"></i> Python готов';
-                status.className = "status-item ready";
-                
-                document.getElementById('run-btn').disabled = false;
-                pyodideReady = true;
-
-                setTimeout(() => {
-                    const overlay = document.getElementById('loading-overlay');
-                    overlay.classList.add('hidden');
-                    setTimeout(() => overlay.remove(), 500);
-                }, 300);
-
-            } catch (error) {
-                console.error("Ошибка Pyodide:", error);
-                document.getElementById('py-status').innerHTML = '<i class="ph ph-fill ph-x-circle"></i> Ошибка загрузки';
-                document.querySelector('.loading-text').innerText = "Ошибка загрузки";
-                document.querySelector('.loading-subtext').innerText = "Проверьте интернет и обновите страницу";
-                progressBar.style.background = "var(--error)";
-            }
-        }
-
-        async function runPython() {
-            if (!pyodideReady) return;
-            const runBtn = document.getElementById('run-btn');
-            runBtn.disabled = true;
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = ""; 
-            lastError = "";
-            
-            const code = editor.getValue();
-
-            try {
-                await pyodide.runPythonAsync(code);
-                outputDiv.innerHTML += '\n\n<span class="output-success">[Успешно завершено]</span>';
-            } catch (error) {
-                outputDiv.innerHTML += `\n\n<span class="output-error">[Ошибка выполнения]:\n${error.message}</span>`;
-                lastError = error.message;
-            } finally {
-                runBtn.disabled = false;
-                scrollToBottom();
-                editor.refresh();
-            }
+            document.getElementById('output').innerHTML = "";
         }
     </script>
 </body>
