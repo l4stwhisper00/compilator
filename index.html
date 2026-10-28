@@ -333,21 +333,24 @@ else:
         let editor;
         let worker = null;
         let executionTimer = null;
+        let pyodideReady = false;
         const TIMEOUT_MS = 5000;
 
         const PROXY_URL = "https://text.pollinations.ai/openai"; 
         const AI_MODEL = "openai";
 
+        // Код для Web Worker (загружаем Pyodide с unpkg)
         const workerCode = `
-            importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js");
-            let pyodide;
             self.onmessage = async (e) => {
-                const { type, code, value } = e.data;
-                if (type === 'init') {
+                if (e.data.type === 'init') {
                     try {
-                        pyodide = await loadPyodide({
-                            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/"
+                        // Используем unpkg, так как jsdelivr в РФ часто блочат
+                        importScripts("https://unpkg.com/pyodide@0.26.1/pyodide.js");
+                        
+                        let pyodide = await loadPyodide({
+                            indexURL: "https://unpkg.com/pyodide@0.26.1/"
                         });
+                        
                         pyodide.setStdout({ batched: (msg) => self.postMessage({ type: 'stdout', msg }) });
                         pyodide.setStderr({ batched: (msg) => self.postMessage({ type: 'stderr', msg }) });
                         
@@ -362,18 +365,19 @@ else:
                         
                         self.postMessage({ type: 'ready' });
                     } catch (err) {
-                        self.postMessage({ type: 'init_error', msg: err.message });
+                        self.postMessage({ type: 'init_error', msg: err.message || "Не удалось загрузить Pyodide" });
                     }
-                } else if (type === 'run') {
+                } else if (e.data.type === 'run') {
                     try {
-                        await pyodide.runPythonAsync(code);
+                        // Запускаем код
+                        await self.pyodide.runPythonAsync(e.data.code);
                         self.postMessage({ type: 'done' });
                     } catch (err) {
                         self.postMessage({ type: 'error', msg: err.message });
                     }
-                } else if (type === 'input_response') {
+                } else if (e.data.type === 'input_response') {
                     if (self._resolveInput) {
-                        self._resolveInput(value);
+                        self._resolveInput(e.data.value);
                         self._resolveInput = null;
                     }
                 }
@@ -539,11 +543,23 @@ ${currentCode}
             const blob = new Blob([workerCode], { type: 'application/javascript' });
             worker = new Worker(URL.createObjectURL(blob));
             
+            // Таймаут загрузки страницы (если воркер не ответит за 15 сек)
+            setTimeout(() => {
+                if (!pyodideReady) {
+                    const overlay = document.getElementById('loading-overlay');
+                    document.querySelector('.loading-text').innerText = "Ошибка загрузки";
+                    document.querySelector('.loading-subtext').innerText = "Не удалось загрузить Python. Проверьте интернет или VPN.";
+                    document.querySelector('.progress-bar').style.background = "var(--error)";
+                    overlay.classList.add('hidden'); // Убираем экран, чтобы можно было читать ошибку
+                }
+            }, 15000);
+
             worker.onmessage = function(e) {
                 const data = e.data;
                 const outputDiv = document.getElementById('output');
                 
                 if (data.type === 'ready') {
+                    pyodideReady = true;
                     document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
                     document.getElementById('py-status').className = "status-item ready";
                     document.getElementById('run-btn').disabled = false;
@@ -590,16 +606,14 @@ ${currentCode}
                 }
             };
 
-            // Обработка критических ошибок воркера
             worker.onerror = function(err) {
                 const outputDiv = document.getElementById('output');
                 outputDiv.appendChild(createSpan("Критическая ошибка воркера: " + err.message, true));
                 document.getElementById('py-status').innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
                 document.querySelector('.loading-text').innerText = "Ошибка загрузки";
-                document.querySelector('.spinner').style.borderTopColor = "var(--error)";
+                document.querySelector('.progress-bar').style.background = "var(--error)";
             };
 
-            // Отправляем команду на инициализацию
             worker.postMessage({ type: 'init' });
         }
 
