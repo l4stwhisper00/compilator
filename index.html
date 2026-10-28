@@ -136,51 +136,52 @@
         #py-status.ready { color: var(--success); }
 
         /* =====================================================================
-           НОВЫЕ КНОПКИ (ПЛОСКИЕ, СНИЗУ)
+           ЦЕНТРАЛЬНЫЕ КРУГЛЫЕ КНОПКИ СНИЗУ
            ===================================================================== */
         
-        .bottom-bar {
+        .bottom-controls {
             position: fixed;
-            bottom: 40px; /* Чуть выше футера */
-            right: 20px;
+            bottom: 45px; /* Чуть выше футера */
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 12px;
+            gap: 20px;
             z-index: 1500;
         }
 
-        .flat-btn {
-            height: 40px;
-            padding: 0 20px;
-            border-radius: 8px; /* Чуть скругленные */
+        .round-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
-            background: var(--bg-surface);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: none;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            color: #111;
+            font-size: 24px;
         }
 
-        .flat-btn i { font-size: 20px; }
-
-        .flat-btn:hover {
-            transform: translateY(-2px);
-            background: var(--bg-surface-hover);
+        .round-btn:hover {
+            transform: translateY(-5px) scale(1.05);
         }
 
+        .btn-ai {
+            background: var(--accent);
+        }
         .btn-ai:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px rgba(255, 157, 92, 0.5);
         }
 
+        .btn-tasks {
+            background: var(--task-color);
+        }
         .btn-tasks:hover {
-            border-color: var(--task-color);
-            color: var(--task-color);
+            background: #34d399;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
         }
 
         /* Затемнение фона */
@@ -278,12 +279,7 @@
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
             .side-panel { width: 100%; }
-            
-            /* На телефонах прячем текст у кнопок, оставляем только иконки */
-            .bottom-bar { bottom: 20px; right: 10px; left: 10px; justify-content: flex-end; }
-            .flat-btn { padding: 0 12px; font-size: 13px; }
-            .flat-btn span { display: none; }
-            .flat-btn i { font-size: 24px; }
+            .bottom-controls { bottom: 20px; }
         }
     </style>
 </head>
@@ -390,13 +386,13 @@ asyncio.ensure_future(get_currency())
         </div>
     </div>
 
-    <!-- Плоские кнопки внизу -->
-    <div class="bottom-bar">
-        <button class="flat-btn btn-tasks" onclick="openPanel('tasks-panel')" title="Практика">
-            <i class="ph ph-notebook"></i> <span>Практика</span>
+    <!-- Центральные круглые кнопки снизу -->
+    <div class="bottom-controls">
+        <button class="round-btn btn-tasks" onclick="openPanel('tasks-panel')" title="Практика">
+            <i class="ph ph-notebook"></i>
         </button>
-        <button class="flat-btn btn-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
-            <i class="ph-fill ph-robot"></i> <span>ИИ-Наставник</span>
+        <button class="round-btn btn-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
+            <i class="ph-fill ph-robot"></i>
         </button>
     </div>
 
