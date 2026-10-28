@@ -1,28 +1,44 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
     <title>Питон в браузере | Онлайн-компилятор Python</title>
+
+    <script>
+        // Применяем тему до отрисовки, чтобы не было "вспышки"
+        (function () {
+            try {
+                var t = localStorage.getItem('python_ide_theme');
+                if (t === 'dark' || t === 'light' || t === 'neon') {
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            } catch (e) { /* localStorage недоступен */ }
+        })();
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
 
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css" crossorigin="anonymous">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/comment/comment.min.js" crossorigin="anonymous"></script>
 
     <style>
         :root {
@@ -35,11 +51,14 @@
             --text-secondary: #767e8c;
             --accent: #ff9d5c;
             --accent-hover: #ffb07a;
+            --accent-glow: rgba(255, 157, 92, 0.35);
+            --on-accent: #111;
             --border: rgba(255, 255, 255, 0.08);
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
             --task-color: #10b981;
+            --task-hover: #34d399;
 
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
@@ -53,52 +72,92 @@
             --editor-font-size: 15px;
         }
 
-        [data-theme="light"] { --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%); --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5; --text-primary: #1f1f1f; --text-secondary: #6c757d; --accent: #005cbf; --accent-hover: #004494; --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #00a000; --error: #d00000; --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c; --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080; }
-        [data-theme="neon"] { --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%); --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b; --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399; --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff007f; --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4; --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd; }
+        [data-theme="light"] {
+            --bg-body: #f2f4f8; --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
+            --bg-panel: rgba(255, 255, 255, 0.8); --bg-surface: #ffffff; --bg-surface-hover: #f1f3f5;
+            --text-primary: #1f1f1f; --text-secondary: #5f6670; --accent: #005cbf; --accent-hover: #004494;
+            --accent-glow: rgba(0, 92, 191, 0.3); --on-accent: #fff;
+            --border: rgba(0, 0, 0, 0.1); --console-bg: rgba(248, 250, 252, 0.9); --success: #008000; --error: #c00000;
+            --task-color: #059669; --task-hover: #047857;
+            --syn-keyword: #0033b3; --syn-string: #067d17; --syn-number: #1750eb; --syn-comment: #8c8c8c;
+            --syn-def: #00627a; --syn-builtin: #0033b3; --syn-variable: #1f1f1f; --syn-property: #008080;
+        }
+        [data-theme="neon"] {
+            --bg-body: #05000a; --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
+            --bg-panel: rgba(20, 10, 30, 0.7); --bg-surface: #120a1c; --bg-surface-hover: #26133b;
+            --text-primary: #e0def4; --text-secondary: #8b7ca4; --accent: #ff007f; --accent-hover: #ff3399;
+            --accent-glow: rgba(255, 0, 127, 0.4); --on-accent: #fff;
+            --border: rgba(255, 0, 127, 0.2); --console-bg: rgba(10, 5, 15, 0.9); --success: #00f0ff; --error: #ff4d6d;
+            --syn-keyword: #ff007f; --syn-string: #00f0ff; --syn-number: #f1fa8c; --syn-comment: #6272a4;
+            --syn-def: #bd93f9; --syn-builtin: #ff007f; --syn-variable: #e0def4; --syn-property: #8be9fd;
+        }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); background-image: var(--glow-bg); color: var(--text-primary); height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.4s; }
+        [hidden] { display: none !important; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-body); background-image: var(--glow-bg);
+            color: var(--text-primary);
+            height: 100vh; height: 100dvh;
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: background 0.4s;
+        }
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease-out, visibility 0.5s; }
-        #loading-overlay.hidden { opacity: 0; visibility: hidden; }
-        .loading-text { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; letter-spacing: 1px; }
-        .loading-subtext { font-size: 13px; color: var(--text-secondary); margin-top: 15px; }
-        .progress-container { width: 300px; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; position: relative; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); border-radius: 4px; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-        header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; height: 56px; background: var(--bg-panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 10; }
+        .spin { display: inline-block; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---- Загрузка ---- */
+        #loading-overlay { position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; transition: opacity 0.5s ease-out, visibility 0.5s; }
+        #loading-overlay.hidden { opacity: 0; visibility: hidden; }
+        .loading-text { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+        .loading-subtext { font-size: 13px; color: var(--text-secondary); text-align: center; max-width: 360px; }
+        .progress-container { width: 300px; max-width: 80vw; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); border-radius: 4px; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
+        .progress-bar.failed { background: var(--error); box-shadow: none; }
+
+        /* ---- Шапка ---- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; min-height: 56px; background: var(--bg-panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 10; flex-shrink: 0; }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
         .controls { display: flex; gap: 12px; align-items: center; }
-        button, select { display: flex; align-items: center; gap: 6px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; outline: none; }
-        button:hover, select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
+        button, select { display: flex; align-items: center; gap: 6px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s; }
+        button:hover:not(:disabled), select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .icon-btn { padding: 8px; }
-        button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
-        button.run-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
-
-        button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; display: none; }
+        button.run-btn { background: var(--accent); color: var(--on-accent); border: none; box-shadow: 0 0 10px var(--accent-glow); font-weight: 600; padding: 8px 16px; }
+        button.run-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px var(--accent-glow); }
+        button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; }
         button.stop-btn:hover { background: #d32f2f; box-shadow: 0 0 15px rgba(255, 82, 82, 0.5); }
 
         .font-size-control { display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 0 12px; border-radius: 8px; height: 35px; }
-        .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
-        input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+        .font-size-control output { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 80px; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
+        input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--border); border-radius: 2px; }
+        input[type=range]::-moz-range-thumb { height: 14px; width: 14px; border: none; border-radius: 50%; background: var(--accent); }
+        input[type=range]::-moz-range-track { height: 4px; background: var(--border); border-radius: 2px; }
 
-        main { display: flex; flex: 1; padding: 16px; gap: 16px; height: calc(100vh - 56px - 30px); }
-        .panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; height: 42px; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 15px; font-size: 13px; color: var(--text-secondary); }
-        .panel-header-left { display: flex; align-items: center; gap: 10px; }
-        .tab { display: flex; align-items: center; gap: 8px; background: var(--console-bg); color: var(--text-primary); padding: 0 18px; height: 42px; border-right: 1px solid var(--border); border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace; }
+        /* ---- Основная область ---- */
+        main { display: flex; flex: 1; min-height: 0; padding: 16px; gap: 16px; }
+        .panel { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); overflow: hidden; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; height: 42px; flex-shrink: 0; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 0 15px; font-size: 13px; color: var(--text-secondary); }
+        .panel-header-left { display: flex; align-items: center; gap: 8px; }
+        .tab { display: flex; align-items: center; gap: 8px; background: var(--console-bg); color: var(--text-primary); padding: 0 18px; height: 42px; margin-left: -15px; border-right: 1px solid var(--border); border-top: 2px solid var(--accent); font-family: 'Fira Code', monospace; }
+        .hint-text { font-size: 12px; opacity: 0.8; }
+
         .editor-container { flex: 1; position: relative; overflow: hidden; }
-        .CodeMirror { position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100% !important; font-family: 'Fira Code', monospace; font-size: var(--editor-font-size) !important; line-height: 1.6; background: transparent !important; transition: font-size 0.1s; }
+        .CodeMirror { position: absolute; inset: 0; height: 100% !important; font-family: 'Fira Code', monospace; font-size: var(--editor-font-size) !important; line-height: 1.6; background: transparent !important; }
+        .CodeMirror-lines { padding-bottom: 70px; }
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
+        .CodeMirror-selected { background: var(--accent-glow) !important; }
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
@@ -108,906 +167,1344 @@
         .cm-s-custom .cm-comment { color: var(--syn-comment); font-style: italic; }
         .cm-s-custom .cm-def { color: var(--syn-def); }
         .cm-s-custom .cm-builtin { color: var(--syn-builtin); }
-        .cm-s-custom .cm-variable { color: var(--syn-variable); }
-        .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
+        .cm-s-custom .cm-variable, .cm-s-custom .cm-variable-2 { color: var(--syn-variable); }
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
+        .cm-s-custom .CodeMirror-matchingbracket { color: var(--accent) !important; text-decoration: underline; }
         .CodeMirror-dialog { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; }
         .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
-        .CodeMirror-hints { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important; padding: 6px 0 !important; z-index: 1000 !important; overflow: hidden; }
-        .CodeMirror-hint { color: var(--text-primary) !important; padding: 8px 16px !important; cursor: pointer !important; transition: color 0.1s, text-shadow 0.1s; }
-        li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent), 0 0 12px rgba(255, 157, 92, 0.4) !important; outline: none !important; border: none !important; }
+        .CodeMirror-hints { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important; padding: 6px 0 !important; z-index: 1000 !important; }
+        .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 16px !important; cursor: pointer !important; }
+        li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent-glow) !important; }
 
-        .console-wrapper { flex: 1; background: var(--console-bg); display: flex; flex-direction: column; position: relative; min-height: 0; }
-        .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: transparent; border-bottom: 1px solid var(--border); }
+        /* ---- Терминал ---- */
+        .console-wrapper { flex: 1; background: var(--console-bg); display: flex; flex-direction: column; min-height: 0; }
+        .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; box-shadow: 0 0 5px #ff5f56; }
-        .dot.yellow { background: #ffbd2e; box-shadow: 0 0 5px #ffbd2e; }
-        .dot.green { background: #27c93f; box-shadow: 0 0 5px #27c93f; }
-        .copy-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s; }
-        .copy-btn:hover { color: var(--accent); }
-        #output { flex: 1; padding: 20px; font-family: 'Fira Code', monospace; font-size: 14px; color: var(--text-primary); overflow-y: auto; white-space: pre-wrap; line-height: 1.6; min-height: 0; }
+        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        .copy-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 16px; padding: 4px; }
+        .copy-btn:hover:not(:disabled) { color: var(--accent); background: transparent; }
+        #output { flex: 1; padding: 20px 20px 80px; font-family: 'Fira Code', monospace; font-size: 14px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.6; min-height: 0; cursor: text; }
         .output-success { color: var(--success); font-weight: 500; }
-        .output-error { color: var(--error); font-weight: 500; }
+        .output-error { color: var(--error); }
+        .output-info { color: var(--text-secondary); }
+        .output-input { color: var(--accent); }
+        .term-input { display: inline-block; min-width: 50%; max-width: 100%; background: transparent; border: none; border-bottom: 1px dashed var(--accent); color: var(--accent); font: inherit; outline: none; padding: 0 2px; }
 
-        footer { height: 30px; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px); }
+        .stdin-box { border-top: 1px solid var(--border); padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 6px; }
+        .stdin-box label { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .stdin-box textarea { resize: vertical; min-height: 54px; max-height: 200px; background: var(--bg-body); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-family: 'Fira Code', monospace; font-size: 13px; outline: none; }
+        .stdin-box textarea:focus { border-color: var(--accent); }
+
+        /* ---- Подвал ---- */
+        footer { height: 30px; flex-shrink: 0; background: var(--bg-panel); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; color: var(--text-secondary); z-index: 10; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
-        .status-item { display: flex; align-items: center; gap: 4px; }
-        #py-status.loading { color: var(--accent); }
+        .status-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        #py-status.loading, #py-status.running { color: var(--accent); }
         #py-status.ready { color: var(--success); }
+        #py-status.error { color: var(--error); }
 
-        .bottom-controls {
-            position: fixed;
-            bottom: 45px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            z-index: 1500;
-        }
+        /* ---- Плавающие кнопки ---- */
+        .bottom-controls { position: fixed; bottom: 45px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 1000; }
+        .round-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: none; padding: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: transform 0.2s, background 0.2s, box-shadow 0.2s; color: #111; font-size: 24px; }
+        .round-btn:hover:not(:disabled) { transform: translateY(-5px) scale(1.05); border: none; }
+        .btn-ai, .btn-ai:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+        .btn-ai:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-tasks, .btn-tasks:hover:not(:disabled) { background: var(--task-color); }
+        .btn-tasks:hover:not(:disabled) { background: var(--task-hover); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5); }
 
-        .round-btn {
-            width: 50px; height: 50px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            border: none; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-            color: #111; font-size: 24px;
-        }
-
-        .round-btn:hover { transform: translateY(-5px) scale(1.05); }
-        .btn-ai { background: var(--accent); }
-        .btn-ai:hover { background: var(--accent-hover); box-shadow: 0 6px 20px rgba(255, 157, 92, 0.5); }
-        .btn-tasks { background: var(--task-color); }
-        .btn-tasks:hover { background: #34d399; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5); }
-
-        .drawer-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-            z-index: 1100; opacity: 0; visibility: hidden; transition: opacity 0.3s;
-        }
+        /* ---- Боковые панели ---- */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 1100; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .drawer-overlay.active { opacity: 1; visibility: visible; }
-
-        .side-panel {
-            position: fixed; top: 0; right: 0; width: 400px; height: 100%;
-            background: var(--bg-panel);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-left: 1px solid var(--border);
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-            z-index: 1200; display: flex; flex-direction: column;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .side-panel.open { transform: translateX(0); }
-
-        .panel-topbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border);
-            font-weight: 600; font-size: 16px; color: var(--text-primary);
-        }
-
-        .panel-topbar .close-btn {
-            background: transparent; border: none; color: var(--text-secondary);
-            cursor: pointer; font-size: 24px; padding: 4px; transition: color 0.2s;
-        }
-        .panel-topbar .close-btn:hover { color: var(--error); }
+        .side-panel { position: fixed; top: 0; right: 0; width: 400px; max-width: 100%; height: 100%; background: var(--bg-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 1200; display: flex; flex-direction: column; transform: translateX(105%); visibility: hidden; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), visibility 0.3s; }
+        .side-panel.open { transform: translateX(0); visibility: visible; }
+        .panel-topbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 16px; }
+        .panel-title { display: flex; align-items: center; gap: 10px; }
+        .panel-topbar .close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; padding: 4px; }
+        .panel-topbar .close-btn:hover { color: var(--error); background: transparent; }
 
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-break: break-word; }
-        .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
-        .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
-        .message.ai strong { color: var(--accent); }
-        .message code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 13px; }
+        .message.user { align-self: flex-end; background: var(--bg-surface-hover); border-bottom-right-radius: 4px; }
+        .message.ai { align-self: flex-start; background: color-mix(in srgb, var(--accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-bottom-left-radius: 4px; }
+        .message.error { border-color: var(--error); color: var(--error); }
+        .message strong { color: var(--accent); }
+        .message code, .task-item code { background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 13px; }
+        .message pre, .task-item pre { background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px; overflow-x: auto; margin: 6px 0; }
+        .message pre code, .task-item pre code { background: none; padding: 0; }
 
         .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        .ai-input-area input { flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
+        .ai-input-area input, .task-search-area input { flex: 1; min-width: 0; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: inherit; font-size: 14px; }
         .ai-input-area input:focus { border-color: var(--accent); }
-        .ai-input-area button { background: var(--accent); color: #111; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-        .ai-input-area button:hover { background: var(--accent-hover); }
-        .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ai-input-area button { background: var(--accent); color: var(--on-accent); border: none; padding: 0 15px; font-weight: 600; }
+        .ai-input-area button:hover:not(:disabled) { background: var(--accent-hover); border: none; }
 
         .tasks-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .task-search-area { display: flex; gap: 10px; margin-bottom: 10px; }
-        .task-search-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); outline: none; }
+        .task-search-area { display: flex; gap: 10px; }
         .task-search-area input:focus { border-color: var(--task-color); }
-        .task-search-area button { background: var(--task-color); color: #111; border: none; border-radius: 8px; padding: 0 15px; font-weight: 600; cursor: pointer; }
-        .task-search-area button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--task-color); font-size: 14px; line-height: 1.4; }
+        .task-search-area button { background: var(--task-color); color: #111; border: none; padding: 0 15px; font-weight: 600; }
+        .task-search-area button:hover:not(:disabled) { background: var(--task-hover); border: none; }
+        .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--task-color); font-size: 14px; line-height: 1.6; }
         .task-item strong { color: var(--task-color); }
+        .muted { color: var(--text-secondary); text-align: center; margin-top: 20px; }
 
         @media (max-width: 900px) {
-            header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
+            header { flex-direction: column; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
-            main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            .side-panel { width: 100%; }
-            .bottom-controls { bottom: 20px; }
+            main { flex-direction: column; padding: 10px; gap: 10px; }
+            .hint-text { display: none; }
+            .bottom-controls { bottom: 40px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
         }
     </style>
 </head>
-<body data-theme="dark">
+<body>
 
-    <div id="loading-overlay">
-        <div class="loading-text">Загрузка Python</div>
+    <div id="loading-overlay" role="status" aria-live="polite">
+        <div class="loading-text" id="loading-title">Загрузка Python</div>
         <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
         <div class="loading-subtext" id="progress-text">0%</div>
+        <button id="retry-btn" type="button" hidden><i class="ph ph-arrow-clockwise" aria-hidden="true"></i> Повторить</button>
     </div>
 
     <header>
-        <div class="logo"><i class="ph ph-terminal-window"></i> Питон в браузере</div>
+        <div class="logo"><i class="ph ph-terminal-window" aria-hidden="true"></i> Питон в браузере</div>
         <div class="controls">
-            <div class="font-size-control" title="Размер шрифта"><i class="ph ph-text-aa"></i><input type="range" id="font-size-slider" min="10" max="28" value="15"><span id="font-size-val">15px</span></div>
-            <select id="theme-select" onchange="changeTheme(this.value)"><option value="dark">PyCharm Dark</option><option value="light">IntelliJ Light</option><option value="neon">Cyberpunk</option></select>
-            <input type="file" id="file-upload" accept=".py" style="display: none;">
-            <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py"><i class="ph ph-folder-open"></i></button>
-            <button class="icon-btn" onclick="downloadCode()" title="Скачать код"><i class="ph ph-download-simple"></i></button>
-            <button onclick="clearOutput()" title="Очистить консоль"><i class="ph ph-trash"></i> Очистить</button>
-
-            <button id="run-btn" class="run-btn" onclick="runPython()" disabled><i class="ph-fill ph-play"></i> Запустить</button>
-            <button id="stop-btn" class="stop-btn" onclick="stopExecution()"><i class="ph-fill ph-stop"></i> Стоп</button>
+            <label class="font-size-control" title="Размер шрифта">
+                <i class="ph ph-text-aa" aria-hidden="true"></i>
+                <input type="range" id="font-size-slider" min="10" max="28" value="15" aria-label="Размер шрифта редактора">
+                <output id="font-size-val" for="font-size-slider">15px</output>
+            </label>
+            <select id="theme-select" aria-label="Тема оформления">
+                <option value="dark">PyCharm Dark</option>
+                <option value="light">IntelliJ Light</option>
+                <option value="neon">Cyberpunk</option>
+            </select>
+            <input type="file" id="file-upload" accept=".py,text/x-python,text/plain" hidden>
+            <button type="button" class="icon-btn" id="open-btn" title="Открыть файл .py" aria-label="Открыть файл .py"><i class="ph ph-folder-open" aria-hidden="true"></i></button>
+            <button type="button" class="icon-btn" id="download-btn" title="Скачать код" aria-label="Скачать код"><i class="ph ph-download-simple" aria-hidden="true"></i></button>
+            <button type="button" id="clear-btn" title="Очистить консоль"><i class="ph ph-trash" aria-hidden="true"></i> Очистить</button>
+            <button type="button" id="run-btn" class="run-btn" title="Запустить (Ctrl+Enter)" disabled><i class="ph-fill ph-play" aria-hidden="true"></i> Запустить</button>
+            <button type="button" id="stop-btn" class="stop-btn" title="Остановить" hidden><i class="ph-fill ph-stop" aria-hidden="true"></i> Стоп</button>
         </div>
     </header>
 
     <main>
-        <div class="panel">
-            <div class="panel-header"><div class="panel-header-left"><div class="tab"><i class="ph ph-file-py"></i> main.py</div></div><div style="font-size: 12px; opacity: 0.7;"><i class="ph ph-magnifying-glass"></i> Ctrl+F — поиск</div></div>
-            <div class="editor-container"><textarea id="code-editor">
-# Попробуй запустить бесконечный цикл:
-# while True:
-#     pass
-
-x = int(input("Введите целое число: "))
-y = int(input("Введите целое число: "))
-z = int(input("Введите целое число: "))
-
-if x == 0 or y == 0 or z == 0:
-    print(x + y + z)
-else:
-    print(x * y * z)
-            </textarea></div>
-        </div>
-        <div class="panel">
-            <div class="panel-header"><div class="panel-header-left"><i class="ph ph-terminal" style="margin-right: 8px;"></i> Терминал</div></div>
-            <div class="console-wrapper">
-                <div class="console-topbar"><div class="dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div><button class="copy-btn" onclick="copyOutput()" title="Скопировать вывод"><i class="ph ph-copy"></i></button></div>
-                <div id="output">Ожидание запуска кода...</div>
+        <section class="panel" aria-label="Редактор кода">
+            <div class="panel-header">
+                <div class="panel-header-left"><div class="tab"><i class="ph ph-file-py" aria-hidden="true"></i> main.py</div></div>
+                <div class="hint-text"><i class="ph ph-magnifying-glass" aria-hidden="true"></i> Ctrl+F — поиск · Ctrl+/ — комментарий · Ctrl+Enter — запуск</div>
             </div>
-        </div>
+            <div class="editor-container"><textarea id="code-editor" aria-label="Код Python"></textarea></div>
+        </section>
+        <section class="panel" aria-label="Терминал">
+            <div class="panel-header"><div class="panel-header-left"><i class="ph ph-terminal" aria-hidden="true"></i> Терминал</div></div>
+            <div class="console-wrapper">
+                <div class="console-topbar">
+                    <div class="dots" aria-hidden="true"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+                    <button type="button" class="copy-btn" id="copy-btn" title="Скопировать вывод" aria-label="Скопировать вывод"><i class="ph ph-copy" aria-hidden="true"></i></button>
+                </div>
+                <div id="output" role="log" tabindex="0"><span class="output-info">Ожидание запуска кода...</span></div>
+                <div class="stdin-box" id="stdin-box" hidden>
+                    <label for="stdin-input"><i class="ph ph-keyboard" aria-hidden="true"></i> Входные данные (stdin): по одной строке на каждый input()</label>
+                    <textarea id="stdin-input" rows="3" spellcheck="false" placeholder="5&#10;10&#10;15"></textarea>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
-        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></div>
-        <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
+        <div class="status-left"><span class="status-item loading" id="py-status"><i class="ph ph-spinner-gap spin" aria-hidden="true"></i> Загрузка Python...</span></div>
+        <div class="status-right">
+            <span class="status-item" id="input-mode"></span>
+            <span class="status-item" id="cursor-position">Стр 1, Стлб 1</span>
+            <span class="status-item">UTF-8</span>
+            <span class="status-item">Python 3</span>
+        </div>
     </footer>
 
-    <div class="drawer-overlay" id="drawer-overlay" onclick="closeAllPanels()"></div>
+    <div class="drawer-overlay" id="drawer-overlay"></div>
 
-    <div class="side-panel" id="ai-panel">
+    <aside class="side-panel" id="ai-panel" role="dialog" aria-modal="true" aria-labelledby="ai-title" inert>
         <div class="panel-topbar">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="ph-fill ph-robot" style="color: var(--accent);"></i> ИИ-Наставник
-            </div>
-            <button class="close-btn" onclick="closeAllPanels()"><i class="ph ph-x"></i></button>
+            <div class="panel-title" id="ai-title"><i class="ph-fill ph-robot" style="color: var(--accent);" aria-hidden="true"></i> ИИ-Наставник</div>
+            <button type="button" class="close-btn" data-close aria-label="Закрыть"><i class="ph ph-x" aria-hidden="true"></i></button>
         </div>
-        <div class="ai-messages" id="ai-messages">
-            <div class="message ai" id="ai-welcome-message">
-                Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
-                <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
+        <div class="ai-messages" id="ai-messages" aria-live="polite">
+            <div class="message ai">
+                Привет! Я твой ИИ-наставник по Python. Я вижу твой код и вывод терминала и могу подсказать, где ошибка.<br><br>
+                <strong>Важно:</strong> я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
             </div>
         </div>
-        <div class="ai-input-area">
-            <input type="text" id="ai-input" placeholder="В чем проблема?" onkeydown="if(event.key==='Enter') sendToAI()">
-            <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
-        </div>
-    </div>
+        <form class="ai-input-area" id="ai-form">
+            <input type="text" id="ai-input" placeholder="В чём проблема?" maxlength="2000" autocomplete="off" aria-label="Вопрос наставнику">
+            <button type="submit" id="ai-send-btn" aria-label="Отправить"><i class="ph ph-paper-plane-right" aria-hidden="true"></i></button>
+        </form>
+    </aside>
 
-    <div class="side-panel" id="tasks-panel">
+    <aside class="side-panel" id="tasks-panel" role="dialog" aria-modal="true" aria-labelledby="tasks-title" inert>
         <div class="panel-topbar">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="ph ph-notebook" style="color: var(--task-color);"></i> Практика
-            </div>
-            <button class="close-btn" onclick="closeAllPanels()"><i class="ph ph-x"></i></button>
+            <div class="panel-title" id="tasks-title"><i class="ph ph-notebook" style="color: var(--task-color);" aria-hidden="true"></i> Практика</div>
+            <button type="button" class="close-btn" data-close aria-label="Закрыть"><i class="ph ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="tasks-content">
-            <div class="task-search-area">
-                <input type="text" id="topic-input" placeholder="Например: словари, рекурсия" onkeydown="if(event.key==='Enter') generateTasks()">
-                <button onclick="generateTasks()" id="gen-btn">Найти</button>
-            </div>
-            <div id="task-list">
-                <div style="color: var(--text-secondary); text-align: center; margin-top: 20px;">
-                    Введи тему выше, и ИИ придумает 3 задания для практики.
-                </div>
+            <form class="task-search-area" id="tasks-form">
+                <input type="text" id="topic-input" placeholder="Например: словари, рекурсия" maxlength="100" autocomplete="off" aria-label="Тема заданий">
+                <button type="submit" id="gen-btn">Найти</button>
+            </form>
+            <div id="task-list" aria-live="polite">
+                <div class="muted">Введи тему выше, и ИИ придумает 3 задания для практики.</div>
             </div>
         </div>
-    </div>
+    </aside>
 
     <div class="bottom-controls">
-        <button class="round-btn btn-tasks" onclick="openPanel('tasks-panel')" title="Практика">
-            <i class="ph ph-notebook"></i>
-        </button>
-        <button class="round-btn btn-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
-            <i class="ph-fill ph-robot"></i>
-        </button>
+        <button type="button" class="round-btn btn-tasks" data-open="tasks-panel" title="Практика" aria-label="Практика"><i class="ph ph-notebook" aria-hidden="true"></i></button>
+        <button type="button" class="round-btn btn-ai" data-open="ai-panel" title="ИИ-Наставник" aria-label="ИИ-Наставник"><i class="ph-fill ph-robot" aria-hidden="true"></i></button>
     </div>
 
+    <!-- Код Web Worker: не исполняется на странице, читается как текст -->
+    <script type="text/plain" id="py-worker-src">
+'use strict';
+
+let pyodide = null;
+let runner = null;
+let ctl = null;          // Int32Array: [0] состояние (0 ждём, 1 данные, 2 EOF), [1] длина
+let stdinData = null;    // Uint8Array с введённой строкой
+let interruptBuf = null; // Uint8Array для KeyboardInterrupt
+let stdinQueue = [];     // запасной режим без SharedArrayBuffer
+let maxOutput = Infinity;
+let sent = 0;
+let outBuf = '';
+let outKind = 'stdout';
+let lastFlush = 0;
+const stdinDecoder = new TextDecoder('utf-8');
+
+const RUNNER_SRC = [
+    'import sys, traceback',
+    'def _ide_run(src):',
+    '    ns = {"__name__": "__main__"}',
+    '    rc = 0',
+    '    try:',
+    '        exec(compile(src, "main.py", "exec"), ns)',
+    '    except SystemExit as e:',
+    '        if e.code is None:',
+    '            rc = 0',
+    '        elif isinstance(e.code, int):',
+    '            rc = e.code',
+    '        else:',
+    '            print(e.code, file=sys.stderr)',
+    '            rc = 1',
+    '    except KeyboardInterrupt:',
+    '        print("\\nKeyboardInterrupt", file=sys.stderr)',
+    '        rc = 130',
+    '    except BaseException as e:',
+    '        tb = e.__traceback__',
+    '        while tb is not None and tb.tb_frame.f_code.co_filename != "main.py":',
+    '            tb = tb.tb_next',
+    '        traceback.print_exception(type(e), e, tb)',
+    '        rc = 1',
+    '    finally:',
+    '        try:',
+    '            sys.stdout.flush()',
+    '            sys.stderr.flush()',
+    '        except Exception:',
+    '            pass',
+    '    return rc',
+].join('\n');
+
+function flush() {
+    if (outBuf) {
+        postMessage({ type: 'out', kind: outKind, text: outBuf });
+        outBuf = '';
+    }
+    lastFlush = Date.now();
+}
+
+function emit(kind, text) {
+    if (!text || sent >= maxOutput) return;
+    if (kind !== outKind) { flush(); outKind = kind; }
+    outBuf += text;
+    sent += text.length;
+    // Отправляем пачками: не чаще ~20 раз в секунду или по 8 КБ
+    if (outBuf.length >= 8192 || Date.now() - lastFlush >= 50) flush();
+}
+
+function makeWriter(kind) {
+    const decoder = new TextDecoder('utf-8');
+    return {
+        write(bytes) {
+            emit(kind, decoder.decode(bytes, { stream: true }));
+            return bytes.length;
+        }
+    };
+}
+
+function readStdin() {
+    flush();
+
+    // Запасной режим: строки заранее из поля stdin
+    if (!ctl) {
+        if (stdinQueue.length) {
+            const line = stdinQueue.shift();
+            emit('echo', line);
+            flush();
+            return line;
+        }
+        postMessage({ type: 'stdin_eof' });
+        return undefined; // EOF -> EOFError в Python
+    }
+
+    // Интерактивный режим: блокируемся, пока главный поток не передаст строку
+    Atomics.store(ctl, 0, 0);
+    postMessage({ type: 'input_request' });
+    Atomics.wait(ctl, 0, 0);
+    if (Atomics.load(ctl, 0) === 2) return undefined;
+    const len = Atomics.load(ctl, 1);
+    // slice() копирует в обычный ArrayBuffer: TextDecoder не принимает shared-память
+    return stdinDecoder.decode(stdinData.slice(0, len)) + '\n';
+}
+
+async function init(msg) {
+    maxOutput = msg.maxOutput || Infinity;
+    importScripts(msg.indexURL + 'pyodide.js');
+    pyodide = await loadPyodide({ indexURL: msg.indexURL });
+
+    pyodide.setStdout(makeWriter('stdout'));
+    pyodide.setStderr(makeWriter('stderr'));
+    pyodide.setStdin({ stdin: readStdin });
+
+    if (msg.sab) {
+        ctl = new Int32Array(msg.sab.ctl);
+        stdinData = new Uint8Array(msg.sab.data);
+        interruptBuf = new Uint8Array(msg.sab.interrupt);
+        pyodide.setInterruptBuffer(interruptBuf);
+    }
+
+    pyodide.runPython(RUNNER_SRC);
+    runner = pyodide.globals.get('_ide_run');
+    postMessage({ type: 'ready', version: pyodide.version });
+}
+
+async function run(msg) {
+    let s = typeof msg.stdin === 'string' ? msg.stdin.replace(/\r\n?/g, '\n') : '';
+    if (s.endsWith('\n')) s = s.slice(0, -1);
+    stdinQueue = s ? s.split('\n').map(l => l + '\n') : [];
+
+    sent = 0;
+    outBuf = '';
+    lastFlush = Date.now();
+    if (interruptBuf) interruptBuf[0] = 0;
+
+    try {
+        await pyodide.loadPackagesFromImports(msg.code, {
+            messageCallback: (t) => postMessage({ type: 'info', text: t }),
+            errorCallback: (t) => postMessage({ type: 'info', text: t }),
+        });
+    } catch (e) {
+        postMessage({ type: 'info', text: 'Не удалось загрузить пакеты: ' + ((e && e.message) || e) });
+    }
+
+    postMessage({ type: 'started' });
+
+    let rc;
+    try {
+        rc = runner(msg.code);
+    } catch (e) {
+        flush();
+        postMessage({ type: 'run_error', text: String((e && e.message) || e) });
+        return;
+    }
+    flush();
+    postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
+}
+
+self.onmessage = (e) => {
+    const msg = e.data;
+    if (msg.type === 'init') {
+        init(msg).catch(err => postMessage({ type: 'init_error', text: String((err && err.message) || err) }));
+    } else if (msg.type === 'run') {
+        run(msg).catch(err => postMessage({ type: 'run_error', text: String((err && err.message) || err) }));
+    }
+};
+    </script>
+
     <script>
-        let editor;
-        let worker = null;
-        let executionTimer = null;
-        let pyodideReady = false;
-        let progressInterval = null;
-        const TIMEOUT_MS = 5000;
+    (() => {
+        'use strict';
 
-        const PROXY_URL = "https://text.pollinations.ai/openai";
-        const AI_MODEL = "openai";
+        // ---- Настройки ----
+        const CONFIG = {
+            PYODIDE_URL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
+            TIMEOUT_MS: 10000,          // лимит работы без ввода
+            INTERRUPT_GRACE_MS: 1500,   // сколько ждать KeyboardInterrupt перед жёстким перезапуском
+            INIT_SLOW_MS: 25000,
+            MAX_OUTPUT_CHARS: 200000,
+            MAX_FILE_BYTES: 1024 * 1024,
+            STDIN_BYTES: 64 * 1024,
+            AI_URL: 'https://text.pollinations.ai/openai',
+            AI_MODEL: 'openai',
+            AI_TIMEOUT_MS: 45000,
+            AI_MAX_CODE_CHARS: 12000,
+            AI_MAX_OUTPUT_CHARS: 3000,
+            AI_HISTORY: 10,
+        };
 
-        // ---- Утилиты ----
+        const THEMES = ['dark', 'light', 'neon'];
+        const KEYS = {
+            code: 'python_ide_code',
+            theme: 'python_ide_theme',
+            font: 'python_ide_font_size',
+            stdin: 'python_ide_stdin',
+        };
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = String(text);
-            return div.innerHTML;
+        const DEFAULT_CODE = [
+            '# Попробуй запустить бесконечный цикл:',
+            '# while True:',
+            '#     pass',
+            '',
+            'x = int(input("Введите целое число: "))',
+            'y = int(input("Введите целое число: "))',
+            'z = int(input("Введите целое число: "))',
+            '',
+            'if x == 0 or y == 0 or z == 0:',
+            '    print(x + y + z)',
+            'else:',
+            '    print(x * y * z)',
+            '',
+        ].join('\n');
+
+        // Интерактивный ввод возможен только при cross-origin isolation (COOP/COEP)
+        const SAB_OK = typeof SharedArrayBuffer === 'function' && window.crossOriginIsolated === true;
+        const FENCE = '```';
+
+        const $ = (id) => document.getElementById(id);
+
+        const store = {
+            get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch { /* квота или приватный режим */ } },
+        };
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
-        // ---- Статический анализ на бесконечные циклы ----
-
-        function detectInfiniteLoops(code) {
-            // Убираем строки и комментарии, чтобы не ловить слова в них
-            const stripped = code
-                .replace(/"""[\s\S]*?"""/g, '""')
-                .replace(/'''[\s\S]*?'''/g, "''")
-                .replace(/"[^"\n]*"/g, '""')
-                .replace(/'[^'\n]*'/g, "''")
-                .replace(/#[^\n]*/g, '');
-
-            const strippedLines = stripped.split('\n');
-            const originalLines = code.split('\n');
-            const problems = [];
-
-            for (let i = 0; i < strippedLines.length; i++) {
-                const line = strippedLines[i];
-                const match = line.match(/^(\s*)while\s+(True|1|[1-9]\d*)\s*:/);
-                if (!match) continue;
-
-                const baseIndent = match[1].length;
-                let bodyEnd = strippedLines.length;
-                for (let j = i + 1; j < strippedLines.length; j++) {
-                    const l = strippedLines[j];
-                    if (l.trim() === '') continue;
-                    const indent = l.match(/^(\s*)/)[1].length;
-                    if (indent <= baseIndent) { bodyEnd = j; break; }
-                }
-
-                let hasExit = false;
-                for (let j = i + 1; j < bodyEnd; j++) {
-                    const t = strippedLines[j];
-                    if (/\b(break|return|raise|exit\s*\(|quit\s*\(|sys\.exit\s*\()/.test(t)) {
-                        hasExit = true;
-                        break;
-                    }
-                }
-
-                if (!hasExit) {
-                    problems.push({
-                        line: i + 1,
-                        code: (originalLines[i] || '').trim()
-                    });
-                }
-            }
-
-            return problems;
+        function icon(cls) {
+            const i = document.createElement('i');
+            i.className = cls;
+            i.setAttribute('aria-hidden', 'true');
+            return i;
         }
 
-        // ---- Web Worker ----
+        let editor = null;
 
-        const workerCode = `
-            self.pyodide = null;
-            self._resolveInput = null;
+        // ================= Вывод терминала =================
 
-            self.onmessage = async (e) => {
-                if (e.data.type === 'init') {
-                    try {
-                        importScripts("https://unpkg.com/pyodide@0.26.1/pyodide.js");
+        const Out = {
+            el: null, queue: [], chars: 0, truncated: false, raf: 0,
 
-                        self.pyodide = await loadPyodide({
-                            indexURL: "https://unpkg.com/pyodide@0.26.1/"
-                        });
+            clear() {
+                this.queue = [];
+                this.chars = 0;
+                this.truncated = false;
+                cancelAnimationFrame(this.raf);
+                this.raf = 0;
+                this.el.textContent = '';
+            },
 
-                        self.pyodide.setStdout({ batched: (msg) => self.postMessage({ type: 'stdout', msg }) });
-                        self.pyodide.setStderr({ batched: (msg) => self.postMessage({ type: 'stderr', msg }) });
-
-                        self.pyodide.setStdin({
-                            stdin: () => {
-                                return new Promise((resolve) => {
-                                    self.postMessage({ type: 'input_request' });
-                                    self._resolveInput = resolve;
-                                });
-                            }
-                        });
-
-                        self.postMessage({ type: 'ready' });
-                    } catch (err) {
-                        self.postMessage({ type: 'init_error', msg: err.message || "Не удалось загрузить Pyodide" });
+            // system = служебное сообщение, не учитывается в лимите
+            write(text, cls = '', system = false) {
+                if (!text) return;
+                if (!system) {
+                    if (this.truncated) return;
+                    const left = CONFIG.MAX_OUTPUT_CHARS - this.chars;
+                    if (text.length > left) {
+                        text = text.slice(0, left);
+                        this.truncated = true;
                     }
-                } else if (e.data.type === 'run') {
-                    try {
-                        await self.pyodide.runPythonAsync(e.data.code);
-                        self.postMessage({ type: 'done' });
-                    } catch (err) {
-                        self.postMessage({ type: 'error', msg: err.message });
-                    }
-                } else if (e.data.type === 'input_response') {
-                    if (self._resolveInput) {
-                        self._resolveInput(e.data.value);
-                        self._resolveInput = null;
+                    this.chars += text.length;
+                }
+                if (text) this.queue.push([text, cls]);
+                if (!system && this.truncated) {
+                    this.queue.push([`\n[Вывод обрезан: больше ${CONFIG.MAX_OUTPUT_CHARS.toLocaleString('ru-RU')} символов]\n`, 'output-info']);
+                }
+                if (!this.raf) this.raf = requestAnimationFrame(() => this.flush());
+            },
+
+            flush() {
+                cancelAnimationFrame(this.raf);
+                this.raf = 0;
+                if (!this.queue.length) return;
+                const el = this.el;
+                const stick = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+                for (const [text, cls] of this.queue) {
+                    const last = el.lastChild;
+                    if (last && last.nodeName === 'SPAN' && last.className === cls && last.firstChild) {
+                        last.firstChild.appendData(text);
+                    } else {
+                        const span = document.createElement('span');
+                        if (cls) span.className = cls;
+                        span.textContent = text;
+                        // Поле ввода всегда должно оставаться последним
+                        if (Py.inputEl && Py.inputEl.parentNode === el) el.insertBefore(span, Py.inputEl);
+                        else el.appendChild(span);
                     }
                 }
+                this.queue = [];
+                if (stick) el.scrollTop = el.scrollHeight;
+            },
+
+            text() {
+                this.flush();
+                return Array.from(this.el.childNodes)
+                    .filter(n => n.nodeName !== 'INPUT')
+                    .map(n => n.textContent)
+                    .join('');
+            },
+        };
+
+        // ================= Python (Web Worker) =================
+
+        const Py = {
+            worker: null, url: null, ready: false, running: false,
+            waitingInput: false, inputEl: null, stopReason: null, stdinEof: false,
+            runTimer: 0, killTimer: 0, initTimer: 0, sab: null,
+        };
+
+        if (SAB_OK) {
+            Py.sab = {
+                ctl: new SharedArrayBuffer(8),
+                data: new SharedArrayBuffer(CONFIG.STDIN_BYTES),
+                interrupt: new SharedArrayBuffer(1),
             };
-        `;
-
-        // ---- CodeMirror hints ----
-
-        const pyKeywords = [
-            "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
-            "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
-            "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
-            "print", "input", "int", "float", "str", "list", "dict", "set", "tuple", "len", "range", "type",
-            "sum", "max", "min", "abs", "round", "open", "enumerate", "zip", "map", "filter", "lower", "upper",
-            "append", "split", "join", "strip", "replace"
-        ];
-
-        function smartHint(cm) {
-            const cursor = cm.getCursor();
-            const token = cm.getTokenAt(cursor);
-            const start = token.start;
-            const end = cursor.ch;
-            const line = cursor.line;
-            const text = cm.getValue();
-            const words = text.match(/[a-zA-Z_]\w*/g) || [];
-            const allWords = new Set([...pyKeywords, ...words]);
-            const currentWord = token.string;
-            const filtered = Array.from(allWords).filter(w => w.startsWith(currentWord) && w !== currentWord);
-            return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
-        // ---- Боковые панели ----
+        function setStatus(kind, text) {
+            const el = $('py-status');
+            const icons = {
+                loading: 'ph ph-spinner-gap spin',
+                ready: 'ph-fill ph-check-circle',
+                error: 'ph ph-x-circle',
+                running: 'ph-fill ph-play-circle',
+            };
+            el.className = 'status-item ' + kind;
+            el.replaceChildren(icon(icons[kind]), document.createTextNode(' ' + text));
+        }
 
-        function openPanel(panelId) {
-            document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
-            document.getElementById(panelId).classList.add('open');
-            document.getElementById('drawer-overlay').classList.add('active');
+        function updateRunButtons() {
+            const runBtn = $('run-btn');
+            runBtn.hidden = Py.running;
+            runBtn.disabled = !Py.ready;
+            $('stop-btn').hidden = !Py.running;
+        }
 
-            if (panelId === 'ai-panel') {
-                setTimeout(() => document.getElementById('ai-input').focus(), 300);
-                scrollToAIBottom();
+        const Overlay = {
+            timer: 0, progress: 0,
+            el: () => $('loading-overlay'),
+
+            render() {
+                $('progress-bar').style.width = this.progress + '%';
+                $('progress-text').textContent = Math.floor(this.progress) + '%';
+            },
+            show() {
+                const bar = $('progress-bar');
+                bar.classList.remove('failed');
+                $('loading-title').textContent = 'Загрузка Python';
+                $('retry-btn').hidden = true;
+                this.progress = 0;
+                this.render();
+                this.el().classList.remove('hidden');
+                clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    this.progress = Math.min(this.progress + Math.random() * 4 + 1, 92);
+                    this.render();
+                }, 300);
+            },
+            done() {
+                clearInterval(this.timer);
+                if (this.el().classList.contains('hidden')) return;
+                this.progress = 100;
+                this.render();
+                setTimeout(() => this.el().classList.add('hidden'), 250);
+            },
+            slow() {
+                if (this.el().classList.contains('hidden')) return;
+                $('progress-text').textContent = 'Загрузка идёт дольше обычного. Проверьте интернет или VPN.';
+                $('retry-btn').hidden = false;
+            },
+            fail(msg) {
+                clearInterval(this.timer);
+                this.el().classList.remove('hidden');
+                $('loading-title').textContent = 'Ошибка загрузки';
+                $('progress-text').textContent = msg;
+                $('progress-bar').classList.add('failed');
+                $('retry-btn').hidden = false;
+            },
+        };
+
+        function stopWorker() {
+            clearTimeout(Py.initTimer);
+            if (Py.worker) {
+                Py.worker.terminate();
+                Py.worker = null;
+            }
+            if (Py.url) {
+                URL.revokeObjectURL(Py.url);
+                Py.url = null;
             }
         }
 
-        function closeAllPanels() {
-            document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
-            document.getElementById('drawer-overlay').classList.remove('active');
-        }
+        function startWorker({ overlay = false } = {}) {
+            stopWorker();
+            Py.ready = false;
+            updateRunButtons();
+            setStatus('loading', overlay ? 'Загрузка Python...' : 'Перезапуск Python...');
+            if (overlay) Overlay.show();
 
-        // ---- Задания ----
+            if (Py.sab) {
+                Atomics.store(new Int32Array(Py.sab.ctl), 0, 0);
+                new Uint8Array(Py.sab.interrupt)[0] = 0;
+            }
 
-        async function generateTasks() {
-            const topic = document.getElementById('topic-input').value.trim();
-            if (!topic) return;
+            const src = $('py-worker-src').textContent;
+            Py.url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
 
-            const listContainer = document.getElementById('task-list');
-            const genBtn = document.getElementById('gen-btn');
-
-            listContainer.innerHTML = '<div style="text-align: center; color: var(--task-color);"><i class="ph ph-spinner-gap ph-spin"></i> Генерируем...</div>';
-            genBtn.disabled = true;
-
-            const systemPrompt = `Ты — учитель информатики. Напиши ровно 3 задания по программированию на Python на тему "${topic}".
-Задания должны быть четкими, понятными и располагаться по возрастанию сложности.
-НИ В КОЕМ СЛУЧАЕ не пиши решение или готовый код. Только тексты заданий.
-Формат вывода: строго список из 3 пунктов. Начни каждый пункт с "Задание 1.", "Задание 2." и т.д. Не используй таблицы и сложный markdown.`;
-
+            let w;
             try {
-                const response = await fetch(PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: AI_MODEL,
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: `Дай мне задания по теме: ${topic}` }
-                        ],
-                        temperature: 0.7
-                    })
-                });
-
-                const data = await response.json();
-                if (!data.choices || data.choices.length === 0) throw new Error("Нейросеть тупит");
-
-                const text = data.choices[0].message.content;
-                const escaped = escapeHtml(text);
-
-                listContainer.innerHTML = '';
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'task-item';
-                taskDiv.innerHTML = escaped
-                    .replace(/\n/g, '<br><br>')
-                    .replace(/(Задание\s+\d+:?)/g, '<strong>$1</strong>');
-                listContainer.appendChild(taskDiv);
-
+                w = new Worker(Py.url);
             } catch (err) {
-                listContainer.innerHTML = `<div style="color: var(--error);">Ошибка: ${escapeHtml(err.message)}</div>`;
-            } finally {
-                genBtn.disabled = false;
+                onInitFailed('Не удалось создать Web Worker: ' + err.message);
+                return;
             }
-        }
+            Py.worker = w;
 
-        // ---- ИИ-чат ----
-
-        function scrollToAIBottom() {
-            const msgs = document.getElementById('ai-messages');
-            msgs.scrollTop = msgs.scrollHeight;
-        }
-
-        function addMessage(text, sender, isHtml = false) {
-            const msgs = document.getElementById('ai-messages');
-            const div = document.createElement('div');
-            div.className = `message ${sender}`;
-            const content = isHtml ? text : escapeHtml(text);
-            div.innerHTML = content
-                .replace(/\n/g, '<br>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>');
-            msgs.appendChild(div);
-            scrollToAIBottom();
-            return div;
-        }
-
-        async function sendToAI() {
-            const input = document.getElementById('ai-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            input.value = '';
-            addMessage(text, 'user');
-
-            const currentCode = editor.getValue();
-
-            const systemPrompt = `Ты — учитель информатики. Твой ответ должен быть коротким, понятным и написан ТОЛЬКО обычным текстом. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать таблицы (символ |), сложный Markdown или списки с палками.
-Если у ученика есть ошибка в коде, объясни в чем она и как ее исправить. Если код правильный, просто скажи ему об этом. НЕ пиши готовый код за ученика.
-
-Код ученика:
-\`\`\`python
-${currentCode}
-\`\`\``;
-
-            const sendBtn = document.getElementById('ai-send-btn');
-            sendBtn.disabled = true;
-            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
-
-            try {
-                const response = await fetch(PROXY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: AI_MODEL,
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: text }
-                        ],
-                        temperature: 0.3
-                    })
-                });
-
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error?.message || `Ошибка сервера: ${response.status}`);
-                if (!data.choices || data.choices.length === 0) throw new Error("Нейросеть вернула пустой ответ.");
-
-                const aiResponse = data.choices[0].message.content;
-                loadingDiv.remove();
-                addMessage(aiResponse, 'ai');
-            } catch (err) {
-                loadingDiv.remove();
-                addMessage(`Ошибка: ${err.message}`, 'ai');
-            } finally {
-                sendBtn.disabled = false;
-                input.focus();
-            }
-        }
-
-        // ---- Прогресс загрузки ----
-
-        function startProgressAnimation() {
-            if (progressInterval) clearInterval(progressInterval);
-            let progress = 0;
-            const bar = document.getElementById('progress-bar');
-            const txt = document.getElementById('progress-text');
-            progressInterval = setInterval(() => {
-                if (pyodideReady) { clearInterval(progressInterval); progressInterval = null; return; }
-                progress = Math.min(progress + Math.random() * 4 + 1, 92);
-                if (bar) bar.style.width = progress + '%';
-                if (txt) txt.innerText = Math.floor(progress) + '%';
-            }, 300);
-        }
-
-        // ---- Worker ----
-
-        function createWorker(showOverlay = false) {
-            if (worker) worker.terminate();
-
-            pyodideReady = false;
-            const runBtn = document.getElementById('run-btn');
-            if (runBtn) runBtn.disabled = true;
-            const statusEl = document.getElementById('py-status');
-            if (statusEl) {
-                statusEl.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...';
-                statusEl.className = 'status-item loading';
-            }
-
-            if (showOverlay) {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) {
-                    overlay.classList.remove('hidden');
-                    const lt = document.querySelector('.loading-text');
-                    const ls = document.querySelector('.loading-subtext');
-                    const pb = document.getElementById('progress-bar');
-                    if (lt) lt.innerText = 'Загрузка Python';
-                    if (ls) ls.innerText = '0%';
-                    if (pb) { pb.style.background = ''; pb.style.width = '0%'; }
-                }
-                startProgressAnimation();
-            }
-
-            const blob = new Blob([workerCode], { type: 'application/javascript' });
-            worker = new Worker(URL.createObjectURL(blob));
-
-            const overlayTimeout = setTimeout(() => {
-                if (!pyodideReady && showOverlay) {
-                    const overlay = document.getElementById('loading-overlay');
-                    if (overlay && !overlay.classList.contains('hidden')) {
-                        const lt = document.querySelector('.loading-text');
-                        const ls = document.querySelector('.loading-subtext');
-                        const pb = document.getElementById('progress-bar');
-                        if (lt) lt.innerText = 'Ошибка загрузки';
-                        if (ls) ls.innerText = 'Не удалось загрузить Python. Проверьте интернет или VPN.';
-                        if (pb) pb.style.background = 'var(--error)';
-                    }
-                }
-            }, 20000);
-
-            worker.onmessage = function(e) {
-                const data = e.data;
-                const outputDiv = document.getElementById('output');
-
-                if (data.type === 'ready') {
-                    clearTimeout(overlayTimeout);
-                    pyodideReady = true;
-
-                    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
-                    const pb = document.getElementById('progress-bar');
-                    const txt = document.getElementById('progress-text');
-                    if (pb) pb.style.width = '100%';
-                    if (txt) txt.innerText = '100%';
-
-                    const statusEl2 = document.getElementById('py-status');
-                    statusEl2.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
-                    statusEl2.className = 'status-item ready';
-                    document.getElementById('run-btn').disabled = false;
-
-                    const overlay = document.getElementById('loading-overlay');
-                    if (overlay) setTimeout(() => overlay.classList.add('hidden'), 250);
-
-                } else if (data.type === 'init_error') {
-                    clearTimeout(overlayTimeout);
-                    outputDiv.appendChild(createSpan("Ошибка инициализации: " + data.msg, true));
-                    scrollToBottom();
-
-                    const overlay = document.getElementById('loading-overlay');
-                    if (overlay) overlay.classList.add('hidden');
-                    const lt = document.querySelector('.loading-text');
-                    if (lt) lt.innerText = 'Ошибка загрузки';
-
-                    const statusEl2 = document.getElementById('py-status');
-                    statusEl2.innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
-                    statusEl2.className = 'status-item';
-                    document.getElementById('run-btn').disabled = true;
-
-                } else if (data.type === 'stdout') {
-                    outputDiv.appendChild(createSpan(data.msg, false));
-                    scrollToBottom();
-
-                } else if (data.type === 'stderr') {
-                    outputDiv.appendChild(createSpan(data.msg, true));
-                    scrollToBottom();
-
-                } else if (data.type === 'input_request') {
-                    clearTimeout(executionTimer);
-
-                    const lines = outputDiv.innerText.split('\n');
-                    let promptText = lines[lines.length - 1].trim();
-                    if (!promptText) promptText = "Введите данные:";
-
-                    setTimeout(() => {
-                        let val = prompt(promptText);
-                        if (val === null) val = "";
-
-                        outputDiv.appendChild(createSpan(val + '\n', false));
-                        scrollToBottom();
-
-                        worker.postMessage({ type: 'input_response', value: val + '\n' });
-                        startTimer();
-                    }, 50);
-
-                } else if (data.type === 'done') {
-                    clearTimeout(executionTimer);
-                    finishExecution();
-                    outputDiv.appendChild(createSpan('\n[Успешно завершено]', false, 'output-success'));
-                    scrollToBottom();
-
-                } else if (data.type === 'error') {
-                    clearTimeout(executionTimer);
-                    finishExecution();
-                    outputDiv.appendChild(createSpan('\n[Ошибка выполнения]:\n' + data.msg, true));
-                    scrollToBottom();
-                }
+            // Сообщения от уже убитого воркера игнорируем
+            w.onmessage = (e) => { if (w === Py.worker) handleWorkerMessage(e.data); };
+            w.onerror = (e) => {
+                if (w !== Py.worker) return;
+                e.preventDefault();
+                onWorkerCrash(e.message || 'неизвестная ошибка');
             };
 
-            worker.onerror = function(err) {
-                const outputDiv = document.getElementById('output');
-                outputDiv.appendChild(createSpan("Критическая ошибка воркера: " + (err.message || 'unknown'), true));
+            Py.initTimer = setTimeout(() => { if (!Py.ready) Overlay.slow(); }, CONFIG.INIT_SLOW_MS);
 
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) overlay.classList.add('hidden');
-
-                const statusEl2 = document.getElementById('py-status');
-                statusEl2.innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
-                statusEl2.className = 'status-item';
-                document.getElementById('run-btn').disabled = true;
-
-                finishExecution();
-            };
-
-            worker.postMessage({ type: 'init' });
+            w.postMessage({
+                type: 'init',
+                indexURL: CONFIG.PYODIDE_URL,
+                sab: Py.sab,
+                maxOutput: CONFIG.MAX_OUTPUT_CHARS,
+            });
         }
 
-        function createSpan(text, isError = false, customClass = '') {
-            const span = document.createElement('span');
-            if (isError) span.className = 'output-error';
-            else if (customClass) span.className = customClass;
-            span.innerText = text;
-            return span;
+        function handleWorkerMessage(m) {
+            switch (m.type) {
+                case 'ready':
+                    clearTimeout(Py.initTimer);
+                    Py.ready = true;
+                    setStatus('ready', `Python готов · Pyodide ${m.version}`);
+                    Overlay.done();
+                    updateRunButtons();
+                    break;
+                case 'init_error':
+                    onInitFailed(m.text);
+                    break;
+                case 'out': {
+                    const cls = m.kind === 'stderr' ? 'output-error' : m.kind === 'echo' ? 'output-input' : '';
+                    Out.write(m.text, cls);
+                    break;
+                }
+                case 'info':
+                    Out.write(m.text + '\n', 'output-info', true);
+                    break;
+                case 'started':
+                    if (Py.running) startRunTimer();
+                    break;
+                case 'input_request':
+                    clearTimeout(Py.runTimer);
+                    Py.waitingInput = true;
+                    setStatus('running', 'Ожидание ввода...');
+                    showInputField();
+                    break;
+                case 'stdin_eof':
+                    Py.stdinEof = true;
+                    break;
+                case 'done':
+                    onRunFinished(m.code);
+                    break;
+                case 'run_error':
+                    Out.write('\n[Внутренняя ошибка]: ' + m.text + '\n', 'output-error', true);
+                    finishRun();
+                    startWorker();
+                    break;
+            }
         }
 
-        function startTimer() {
-            clearTimeout(executionTimer);
-            executionTimer = setTimeout(() => {
-                if (worker) worker.terminate();
-                finishExecution();
-
-                const outputDiv = document.getElementById('output');
-                outputDiv.appendChild(createSpan(`\n\n[ОШИБКА]: Превышено время выполнения (${TIMEOUT_MS / 1000} секунд).\nВозможно, ваш код содержит бесконечный цикл. Пожалуйста, измените его.`, true));
-                scrollToBottom();
-
-                createWorker(false);
-            }, TIMEOUT_MS);
+        function onInitFailed(text) {
+            stopWorker();
+            Py.ready = false;
+            finishRun();
+            setStatus('error', 'Ошибка загрузки');
+            Overlay.fail('Не удалось загрузить Python. Проверьте интернет или VPN. (' + text + ')');
         }
 
-        function finishExecution() {
-            clearTimeout(executionTimer);
-            document.getElementById('run-btn').style.display = 'flex';
-            document.getElementById('stop-btn').style.display = 'none';
+        function onWorkerCrash(text) {
+            if (!Py.ready) { onInitFailed(text); return; }
+            Out.write('\n[Критическая ошибка воркера]: ' + text + '\n', 'output-error', true);
+            finishRun();
+            startWorker();
+        }
+
+        // ---- Ввод данных ----
+
+        function showInputField() {
+            Out.flush();
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'term-input';
+            input.maxLength = 10000; // < 64 КБ даже в UTF-8
+            input.autocomplete = 'off';
+            input.spellcheck = false;
+            input.placeholder = 'Enter — отправить, Ctrl+D — конец ввода';
+            input.setAttribute('aria-label', 'Ввод для программы');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitInput(input.value, false);
+                } else if ((e.key === 'd' || e.key === 'D') && e.ctrlKey) {
+                    e.preventDefault();
+                    submitInput('', true);
+                }
+            });
+            Out.el.appendChild(input);
+            Py.inputEl = input;
+            Out.el.scrollTop = Out.el.scrollHeight;
+            input.focus({ preventScroll: true });
+        }
+
+        function removeInputField() {
+            if (Py.inputEl) {
+                Py.inputEl.remove();
+                Py.inputEl = null;
+            }
+        }
+
+        function submitInput(value, eof) {
+            if (!Py.inputEl || !Py.sab) return;
+            removeInputField();
+            Out.write(eof ? '^D\n' : value + '\n', 'output-input', true);
+            Py.waitingInput = false;
+            setStatus('running', 'Выполняется...');
+
+            const ctl = new Int32Array(Py.sab.ctl);
+            if (eof) {
+                Atomics.store(ctl, 0, 2);
+            } else {
+                const bytes = new TextEncoder().encode(value).subarray(0, CONFIG.STDIN_BYTES);
+                new Uint8Array(Py.sab.data).set(bytes);
+                Atomics.store(ctl, 1, bytes.length);
+                Atomics.store(ctl, 0, 1);
+            }
+            Atomics.notify(ctl, 0);
+            startRunTimer();
+        }
+
+        // ---- Запуск и остановка ----
+
+        function startRunTimer() {
+            clearTimeout(Py.runTimer);
+            Py.runTimer = setTimeout(() => {
+                Out.write(
+                    `\n[ОШИБКА]: Превышено время выполнения (${CONFIG.TIMEOUT_MS / 1000} с).\n` +
+                    'Возможно, в коде бесконечный цикл. Измените его и попробуйте снова.\n',
+                    'output-error', true
+                );
+                interruptRun('timeout');
+            }, CONFIG.TIMEOUT_MS);
+        }
+
+        function finishRun() {
+            clearTimeout(Py.runTimer);
+            clearTimeout(Py.killTimer);
+            Py.running = false;
+            Py.waitingInput = false;
+            Py.stopReason = null;
+            removeInputField();
+            if (Py.ready) setStatus('ready', 'Python готов');
+            updateRunButtons();
+        }
+
+        function onRunFinished(code) {
+            const reason = Py.stopReason;
+            const eof = Py.stdinEof;
+            finishRun();
+            if (reason === 'user') {
+                Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
+            } else if (reason === 'timeout') {
+                // сообщение уже выведено
+            } else if (code === 0) {
+                Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
+            } else {
+                Out.write(`\n[Программа завершилась с кодом ${code}]\n`, 'output-error', true);
+                if (eof && !SAB_OK) {
+                    Out.write('Подсказка: программе не хватило входных данных. Заполните поле stdin под терминалом.\n', 'output-info', true);
+                }
+            }
+        }
+
+        function interruptRun(reason) {
+            if (!Py.running) return;
+            Py.stopReason = reason;
+            clearTimeout(Py.runTimer);
+            // Мягкая остановка через KeyboardInterrupt, если Python не ждёт ввода
+            if (Py.sab && Py.ready && !Py.waitingInput) {
+                new Uint8Array(Py.sab.interrupt)[0] = 2; // SIGINT
+                clearTimeout(Py.killTimer);
+                Py.killTimer = setTimeout(() => hardKill(reason), CONFIG.INTERRUPT_GRACE_MS);
+            } else {
+                hardKill(reason);
+            }
+        }
+
+        function hardKill(reason) {
+            stopWorker();
+            finishRun();
+            if (reason === 'user') Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
+            Out.write('[Python перезапускается...]\n', 'output-info', true);
+            startWorker();
         }
 
         function runPython() {
-            if (!pyodideReady) {
-                alert("Python ещё не загружен. Подождите немного и попробуйте снова.");
+            if (Py.running) return;
+            if (!Py.ready) {
+                Out.write('Python ещё загружается, подождите немного...\n', 'output-info', true);
                 return;
             }
-
             const code = editor.getValue();
+            if (!code.trim()) return;
 
-            // === Проверка на бесконечный цикл ===
             const problems = detectInfiniteLoops(code);
-            if (problems.length > 0) {
-                const list = problems
-                    .map(p => `  • строка ${p.line}:  ${p.code}`)
-                    .join('\n');
-
-                const userSaidRunAnyway = confirm(
-                    `⚠️  Обнаружен бесконечный цикл!\n\n` +
-                    `${list}\n\n` +
-                    `В этом цикле нет break / return / exit, поэтому он никогда не завершится.\n\n` +
-                    `Пожалуйста, измените код.\n\n` +
-                    `Нажмите OK, чтобы всё равно запустить (на свой страх и риск),\n` +
-                    `или Отмена — чтобы вернуться к редактированию.`
+            if (problems.length) {
+                const list = problems.map(p => `  • строка ${p.line}:  ${p.code}`).join('\n');
+                const runAnyway = confirm(
+                    '⚠️ Обнаружен бесконечный цикл!\n\n' + list + '\n\n' +
+                    'В этом цикле нет break / return / raise / exit, поэтому он никогда не завершится.\n\n' +
+                    `OK — всё равно запустить (выполнение остановится через ${CONFIG.TIMEOUT_MS / 1000} с),\n` +
+                    'Отмена — вернуться к редактированию.'
                 );
-
-                if (!userSaidRunAnyway) {
-                    const outputDiv = document.getElementById('output');
-                    outputDiv.innerHTML = '';
-                    outputDiv.appendChild(createSpan(
-                        '⚠️  Запуск отменён: обнаружен бесконечный цикл\n', true
-                    ));
-                    outputDiv.appendChild(createSpan(
-                        `Строки: ${problems.map(p => p.line).join(', ')}\nИзмените код и попробуйте снова.\n`,
-                        false
-                    ));
-                    scrollToBottom();
+                if (!runAnyway) {
+                    Out.clear();
+                    Out.write('⚠️ Запуск отменён: обнаружен бесконечный цикл\n', 'output-error', true);
+                    Out.write(`Строки: ${problems.map(p => p.line).join(', ')}\nИзмените код и попробуйте снова.\n`, '', true);
+                    editor.setCursor({ line: problems[0].line - 1, ch: 0 });
+                    editor.focus();
                     return;
                 }
             }
 
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = '';
+            Out.clear();
+            Py.running = true;
+            Py.stopReason = null;
+            Py.stdinEof = false;
+            setStatus('running', 'Выполняется...');
+            updateRunButtons();
 
-            document.getElementById('run-btn').style.display = 'none';
-            document.getElementById('stop-btn').style.display = 'flex';
-
-            worker.postMessage({ type: 'run', code: code });
-            startTimer();
+            Py.worker.postMessage({
+                type: 'run',
+                code,
+                stdin: SAB_OK ? null : $('stdin-input').value,
+            });
         }
 
-        function stopExecution() {
-            if (worker) {
-                clearTimeout(executionTimer);
-                pyodideReady = false;
-                worker.terminate();
+        // ================= Статический анализ =================
 
-                const outputDiv = document.getElementById('output');
-                outputDiv.appendChild(createSpan('\n[ВЫПОЛНЕНИЕ ПРЕРВАНО ПОЛЬЗОВАТЕЛЕМ]', true));
-                scrollToBottom();
+        // Заменяет строки и комментарии заглушками, сохраняя переводы строк
+        function stripPython(code) {
+            let out = '';
+            let i = 0;
+            const n = code.length;
+            while (i < n) {
+                const c = code[i];
+                if (c === '#') {
+                    while (i < n && code[i] !== '\n') i++;
+                    continue;
+                }
+                if (c === '"' || c === "'") {
+                    const triple = code.startsWith(c + c + c, i);
+                    const q = triple ? c + c + c : c;
+                    out += c + c;
+                    i += q.length;
+                    while (i < n) {
+                        if (code[i] === '\\') {
+                            if (code[i + 1] === '\n') out += '\n';
+                            i += 2;
+                            continue;
+                        }
+                        if (code.startsWith(q, i)) { i += q.length; break; }
+                        if (code[i] === '\n') {
+                            out += '\n';
+                            i++;
+                            if (!triple) break; // незакрытая строка
+                            continue;
+                        }
+                        i++;
+                    }
+                    continue;
+                }
+                out += c;
+                i++;
+            }
+            return out;
+        }
 
-                finishExecution();
-                createWorker(false);
+        function detectInfiniteLoops(code) {
+            const lines = stripPython(code).split('\n');
+            const original = code.split('\n');
+
+            // Строки-продолжения (внутри скобок или после "\") не влияют на отступы
+            const cont = new Array(lines.length).fill(false);
+            let depth = 0;
+            let backslash = false;
+            for (let i = 0; i < lines.length; i++) {
+                cont[i] = depth > 0 || backslash;
+                for (const ch of lines[i]) {
+                    if (ch === '(' || ch === '[' || ch === '{') depth++;
+                    else if (ch === ')' || ch === ']' || ch === '}') depth = Math.max(0, depth - 1);
+                }
+                backslash = /\\\s*$/.test(lines[i]);
+            }
+
+            const WHILE = /^([ \t]*)while\s*\(?\s*(?:True|[1-9]\d*)\s*\)?\s*:(.*)$/;
+            const EXIT = /\b(?:break|return|raise|yield)\b|\b(?:exit|quit|_exit)\s*\(/;
+            const problems = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                if (cont[i]) continue;
+                const m = lines[i].match(WHILE);
+                if (!m) continue;
+                const base = m[1].length;
+                let hasExit = EXIT.test(m[2]);
+                for (let j = i + 1; j < lines.length && !hasExit; j++) {
+                    const l = lines[j];
+                    if (!l.trim()) continue;
+                    if (!cont[j] && l.match(/^[ \t]*/)[0].length <= base) break;
+                    if (EXIT.test(l)) hasExit = true;
+                }
+                if (!hasExit) problems.push({ line: i + 1, code: (original[i] || '').trim() });
+            }
+            return problems;
+        }
+
+        // ================= Автодополнение =================
+
+        const PY_WORDS = [
+            'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue',
+            'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in',
+            'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
+            'print', 'input', 'int', 'float', 'str', 'list', 'dict', 'set', 'tuple', 'bool', 'len', 'range', 'type',
+            'sum', 'max', 'min', 'abs', 'round', 'open', 'enumerate', 'zip', 'map', 'filter', 'sorted', 'reversed',
+            'isinstance', 'lower', 'upper', 'append', 'extend', 'insert', 'remove', 'pop', 'split', 'join',
+            'strip', 'replace', 'find', 'count', 'index', 'keys', 'values', 'items', 'format', 'startswith', 'endswith',
+        ];
+
+        function smartHint(cm) {
+            const cur = cm.getCursor();
+            const line = cm.getLine(cur.line);
+            let start = cur.ch;
+            while (start > 0 && /\w/.test(line[start - 1])) start--;
+            const word = line.slice(start, cur.ch);
+            if (!word || /^\d/.test(word)) return null;
+
+            const words = new Set(PY_WORDS);
+            for (const m of cm.getValue().matchAll(/[A-Za-z_]\w{2,}/g)) words.add(m[0]);
+            const list = [...words].filter(w => w.startsWith(word) && w !== word).sort();
+            if (!list.length) return null;
+            return { list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, cur.ch) };
+        }
+
+        // ================= Боковые панели =================
+
+        let lastFocus = null;
+
+        function setPanelOpen(panel, open) {
+            panel.classList.toggle('open', open);
+            panel.inert = !open;
+        }
+
+        function openPanel(id) {
+            lastFocus = document.activeElement;
+            document.querySelectorAll('.side-panel').forEach(p => setPanelOpen(p, p.id === id));
+            $('drawer-overlay').classList.add('active');
+            const target = id === 'ai-panel' ? $('ai-input') : $('topic-input');
+            setTimeout(() => target.focus(), 300);
+            if (id === 'ai-panel') scrollAI();
+        }
+
+        function closeAllPanels() {
+            if (!document.querySelector('.side-panel.open')) return;
+            document.querySelectorAll('.side-panel').forEach(p => setPanelOpen(p, false));
+            $('drawer-overlay').classList.remove('active');
+            if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+        }
+
+        // ================= ИИ =================
+
+        // Безопасный рендер: сначала экранирование, потом минимальная разметка
+        function renderRich(text) {
+            return String(text).split(FENCE).map((part, i) => {
+                if (i % 2 === 1) {
+                    const code = part.replace(/^[\w+-]*\n/, '').replace(/\n$/, '');
+                    return `<pre><code>${escapeHtml(code)}</code></pre>`;
+                }
+                return escapeHtml(part)
+                    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+                    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+            }).join('');
+        }
+
+        async function callAI(messages, temperature) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), CONFIG.AI_TIMEOUT_MS);
+            try {
+                const res = await fetch(CONFIG.AI_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: CONFIG.AI_MODEL, messages, temperature }),
+                    signal: ctrl.signal,
+                });
+                let data = null;
+                try { data = await res.json(); } catch { /* не JSON */ }
+                if (!res.ok) {
+                    const msg = data && data.error && (data.error.message || data.error);
+                    throw new Error(msg ? String(msg) : `Сервер ответил ${res.status}`);
+                }
+                const text = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+                if (typeof text !== 'string' || !text.trim()) throw new Error('Нейросеть вернула пустой ответ');
+                return text.trim();
+            } catch (err) {
+                if (err.name === 'AbortError') throw new Error('Превышено время ожидания ответа');
+                if (err instanceof TypeError) throw new Error('Нет связи с сервером ИИ');
+                throw err;
+            } finally {
+                clearTimeout(timer);
             }
         }
 
-        function scrollToBottom() {
-            const output = document.getElementById('output');
-            output.scrollTop = output.scrollHeight;
+        function truncate(s, max) {
+            return s.length > max ? s.slice(0, max) + '\n... (обрезано)' : s;
         }
 
+        function buildMentorPrompt() {
+            const code = truncate(editor.getValue(), CONFIG.AI_MAX_CODE_CHARS);
+            const out = Out.text();
+            const output = truncate(out.slice(-CONFIG.AI_MAX_OUTPUT_CHARS), CONFIG.AI_MAX_OUTPUT_CHARS);
+            return [
+                'Ты — учитель информатики и наставник по Python. Отвечай кратко, понятно, обычным текстом на русском языке.',
+                'Не используй таблицы и сложный Markdown. Короткие фрагменты кода можно выделять обратными кавычками.',
+                'Если в коде ученика есть ошибка, объясни, в чём она и как её исправить самостоятельно. Если код правильный, так и скажи.',
+                'НЕ пиши готовое решение за ученика.',
+                '',
+                'Текущий код ученика (main.py):',
+                FENCE + 'python', code, FENCE,
+                '',
+                'Последний вывод терминала:',
+                FENCE, output || '(пусто)', FENCE,
+            ].join('\n');
+        }
+
+        const Ai = { history: [], busy: false, tasksBusy: false };
+
+        function scrollAI() {
+            const msgs = $('ai-messages');
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function addMessage(text, cls) {
+            const div = document.createElement('div');
+            div.className = 'message ' + cls;
+            div.innerHTML = renderRich(text);
+            $('ai-messages').appendChild(div);
+            scrollAI();
+            return div;
+        }
+
+        function addLoading(container, text) {
+            const div = document.createElement('div');
+            div.className = 'message ai';
+            div.append(icon('ph ph-spinner-gap spin'), document.createTextNode(' ' + text));
+            container.appendChild(div);
+            return div;
+        }
+
+        async function sendToAI() {
+            const input = $('ai-input');
+            const text = input.value.trim();
+            if (!text || Ai.busy) return;
+
+            Ai.busy = true;
+            input.value = '';
+            addMessage(text, 'user');
+            const loading = addLoading($('ai-messages'), 'Думает...');
+            scrollAI();
+            const btn = $('ai-send-btn');
+            btn.disabled = true;
+
+            Ai.history.push({ role: 'user', content: text });
+            try {
+                const answer = await callAI(
+                    [{ role: 'system', content: buildMentorPrompt() }, ...Ai.history.slice(-CONFIG.AI_HISTORY)],
+                    0.3
+                );
+                Ai.history.push({ role: 'assistant', content: answer });
+                loading.remove();
+                addMessage(answer, 'ai');
+            } catch (err) {
+                Ai.history.pop(); // не храним вопрос без ответа
+                loading.remove();
+                addMessage('Ошибка: ' + err.message, 'ai error');
+            } finally {
+                Ai.busy = false;
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+
+        async function generateTasks() {
+            const topic = $('topic-input').value.trim();
+            if (!topic || Ai.tasksBusy) return;
+
+            Ai.tasksBusy = true;
+            const list = $('task-list');
+            const btn = $('gen-btn');
+            btn.disabled = true;
+            list.textContent = '';
+            addLoading(list, 'Генерируем...');
+
+            const systemPrompt =
+                'Ты — учитель информатики. Придумай ровно 3 задания по программированию на Python на тему, которую назовёт ученик. ' +
+                'Задания должны быть чёткими, понятными и идти по возрастанию сложности. ' +
+                'НИ В КОЕМ СЛУЧАЕ не пиши решение или готовый код, только тексты заданий. ' +
+                'Формат: 3 пункта, каждый начинается с "Задание 1.", "Задание 2.", "Задание 3.". Без таблиц и сложного Markdown. ' +
+                'Если тема не связана с программированием, вежливо попроси ввести тему по Python.';
+
+            try {
+                const text = await callAI([
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: 'Тема: ' + topic },
+                ], 0.7);
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = renderRich(text)
+                    .replace(/(Задание\s*\d+\s*[.:]?)/g, '<strong>$1</strong>')
+                    .replace(/(<br>)+/g, '<br><br>');
+                list.replaceChildren(div);
+            } catch (err) {
+                const div = document.createElement('div');
+                div.className = 'message ai error';
+                div.textContent = 'Ошибка: ' + err.message;
+                list.replaceChildren(div);
+            } finally {
+                Ai.tasksBusy = false;
+                btn.disabled = false;
+            }
+        }
+
+        // ================= Прочие действия =================
+
         function downloadCode() {
-            const code = editor.getValue();
-            const blob = new Blob([code], { type: 'text/x-python' });
+            const blob = new Blob([editor.getValue()], { type: 'text/x-python;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'main.py';
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
-        function copyOutput() {
-            const text = document.getElementById('output').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector('.copy-btn i');
-                btn.className = 'ph ph-check';
-                setTimeout(() => btn.className = 'ph ph-copy', 2000);
-            });
-        }
-
-        function changeTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('python_ide_theme', theme);
+        async function copyOutput() {
+            const i = $('copy-btn').querySelector('i');
+            try {
+                await navigator.clipboard.writeText(Out.text());
+                i.className = 'ph ph-check';
+            } catch {
+                i.className = 'ph ph-x';
+            }
+            setTimeout(() => { i.className = 'ph ph-copy'; }, 1500);
         }
 
         function clearOutput() {
-            document.getElementById('output').innerHTML = "";
+            const inputEl = Py.inputEl;
+            Out.clear();
+            if (inputEl) {
+                Out.el.appendChild(inputEl);
+                inputEl.focus();
+            }
         }
 
-        // ---- Инициализация ----
+        function applyTheme(theme) {
+            if (!THEMES.includes(theme)) theme = 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            $('theme-select').value = theme;
+            store.set(KEYS.theme, theme);
+        }
 
-        window.onload = function() {
-            // Тема
-            const savedTheme = localStorage.getItem('python_ide_theme');
-            if (savedTheme) {
-                document.body.setAttribute('data-theme', savedTheme);
-                const sel = document.getElementById('theme-select');
-                if (sel) sel.value = savedTheme;
+        function applyFontSize(size) {
+            const n = Math.min(28, Math.max(10, parseInt(size, 10) || 15));
+            $('font-size-slider').value = n;
+            $('font-size-val').textContent = n + 'px';
+            document.documentElement.style.setProperty('--editor-font-size', n + 'px');
+            if (editor) editor.refresh();
+            return n;
+        }
+
+        function loadFile(file) {
+            if (!file) return;
+            if (file.size > CONFIG.MAX_FILE_BYTES) {
+                Out.write(`Файл слишком большой (максимум ${CONFIG.MAX_FILE_BYTES / 1024} КБ).\n`, 'output-error', true);
+                return;
             }
+            const reader = new FileReader();
+            reader.onload = () => {
+                editor.setValue(String(reader.result));
+                editor.focus();
+            };
+            reader.onerror = () => Out.write('Не удалось прочитать файл.\n', 'output-error', true);
+            reader.readAsText(file, 'utf-8');
+        }
 
-            // Редактор
-            editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
-                mode: "python",
-                theme: "custom",
+        // ================= Инициализация =================
+
+        function init() {
+            Out.el = $('output');
+
+            applyTheme(document.documentElement.getAttribute('data-theme'));
+
+            editor = CodeMirror.fromTextArea($('code-editor'), {
+                mode: { name: 'python', version: 3 },
+                theme: 'custom',
                 lineNumbers: true,
                 autoCloseBrackets: true,
                 matchBrackets: true,
                 indentUnit: 4,
+                tabSize: 4,
+                indentWithTabs: false,
                 lineWrapping: true,
                 extraKeys: {
-                    "Ctrl-Space": function(cm) { cm.showHint({ hint: smartHint, completeSingle: false }); },
-                    "Ctrl-Enter": function() { runPython(); },
-                    "Cmd-Enter": function() { runPython(); },
-                    "Ctrl-F": "findPersistent",
-                    "Cmd-F": "findPersistent",
-                    "Enter": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.pick();
-                        } else {
-                            cm.execCommand("newlineAndIndent");
-                        }
+                    'Ctrl-Space': (cm) => cm.showHint({ hint: smartHint, completeSingle: false }),
+                    'Ctrl-Enter': () => runPython(),
+                    'Cmd-Enter': () => runPython(),
+                    'Ctrl-F': 'findPersistent',
+                    'Cmd-F': 'findPersistent',
+                    'Ctrl-/': 'toggleComment',
+                    'Cmd-/': 'toggleComment',
+                    'Tab': (cm) => {
+                        if (cm.somethingSelected()) cm.execCommand('indentMore');
+                        else cm.execCommand('insertSoftTab');
                     },
-                    "Tab": function(cm) {
-                        if (cm.state.completionActive) {
-                            cm.state.completionActive.widget.selectNext();
-                        } else {
-                            cm.replaceSelection("    ", "end");
-                        }
+                    'Shift-Tab': 'indentLess',
+                },
+            });
+
+            const savedCode = store.get(KEYS.code);
+            editor.setValue(savedCode !== null ? savedCode : DEFAULT_CODE);
+            editor.clearHistory();
+
+            let saveTimeout = 0;
+            const saveCode = () => { clearTimeout(saveTimeout); store.set(KEYS.code, editor.getValue()); };
+            editor.on('change', () => {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveCode, 500);
+            });
+            document.addEventListener('visibilitychange', () => { if (document.hidden) saveCode(); });
+            window.addEventListener('pagehide', saveCode);
+
+            // Автоподсказки только вне строк и комментариев
+            let hintTimeout = 0;
+            editor.on('inputRead', (cm, change) => {
+                if (!/^[A-Za-z_]/.test(change.text[0] || '')) return;
+                const type = cm.getTokenTypeAt(cm.getCursor()) || '';
+                if (/string|comment/.test(type)) return;
+                clearTimeout(hintTimeout);
+                hintTimeout = setTimeout(() => cm.showHint({ hint: smartHint, completeSingle: false }), 300);
+            });
+
+            editor.on('cursorActivity', (cm) => {
+                const pos = cm.getCursor();
+                $('cursor-position').textContent = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
+            });
+
+            // Размер шрифта
+            applyFontSize(store.get(KEYS.font) || 15);
+            $('font-size-slider').addEventListener('input', (e) => {
+                store.set(KEYS.font, String(applyFontSize(e.target.value)));
+            });
+
+            // Кнопки и элементы управления
+            $('theme-select').addEventListener('change', (e) => applyTheme(e.target.value));
+            $('open-btn').addEventListener('click', () => $('file-upload').click());
+            $('file-upload').addEventListener('change', (e) => {
+                loadFile(e.target.files[0]);
+                e.target.value = '';
+            });
+            $('download-btn').addEventListener('click', downloadCode);
+            $('clear-btn').addEventListener('click', clearOutput);
+            $('run-btn').addEventListener('click', runPython);
+            $('stop-btn').addEventListener('click', () => interruptRun('user'));
+            $('copy-btn').addEventListener('click', copyOutput);
+            $('retry-btn').addEventListener('click', () => startWorker({ overlay: true }));
+            Out.el.addEventListener('click', () => {
+                if (Py.inputEl && !window.getSelection().toString()) Py.inputEl.focus();
+            });
+
+            // Запасной режим ввода
+            if (SAB_OK) {
+                $('input-mode').textContent = 'Интерактивный ввод';
+            } else {
+                $('input-mode').textContent = 'Ввод через поле stdin';
+                $('input-mode').title = 'Для интерактивного input() сайт нужно отдавать с заголовками COOP/COEP';
+                $('stdin-box').hidden = false;
+                const stdinEl = $('stdin-input');
+                stdinEl.value = store.get(KEYS.stdin) || '';
+                stdinEl.addEventListener('input', () => store.set(KEYS.stdin, stdinEl.value));
+            }
+
+            // Панели
+            document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openPanel(b.dataset.open)));
+            document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeAllPanels));
+            $('drawer-overlay').addEventListener('click', closeAllPanels);
+            $('ai-form').addEventListener('submit', (e) => { e.preventDefault(); sendToAI(); });
+            $('tasks-form').addEventListener('submit', (e) => { e.preventDefault(); generateTasks(); });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAllPanels();
+                } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !editor.hasFocus()) {
+                    const tag = e.target.tagName;
+                    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+                        e.preventDefault();
+                        runPython();
                     }
                 }
             });
 
-            // Сохранённый код
-            const savedCode = localStorage.getItem('python_ide_code');
-            if (savedCode) editor.setValue(savedCode);
-
-            let saveTimeout;
-            editor.on("change", function() {
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
-                    localStorage.setItem('python_ide_code', editor.getValue());
-                }, 500);
+            let resizeRaf = 0;
+            window.addEventListener('resize', () => {
+                cancelAnimationFrame(resizeRaf);
+                resizeRaf = requestAnimationFrame(() => editor.refresh());
             });
-
-            // Загрузка файла
-            document.getElementById('file-upload').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    editor.setValue(ev.target.result);
-                };
-                reader.readAsText(file);
-                e.target.value = '';
-            });
-
-            // Размер шрифта
-            const slider = document.getElementById('font-size-slider');
-            const valDisplay = document.getElementById('font-size-val');
-            const savedFontSize = localStorage.getItem('python_ide_font_size');
-            if (savedFontSize) {
-                slider.value = savedFontSize;
-                valDisplay.innerText = savedFontSize + 'px';
-                document.documentElement.style.setProperty('--editor-font-size', savedFontSize + 'px');
-            }
-            slider.addEventListener('input', function() {
-                const size = this.value;
-                valDisplay.innerText = size + 'px';
-                document.documentElement.style.setProperty('--editor-font-size', size + 'px');
-                localStorage.setItem('python_ide_font_size', size);
-                editor.refresh();
-            });
-
-            // Автоподсказки
-            let hintTimeout;
-            editor.on("inputRead", function(cm, change) {
-                if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
-                    clearTimeout(hintTimeout);
-                    hintTimeout = setTimeout(() => {
-                        cm.showHint({ hint: smartHint, completeSingle: false });
-                    }, 300);
-                }
-            });
-
-            // Позиция курсора
-            editor.on("cursorActivity", function(cm) {
-                const pos = cm.getCursor();
-                document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
-            });
-
-            // Escape закрывает панели
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeAllPanels();
-            });
-
             setTimeout(() => editor.refresh(), 100);
-            window.addEventListener('resize', () => editor.refresh());
 
-            // Старт воркера с показом overlay
-            createWorker(true);
-        };
+            startWorker({ overlay: true });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
     </script>
 </body>
 </html>
