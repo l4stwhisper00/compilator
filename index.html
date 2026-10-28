@@ -71,54 +71,54 @@
         }
 
         [data-theme="light"] {
-            --bg-body: #f2f4f8; 
+            --bg-body: #f2f4f8;
             --glow-bg: radial-gradient(circle at 50% 50%, #ffffff 0%, #e2e8f0 100%);
-            --bg-panel: rgba(255, 255, 255, 0.8); 
-            --bg-surface: #ffffff; 
+            --bg-panel: rgba(255, 255, 255, 0.8);
+            --bg-surface: #ffffff;
             --bg-surface-hover: #f1f3f5;
-            --text-primary: #1f1f1f; 
-            --text-secondary: #5f6670; 
-            --accent: #005cbf; 
+            --text-primary: #1f1f1f;
+            --text-secondary: #5f6670;
+            --accent: #005cbf;
             --accent-hover: #004494;
-            --accent-glow: rgba(0, 92, 191, 0.3); 
+            --accent-glow: rgba(0, 92, 191, 0.3);
             --on-accent: #fff;
-            --border: rgba(0, 0, 0, 0.1); 
-            --console-bg: rgba(248, 250, 252, 0.9); 
-            --success: #008000; 
+            --border: rgba(0, 0, 0, 0.1);
+            --console-bg: rgba(248, 250, 252, 0.9);
+            --success: #008000;
             --error: #c00000;
-            --syn-keyword: #0033b3; 
-            --syn-string: #067d17; 
-            --syn-number: #1750eb; 
+            --syn-keyword: #0033b3;
+            --syn-string: #067d17;
+            --syn-number: #1750eb;
             --syn-comment: #8c8c8c;
-            --syn-def: #00627a; 
-            --syn-builtin: #0033b3; 
-            --syn-variable: #1f1f1f; 
+            --syn-def: #00627a;
+            --syn-builtin: #0033b3;
+            --syn-variable: #1f1f1f;
             --syn-property: #008080;
         }
-        
+
         [data-theme="neon"] {
-            --bg-body: #05000a; 
+            --bg-body: #05000a;
             --glow-bg: radial-gradient(circle at 50% 50%, #1c0633 0%, #05000a 70%);
-            --bg-panel: rgba(20, 10, 30, 0.7); 
-            --bg-surface: #120a1c; 
+            --bg-panel: rgba(20, 10, 30, 0.7);
+            --bg-surface: #120a1c;
             --bg-surface-hover: #26133b;
-            --text-primary: #e0def4; 
-            --text-secondary: #8b7ca4; 
-            --accent: #ff007f; 
+            --text-primary: #e0def4;
+            --text-secondary: #8b7ca4;
+            --accent: #ff007f;
             --accent-hover: #ff3399;
-            --accent-glow: rgba(255, 0, 127, 0.4); 
+            --accent-glow: rgba(255, 0, 127, 0.4);
             --on-accent: #fff;
-            --border: rgba(255, 0, 127, 0.2); 
-            --console-bg: rgba(10, 5, 15, 0.9); 
-            --success: #00f0ff; 
+            --border: rgba(255, 0, 127, 0.2);
+            --console-bg: rgba(10, 5, 15, 0.9);
+            --success: #00f0ff;
             --error: #ff4d6d;
-            --syn-keyword: #ff007f; 
-            --syn-string: #00f0ff; 
-            --syn-number: #f1fa8c; 
+            --syn-keyword: #ff007f;
+            --syn-string: #00f0ff;
+            --syn-number: #f1fa8c;
             --syn-comment: #6272a4;
-            --syn-def: #bd93f9; 
-            --syn-builtin: #ff007f; 
-            --syn-variable: #e0def4; 
+            --syn-def: #bd93f9;
+            --syn-builtin: #ff007f;
+            --syn-variable: #e0def4;
             --syn-property: #8be9fd;
         }
 
@@ -127,17 +127,17 @@
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background-color: var(--bg-body); 
+            background-color: var(--bg-body);
             background-image: var(--glow-bg);
             color: var(--text-primary);
-            height: 100vh; 
+            height: 100vh;
             height: 100dvh;
-            display: flex; 
-            flex-direction: column; 
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             transition: background 0.4s;
         }
-        
+
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
@@ -149,12 +149,12 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ---- Загрузка ---- */
-        #loading-overlay { 
-            position: fixed; inset: 0; 
-            background: var(--bg-body); 
-            z-index: 9999; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; 
-            transition: opacity 0.5s ease-out, visibility 0.5s; 
+        #loading-overlay {
+            position: fixed; inset: 0;
+            background: var(--bg-body);
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
         }
         #loading-overlay.hidden { opacity: 0; visibility: hidden; }
         .loading-text { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
@@ -164,13 +164,13 @@
         .progress-bar.failed { background: var(--error); box-shadow: none; }
 
         /* ---- Шапка ---- */
-        header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 20px; min-height: 56px; 
-            background: var(--bg-panel); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
-            border-bottom: 1px solid var(--border); 
-            z-index: 10; flex-shrink: 0; 
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; min-height: 56px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 10; flex-shrink: 0;
         }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; }
         .logo i { color: var(--accent); font-size: 22px; }
@@ -187,17 +187,17 @@
             50% { background-position: 100% 50%; }
         }
         .controls { display: flex; gap: 12px; align-items: center; }
-        button, select { 
-            display: flex; align-items: center; gap: 6px; 
-            background: var(--bg-surface); color: var(--text-primary); 
-            border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; 
-            font-family: inherit; font-size: 13px; font-weight: 500; 
-            cursor: pointer; 
-            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; 
+        button, select {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--bg-surface); color: var(--text-primary);
+            border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px;
+            font-family: inherit; font-size: 13px; font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
         }
         button:hover:not(:disabled), select:hover { border-color: var(--accent); background: var(--bg-surface-hover); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        
+
         .icon-btn { padding: 8px; }
         button.run-btn { background: var(--accent); color: var(--on-accent); border: none; box-shadow: 0 0 10px var(--accent-glow); font-weight: 600; padding: 8px 16px; }
         button.run-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px var(--accent-glow); }
@@ -226,13 +226,13 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        .font-size-control { 
-            display: flex; align-items: center; gap: 8px; 
-            background: var(--bg-surface); border: 1px solid var(--border); 
-            padding: 0 12px; border-radius: 8px; height: 35px; 
+        .font-size-control {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            padding: 0 12px; border-radius: 8px; height: 35px;
         }
         .font-size-control output { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
-        
+
         input[type=range] { -webkit-appearance: none; appearance: none; width: 80px; background: transparent; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--accent); margin-top: -5px; box-shadow: 0 0 5px var(--accent); }
         input[type=range]::-webkit-slider-runnable-track { height: 4px; background: var(--border); border-radius: 2px; }
@@ -241,21 +241,21 @@
 
         /* ---- Основная область ---- */
         main { display: flex; flex: 1; min-height: 0; padding: 16px; gap: 16px; }
-        
-        .panel { 
-            display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; 
-            background: var(--bg-panel); 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
-            border-radius: 12px; border: 1px solid var(--border); 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
-            overflow: hidden; 
+
+        .panel {
+            display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 12px; border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-        .panel-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            height: 42px; flex-shrink: 0; 
-            background: var(--bg-surface); 
-            border-bottom: 1px solid var(--border); 
-            padding: 0 15px; font-size: 13px; color: var(--text-secondary); 
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            height: 42px; flex-shrink: 0;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 15px; font-size: 13px; color: var(--text-secondary);
         }
         .panel-header-left { display: flex; align-items: center; gap: 8px; }
 
@@ -274,7 +274,7 @@
         }
         .tabs-scroll::-webkit-scrollbar { height: 3px; }
         .tabs-scroll::-webkit-scrollbar-thumb { background: var(--border); }
-        
+
         .editor-tab {
             display: flex; align-items: center; gap: 6px;
             padding: 0 10px 0 12px; height: 42px;
@@ -294,7 +294,7 @@
             border-top-color: var(--accent);
         }
         .editor-tab i { color: var(--accent); font-size: 14px; flex-shrink: 0; }
-        
+
         .tab-name { padding: 2px 0; outline: none; border-radius: 3px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
         .tab-name[contenteditable="true"] {
             background: var(--bg-body);
@@ -303,7 +303,7 @@
             max-width: none;
             text-overflow: clip;
         }
-        
+
         .tab-close {
             background: transparent; border: none; padding: 2px;
             border-radius: 3px; color: var(--text-secondary);
@@ -315,7 +315,7 @@
         .editor-tab:hover .tab-close,
         .editor-tab.active .tab-close { opacity: 1; }
         .tab-close:hover { background: var(--error); color: #fff; border-color: transparent; }
-        
+
         .tab-add-btn {
             background: transparent; border: none; border-left: 1px solid var(--border);
             color: var(--text-secondary); padding: 0 14px; height: 42px;
@@ -336,26 +336,26 @@
             z-index: 5;
         }
         .editor-container.typing::after { opacity: 1; }
-        
+
         @keyframes fadeIn {
             from { opacity: 0.4; }
             to { opacity: 1; }
         }
         .editor-container.fade-in .CodeMirror { animation: fadeIn 0.25s ease-out; }
 
-        .CodeMirror { 
-            position: absolute; inset: 0; 
-            height: 100% !important; 
-            font-family: 'Fira Code', monospace; 
-            font-size: var(--editor-font-size) !important; 
-            line-height: 1.6; 
-            background: transparent !important; 
+        .CodeMirror {
+            position: absolute; inset: 0;
+            height: 100% !important;
+            font-family: 'Fira Code', monospace;
+            font-size: var(--editor-font-size) !important;
+            line-height: 1.6;
+            background: transparent !important;
         }
         .CodeMirror-lines { padding-bottom: 70px; }
         .CodeMirror-gutters { background: transparent !important; border-right: 1px solid var(--border) !important; }
         .CodeMirror-linenumber { color: var(--text-secondary) !important; }
         .CodeMirror-selected { background: var(--accent-glow) !important; }
-        
+
         .cm-s-custom .CodeMirror-cursor { border-left: 2px solid var(--accent) !important; }
         .cm-s-custom.CodeMirror { color: var(--syn-variable); }
         .cm-s-custom .cm-keyword { color: var(--syn-keyword); font-weight: bold; }
@@ -369,10 +369,10 @@
         .cm-s-custom .cm-property { color: var(--syn-property) !important; font-style: italic; }
         .cm-s-custom .cm-variable-3 { color: var(--syn-property) !important; }
         .cm-s-custom .CodeMirror-matchingbracket { color: var(--accent) !important; text-decoration: underline; }
-        
+
         .CodeMirror-dialog { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-bottom: 1px solid var(--border) !important; padding: 8px 15px !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; }
         .CodeMirror-dialog input { background: var(--bg-body) !important; color: var(--text-primary) !important; border: 1px solid var(--border) !important; border-radius: 4px; padding: 4px 8px; }
-        
+
         .CodeMirror-hints { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; font-family: 'Fira Code', monospace !important; font-size: var(--editor-font-size) !important; padding: 6px 0 !important; z-index: 1000 !important; }
         .CodeMirror-hint { color: var(--text-primary) !important; padding: 6px 16px !important; cursor: pointer !important; }
         li.CodeMirror-hint-active { background: transparent !important; color: var(--accent) !important; font-weight: 600; text-shadow: 0 0 6px var(--accent-glow) !important; }
@@ -382,17 +382,17 @@
         .console-topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); }
         .dots { display: flex; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; } 
-        .dot.yellow { background: #ffbd2e; } 
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
         .dot.green { background: #27c93f; }
         .copy-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 16px; padding: 4px; }
         .copy-btn:hover:not(:disabled) { color: var(--accent); background: transparent; }
-        
-        #output { 
-            flex: 1; padding: 20px 20px 40px; 
-            font-family: 'Fira Code', monospace; font-size: 14px; 
-            overflow-y: auto; white-space: pre-wrap; word-break: break-word; 
-            line-height: 1.6; min-height: 0; cursor: text; 
+
+        #output {
+            flex: 1; padding: 20px 20px 40px;
+            font-family: 'Fira Code', monospace; font-size: 14px;
+            overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+            line-height: 1.6; min-height: 0; cursor: text;
         }
         .output-success { color: var(--success); font-weight: 500; }
         .output-error { color: var(--error); }
@@ -400,13 +400,13 @@
         .output-input { color: var(--accent); }
 
         /* ---- Подвал ---- */
-        footer { 
-            height: 30px; flex-shrink: 0; 
-            background: var(--bg-panel); 
-            border-top: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 20px; font-size: 12px; color: var(--text-secondary); 
-            z-index: 10; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+        footer {
+            height: 30px; flex-shrink: 0;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; font-size: 12px; color: var(--text-secondary);
+            z-index: 10; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
         .status-left, .status-right { display: flex; gap: 15px; align-items: center; }
         .status-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
@@ -463,7 +463,7 @@
         .note-action:hover:not(:disabled) { color: var(--accent); background: var(--bg-surface-hover); border-color: transparent; }
         .note-action.active { color: var(--accent); }
         .note-action:disabled { opacity: 0.3; cursor: not-allowed; }
-        
+
         #note-text {
             background: var(--bg-body);
             border: none;
@@ -517,7 +517,7 @@
                 <option value="neon">Cyberpunk</option>
             </select>
             <input type="file" id="file-upload" accept=".py,text/x-python,text/plain" hidden>
-            <button type="button" class="icon-btn" id="open-btn" title="Открыть файл .py" aria-label="Открыть файл .py"><i class="ph ph-folder-open" aria-hidden="true"></i></button>
+            <button type="button" class="icon-btn" id="open-btn" title="Открыть файл .py (в новой вкладке)" aria-label="Открыть файл .py"><i class="ph ph-folder-open" aria-hidden="true"></i></button>
             <button type="button" class="icon-btn" id="download-btn" title="Скачать код" aria-label="Скачать код"><i class="ph ph-download-simple" aria-hidden="true"></i></button>
             <button type="button" class="icon-btn" id="note-btn" title="Заметка" aria-label="Заметка"><i class="ph ph-note-pencil" aria-hidden="true"></i></button>
             <button type="button" id="clear-btn" title="Очистить консоль"><i class="ph ph-trash" aria-hidden="true"></i> Очистить</button>
@@ -536,7 +536,7 @@
         </section>
         <section class="panel" aria-label="Терминал">
             <div class="panel-header"><div class="panel-header-left"><i class="ph ph-terminal" aria-hidden="true"></i> Терминал</div></div>
-            <div class="console-wrapper" id="console-wrapper">
+            <div class="console-wrapper">
                 <div class="console-topbar">
                     <div class="dots" aria-hidden="true"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
                     <button type="button" class="copy-btn" id="copy-btn" title="Скопировать вывод" aria-label="Скопировать вывод"><i class="ph ph-copy" aria-hidden="true"></i></button>
@@ -568,9 +568,14 @@
         <textarea id="note-text" spellcheck="false" placeholder="Что нужно сделать?&#10;• Дописать функцию факториала&#10;• Проверить на отрицательных числах&#10;• Сдать до пятницы"></textarea>
     </div>
 
-    <!-- Код Web Worker (Replay Execution Mode) -->
+    <!-- Код Web Worker: не исполняется на странице, читается как текст -->
     <script type="text/plain" id="py-worker-src">
 'use strict';
+
+// Два режима ввода:
+//  1) SharedArrayBuffer (страница с COOP/COEP): воркер блокируется, пока главный поток показывает prompt().
+//  2) Повторный запуск (без COOP/COEP): при нехватке ввода программа останавливается,
+//     главный поток спрашивает значение и запускает её заново со всеми введёнными строками.
 
 let pyodide = null;
 let runner = null;
@@ -579,30 +584,46 @@ let sent = 0;
 let outBuf = '';
 let outKind = 'stdout';
 let lastFlush = 0;
-let currentCode = '';
-let currentInputs = [];
+let suppress = false;     // после запроса ввода в режиме повтора вывод не нужен
+let pkgCheckedFor = null; // для какого кода уже загружали пакеты
+
+// Режим SharedArrayBuffer
+let ctl = null;           // Int32Array: [0] состояние (0 ждём, 1 данные, 2 EOF), [1] длина
+let stdinData = null;
+let interruptBuf = null;
+
+// Режим повтора
+let queue = [];
+let waiting = false;
+
+const stdinDecoder = new TextDecoder('utf-8');
 
 const RUNNER_SRC = [
-    'import sys, traceback, builtins',
-    'def _ide_run(src):',
-    '    def custom_input(prompt=""):',
-    '        if prompt:',
+    'import sys, traceback, builtins, random',
+    '',
+    'class _NeedInput(BaseException):',
+    '    pass',
+    '',
+    'def _ide_run(src, filename, seed, hooks):',
+    '    def _input(prompt=""):',
+    '        if prompt != "":',
     '            sys.stdout.write(str(prompt))',
-    '            sys.stdout.flush()',
-    '        import js',
-    '        val = js.get_ide_input(prompt)',
-    '        if val is None or val == "\\x00EOF\\x00":',
-    '            print()',
-    '            raise EOFError()',
-    '        print(val)',
-    '        return val',
+    '        sys.stdout.flush()',
+    '        line = hooks.readLine()',
+    '        if line is None:',
+    '            if hooks.waiting():',
+    '                raise _NeedInput()',
+    '            raise EOFError("EOF when reading a line")',
+    '        return line',
     '',
-    '    builtins.input = custom_input',
-    '',
-    '    ns = {"__name__": "__main__"}',
+    '    builtins.input = _input',
+    '    random.seed(seed)',
+    '    ns = {"__name__": "__main__", "__file__": filename}',
     '    rc = 0',
     '    try:',
-    '        exec(compile(src, "main.py", "exec"), ns)',
+    '        exec(compile(src, filename, "exec"), ns)',
+    '    except _NeedInput:',
+    '        pass',
     '    except SystemExit as e:',
     '        if e.code is None:',
     '            rc = 0',
@@ -615,10 +636,8 @@ const RUNNER_SRC = [
     '        print("\\nKeyboardInterrupt", file=sys.stderr)',
     '        rc = 130',
     '    except BaseException as e:',
-    '        if "__IDE_NEED_INPUT__" in str(e):',
-    '            raise',
     '        tb = e.__traceback__',
-    '        while tb is not None and tb.tb_frame.f_code.co_filename != "main.py":',
+    '        while tb is not None and tb.tb_frame.f_code.co_filename != filename:',
     '            tb = tb.tb_next',
     '        traceback.print_exception(type(e), e, tb)',
     '        rc = 1',
@@ -640,7 +659,7 @@ function flush() {
 }
 
 function emit(kind, text) {
-    if (!text || sent >= maxOutput) return;
+    if (!text || suppress || sent >= maxOutput) return;
     if (kind !== outKind) { flush(); outKind = kind; }
     outBuf += text;
     sent += text.length;
@@ -657,21 +676,54 @@ function makeWriter(kind) {
     };
 }
 
+// Возвращает строку без "\n" или undefined (EOF / нужен ввод)
+function readLine() {
+    flush();
+    let line;
+    if (ctl) {
+        Atomics.store(ctl, 0, 0);
+        postMessage({ type: 'input_request' });
+        Atomics.wait(ctl, 0, 0);
+        if (Atomics.load(ctl, 0) === 2) return undefined;
+        // slice() копирует в обычный буфер: TextDecoder не принимает shared-память
+        line = stdinDecoder.decode(stdinData.slice(0, Atomics.load(ctl, 1)));
+    } else {
+        if (waiting) return undefined;
+        if (!queue.length) {
+            waiting = true;
+            suppress = true;
+            postMessage({ type: 'need_input' });
+            return undefined;
+        }
+        line = queue.shift();
+        if (line === null) return undefined; // пользователь нажал "Отмена"
+    }
+    emit('echo', line + '\n');
+    flush();
+    return line;
+}
+
+const hooks = { readLine, waiting: () => waiting };
+
 async function init(msg) {
     maxOutput = msg.maxOutput || Infinity;
     importScripts(msg.indexURL + 'pyodide.js');
     pyodide = await loadPyodide({ indexURL: msg.indexURL });
-    
+
     pyodide.setStdout(makeWriter('stdout'));
     pyodide.setStderr(makeWriter('stderr'));
-    
-    // Функция моста для input
-    pyodide.globals.set("get_ide_input", (prompt) => {
-        if (currentInputs.length > 0) {
-            return currentInputs.shift();
-        }
-        throw new Error("__IDE_NEED_INPUT__:" + (prompt || ""));
+    // Для sys.stdin.readline() и подобного; input() переопределён в RUNNER_SRC
+    pyodide.setStdin({
+        stdin: () => { const l = readLine(); return l === undefined ? undefined : l + '\n'; },
+        autoEOF: false,
     });
+
+    if (msg.sab) {
+        ctl = new Int32Array(msg.sab.ctl);
+        stdinData = new Uint8Array(msg.sab.data);
+        interruptBuf = new Uint8Array(msg.sab.interrupt);
+        pyodide.setInterruptBuffer(interruptBuf);
+    }
 
     pyodide.runPython(RUNNER_SRC);
     runner = pyodide.globals.get('_ide_run');
@@ -679,45 +731,40 @@ async function init(msg) {
 }
 
 async function run(msg) {
-    currentCode = msg.code;
-    if (msg.inputs) {
-        currentInputs = [...msg.inputs];
-    } else {
-        currentInputs = [];
-    }
-
+    queue = Array.isArray(msg.inputs) ? msg.inputs.slice() : [];
+    waiting = false;
+    suppress = false;
     sent = 0;
     outBuf = '';
     outKind = 'stdout';
     lastFlush = Date.now();
+    if (interruptBuf) interruptBuf[0] = 0;
 
-    if (!msg.isReplay) {
+    if (msg.code !== pkgCheckedFor) {
+        pkgCheckedFor = msg.code;
         try {
-            await pyodide.loadPackagesFromImports(currentCode, {
+            await pyodide.loadPackagesFromImports(msg.code, {
                 messageCallback: (t) => postMessage({ type: 'info', text: t }),
                 errorCallback: (t) => postMessage({ type: 'info', text: t }),
             });
         } catch (e) {
             postMessage({ type: 'info', text: 'Не удалось загрузить пакеты: ' + ((e && e.message) || e) });
         }
-        postMessage({ type: 'started' });
-    } else {
-        postMessage({ type: 'started' });
     }
 
+    postMessage({ type: 'started' });
+
+    let rc;
     try {
-        let rc = runner(currentCode);
-        flush();
-        postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
+        rc = runner(msg.code, msg.filename, msg.seed, hooks);
     } catch (e) {
-        if (e.message && e.message.includes("__IDE_NEED_INPUT__")) {
-            let pText = e.message.split("__IDE_NEED_INPUT__:")[1];
-            postMessage({ type: 'need_input', prompt: pText });
-        } else {
-            flush();
-            postMessage({ type: 'run_error', text: String((e && e.message) || e) });
-        }
+        flush();
+        postMessage({ type: 'run_error', text: String((e && e.message) || e) });
+        return;
     }
+    flush();
+    if (waiting) postMessage({ type: 'replay_ready' });
+    else postMessage({ type: 'done', code: typeof rc === 'number' ? rc : 1 });
 }
 
 self.onmessage = (e) => {
@@ -737,13 +784,18 @@ self.onmessage = (e) => {
         // ---- Конфигурация ----
         const CONFIG = {
             PYODIDE_URL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
-            TIMEOUT_MS: 10000,          // Жёсткий лимит на выполнение без ввода
-            INIT_SLOW_MS: 25000,        // Через сколько показать "Загрузка идёт дольше обычного"
-            MAX_OUTPUT_CHARS: 200000,   // Лимит вывода в консоль
-            MAX_FILE_BYTES: 1024 * 1024 // Лимит загружаемого файла (1 МБ)
+            TIMEOUT_MS: 10000,          // лимит на выполнение без ввода
+            INTERRUPT_GRACE_MS: 1500,   // ожидание KeyboardInterrupt перед жёстким перезапуском
+            REPLAY_GUARD_MS: 2000,      // если программа не остановилась после запроса ввода
+            INIT_SLOW_MS: 25000,
+            MAX_OUTPUT_CHARS: 200000,
+            MAX_FILE_BYTES: 1024 * 1024,
+            STDIN_BYTES: 64 * 1024,
+            MAX_TAB_NAME: 64,
         };
 
         const THEMES = ['dark', 'light', 'neon'];
+        const MODE = { name: 'python', version: 3 };
         const KEYS = {
             tabs: 'python_ide_tabs',
             legacyCode: 'python_ide_code',
@@ -770,6 +822,9 @@ self.onmessage = (e) => {
             '',
         ].join('\n');
 
+        // Ввод без повторного запуска возможен только при cross-origin isolation (COOP/COEP)
+        const SAB_OK = typeof SharedArrayBuffer === 'function' && window.crossOriginIsolated === true;
+
         const $ = (id) => document.getElementById(id);
 
         const store = {
@@ -784,8 +839,14 @@ self.onmessage = (e) => {
             return i;
         }
 
+        function sanitizeName(name) {
+            return String(name || '')
+                .replace(/[\\/:*?"<>|\u0000-\u001f]/g, '')
+                .trim()
+                .slice(0, CONFIG.MAX_TAB_NAME);
+        }
+
         let editor = null;
-        let syncingEditor = false;
 
         // ================= Вывод терминала =================
 
@@ -801,6 +862,7 @@ self.onmessage = (e) => {
                 this.el.textContent = '';
             },
 
+            // system = служебное сообщение, не учитывается в лимите
             write(text, cls = '', system = false) {
                 if (!text) return;
                 if (!system) {
@@ -844,6 +906,14 @@ self.onmessage = (e) => {
                 this.flush();
                 return this.el.textContent;
             },
+
+            lastLine() {
+                this.flush();
+                const node = this.el.lastChild;
+                if (!node) return '';
+                const s = node.textContent;
+                return s.slice(s.lastIndexOf('\n') + 1).trim();
+            },
         };
 
         // ================= Ripple =================
@@ -855,10 +925,9 @@ self.onmessage = (e) => {
             el.addEventListener('pointerdown', (e) => {
                 if (el.disabled) return;
                 const rect = el.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height) * 2;
                 el.style.setProperty('--ripple-left', (e.clientX - rect.left) + 'px');
                 el.style.setProperty('--ripple-top', (e.clientY - rect.top) + 'px');
-                el.style.setProperty('--ripple-size', size + 'px');
+                el.style.setProperty('--ripple-size', Math.max(rect.width, rect.height) * 2 + 'px');
                 el.classList.remove('rippling');
                 void el.offsetWidth;
                 el.classList.add('rippling');
@@ -867,176 +936,172 @@ self.onmessage = (e) => {
         }
 
         // ================= Вкладки =================
+        // У каждой вкладки свой CodeMirror.Doc: история Ctrl+Z, курсор и прокрутка сохраняются при переключении.
+
+        function validPos(p) {
+            return p && Number.isInteger(p.line) && Number.isInteger(p.ch) && p.line >= 0 && p.ch >= 0
+                ? { line: p.line, ch: p.ch } : { line: 0, ch: 0 };
+        }
+        function validScroll(s) {
+            return s && Number.isFinite(s.left) && Number.isFinite(s.top) ? { left: s.left, top: s.top } : null;
+        }
 
         const Tabs = {
             list: [], activeId: null, nextId: 1, saveTimer: 0,
 
             init() {
                 let data = null;
-                try {
-                    const raw = localStorage.getItem(KEYS.tabs);
-                    if (raw) data = JSON.parse(raw);
-                } catch { /* некорректный JSON */ }
+                try { data = JSON.parse(store.get(KEYS.tabs) || 'null'); } catch { /* некорректный JSON */ }
 
-                if (data && Array.isArray(data.list) && data.list.length) {
-                    this.list = data.list.map(t => ({
-                        id: t.id,
-                        name: t.name || 'main.py',
-                        code: typeof t.code === 'string' ? t.code : '',
-                        cursor: t.cursor || { line: 0, ch: 0 },
-                        scroll: t.scroll || null,
-                    }));
-                    this.activeId = this.list.some(t => t.id === data.activeId) ? data.activeId : this.list[0].id;
-                    this.nextId = data.nextId || (Math.max(...this.list.map(t => t.id)) + 1);
+                const seen = new Set();
+                this.list = [];
+                for (const t of (data && Array.isArray(data.list) ? data.list : [])) {
+                    if (!t || !Number.isInteger(t.id) || t.id < 1 || seen.has(t.id)) continue;
+                    seen.add(t.id);
+                    this.list.push(this.make(t.id, sanitizeName(t.name) || `file${t.id}.py`,
+                        typeof t.code === 'string' ? t.code : '', validPos(t.cursor), validScroll(t.scroll)));
+                }
+
+                if (this.list.length) {
+                    this.activeId = seen.has(data.activeId) ? data.activeId : this.list[0].id;
+                    const maxId = Math.max(...this.list.map(t => t.id));
+                    this.nextId = Number.isInteger(data.nextId) && data.nextId > maxId ? data.nextId : maxId + 1;
                 } else {
-                    let legacy = null;
-                    try { legacy = localStorage.getItem(KEYS.legacyCode); } catch { /* ok */ }
-                    this.list = [{
-                        id: 1,
-                        name: 'main.py',
-                        code: legacy != null ? legacy : DEFAULT_CODE,
-                        cursor: { line: 0, ch: 0 },
-                        scroll: null,
-                    }];
+                    const legacy = store.get(KEYS.legacyCode);
+                    this.list = [this.make(1, 'main.py', legacy !== null ? legacy : DEFAULT_CODE, { line: 0, ch: 0 }, null)];
                     this.activeId = 1;
                     this.nextId = 2;
                 }
 
+                this.show(this.getActive());
                 this.render();
-                this.syncEditor();
+            },
+
+            make(id, name, code, cursor, scroll) {
+                return { id, name, code, cursor, scroll, doc: null, dirty: false, shown: false };
             },
 
             get(id) { return this.list.find(t => t.id === id); },
             getActive() { return this.get(this.activeId); },
 
-            save() {
-                clearTimeout(this.saveTimer);
-                this.saveTimer = setTimeout(() => this.saveNow(), 300);
-            },
-            saveNow() {
-                clearTimeout(this.saveTimer);
-                try {
-                    localStorage.setItem(KEYS.tabs, JSON.stringify({
-                        list: this.list,
-                        activeId: this.activeId,
-                        nextId: this.nextId,
-                    }));
-                } catch { /* квота */ }
+            docOf(t) {
+                if (!t.doc) {
+                    t.doc = new CodeMirror.Doc(t.code, MODE);
+                    try { t.doc.setCursor(t.cursor); } catch { /* ok */ }
+                    t.doc.on('change', () => { t.dirty = true; this.save(); });
+                }
+                return t.doc;
             },
 
-            setCode(code) {
-                const t = this.getActive();
-                if (t && t.code !== code) {
-                    t.code = code;
-                    this.save();
+            show(t) {
+                editor.swapDoc(this.docOf(t));
+                if (!t.shown) {
+                    t.shown = true;
+                    if (t.scroll) editor.scrollTo(t.scroll.left, t.scroll.top);
                 }
             },
 
-            saveCursor() {
+            rememberScroll() {
                 const t = this.getActive();
                 if (t && editor) {
-                    try {
-                        t.cursor = editor.getCursor();
-                        t.scroll = editor.getScrollInfo();
-                    } catch { /* ok */ }
+                    const s = editor.getScrollInfo();
+                    t.scroll = { left: s.left, top: s.top };
                 }
             },
 
-            syncEditor() {
-                const t = this.getActive();
-                if (!t || !editor) return;
-                syncingEditor = true;
-                editor.setValue(t.code || '');
-                editor.clearHistory();
-                syncingEditor = false;
-                try {
-                    if (t.cursor) editor.setCursor(t.cursor);
-                    if (t.scroll) editor.scrollTo(t.scroll.left || 0, t.scroll.top || 0);
-                } catch { /* ok */ }
-                editor.focus();
+            save() {
+                clearTimeout(this.saveTimer);
+                this.saveTimer = setTimeout(() => this.saveNow(), 500);
+            },
+
+            saveNow() {
+                clearTimeout(this.saveTimer);
+                this.rememberScroll();
+                const list = this.list.map(t => {
+                    if (t.doc) {
+                        if (t.dirty) { t.code = t.doc.getValue(); t.dirty = false; }
+                        t.cursor = validPos(t.doc.getCursor());
+                    }
+                    return { id: t.id, name: t.name, code: t.code, cursor: t.cursor, scroll: t.scroll };
+                });
+                store.set(KEYS.tabs, JSON.stringify({ list, activeId: this.activeId, nextId: this.nextId }));
             },
 
             activate(id) {
-                if (this.activeId === id) return;
-                this.saveCursor();
+                if (this.activeId === id || !this.get(id)) return;
+                this.rememberScroll();
                 this.activeId = id;
-                this.syncEditor();
-                this.save();
+                this.show(this.getActive());
                 this.render();
+                this.save();
+                editor.focus();
                 const ec = $('editor-container');
-                if (ec) {
-                    ec.classList.remove('fade-in');
-                    void ec.offsetWidth;
-                    ec.classList.add('fade-in');
-                }
+                ec.classList.remove('fade-in');
+                void ec.offsetWidth;
+                ec.classList.add('fade-in');
             },
 
-            add() {
+            add(name, code = '') {
                 const id = this.nextId++;
-                this.list.push({ id, name: `file${id}.py`, code: '', cursor: { line: 0, ch: 0 }, scroll: null });
-                this.save();
+                this.list.push(this.make(id, sanitizeName(name) || `file${id}.py`, code, { line: 0, ch: 0 }, null));
                 this.activate(id);
-                this.render();
+                this.saveNow();
                 const scroll = $('tabs-scroll');
-                if (scroll) scroll.scrollLeft = scroll.scrollWidth;
+                scroll.scrollLeft = scroll.scrollWidth;
             },
 
             close(id) {
                 if (this.list.length <= 1) return;
                 const idx = this.list.findIndex(t => t.id === id);
                 if (idx === -1) return;
-                const wasActive = this.activeId === id;
+                const t = this.list[idx];
+                const code = t.doc ? t.doc.getValue() : t.code;
+                if (code.trim() && !confirm(`Закрыть «${t.name}»? Код из этой вкладки будет удалён.`)) return;
+
                 this.list.splice(idx, 1);
-                if (wasActive) {
+                if (this.activeId === id) {
                     const next = this.list[Math.min(idx, this.list.length - 1)];
                     this.activeId = next.id;
-                    this.syncEditor();
+                    this.show(next);
                 }
-                this.save();
                 this.render();
+                this.saveNow();
             },
 
             rename(id, newName) {
                 const t = this.get(id);
                 if (!t) return;
-                newName = (newName || '').trim();
-                if (!newName) { this.render(); return; }
-                if (!/\.\w+$/.test(newName)) newName += '.py';
-                t.name = newName;
-                this.save();
+                let n = sanitizeName(newName);
+                if (n && !/\.[A-Za-z0-9]+$/.test(n)) n = n.slice(0, CONFIG.MAX_TAB_NAME - 3) + '.py';
+                if (n) t.name = n;
                 this.render();
+                this.save();
             },
 
             render() {
                 const scroll = $('tabs-scroll');
-                if (!scroll) return;
                 scroll.textContent = '';
                 const showClose = this.list.length > 1;
 
                 for (const t of this.list) {
                     const tab = document.createElement('div');
                     tab.className = 'editor-tab' + (t.id === this.activeId ? ' active' : '');
-                    tab.dataset.id = t.id;
 
-                    const ic = icon('ph ph-file-py');
                     const name = document.createElement('span');
                     name.className = 'tab-name';
                     name.textContent = t.name;
                     name.title = t.name + ' — двойной клик для переименования';
+                    name.spellcheck = false;
 
-                    tab.appendChild(ic);
-                    tab.appendChild(name);
+                    tab.append(icon('ph ph-file-py'), name);
 
                     if (showClose) {
                         const close = document.createElement('button');
                         close.type = 'button';
                         close.className = 'tab-close';
-                        close.setAttribute('aria-label', 'Закрыть вкладку');
+                        close.setAttribute('aria-label', 'Закрыть вкладку ' + t.name);
                         close.appendChild(icon('ph ph-x'));
-                        close.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            this.close(t.id);
-                        });
+                        close.addEventListener('click', (e) => { e.stopPropagation(); this.close(t.id); });
                         tab.appendChild(close);
                     }
 
@@ -1055,12 +1120,9 @@ self.onmessage = (e) => {
                     name.addEventListener('blur', () => {
                         if (name.contentEditable !== 'true') return;
                         name.contentEditable = 'false';
-                        const newName = name.textContent.trim();
-                        if (newName && newName !== t.name) {
-                            this.rename(t.id, newName);
-                        } else {
-                            name.textContent = t.name;
-                        }
+                        const value = name.textContent.trim();
+                        if (value && value !== t.name) this.rename(t.id, value);
+                        else name.textContent = t.name;
                     });
                     name.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter') { e.preventDefault(); name.blur(); }
@@ -1075,35 +1137,35 @@ self.onmessage = (e) => {
         // ================= Заметка =================
 
         const Note = {
-            el: null, textEl: null, pinned: false, open: false,
+            el: null, textEl: null, pinned: false, open: false, saveTimer: 0,
 
             init() {
                 this.el = $('note-widget');
                 this.textEl = $('note-text');
-
                 this.textEl.value = store.get(KEYS.note) || '';
                 this.pinned = store.get(KEYS.notePinned) === '1';
-
-                if (this.pinned) this.applyPinned();
-                if (store.get(KEYS.noteOpen) === '1' || this.pinned) this.show();
+                this.applyPinned();
+                if (store.get(KEYS.noteOpen) === '1' || this.pinned) this.show(false);
 
                 this.textEl.addEventListener('input', () => {
-                    store.set(KEYS.note, this.textEl.value);
+                    clearTimeout(this.saveTimer);
+                    this.saveTimer = setTimeout(() => this.save(), 300);
                 });
-
                 $('note-pin-btn').addEventListener('click', () => this.togglePin());
-                $('note-close-btn').addEventListener('click', () => {
-                    if (this.pinned) return;
-                    this.hide();
-                });
+                $('note-close-btn').addEventListener('click', () => { if (!this.pinned) this.hide(); });
                 $('note-btn').addEventListener('click', () => this.toggle());
             },
 
-            show() {
+            save() {
+                clearTimeout(this.saveTimer);
+                store.set(KEYS.note, this.textEl.value);
+            },
+
+            show(focus = true) {
                 this.el.hidden = false;
                 this.open = true;
                 store.set(KEYS.noteOpen, '1');
-                setTimeout(() => this.textEl.focus(), 60);
+                if (focus) setTimeout(() => this.textEl.focus(), 60);
             },
 
             hide() {
@@ -1132,30 +1194,49 @@ self.onmessage = (e) => {
 
             applyPinned() {
                 this.el.classList.toggle('pinned', this.pinned);
-                $('note-pin-btn').classList.toggle('active', this.pinned);
-                $('note-pin-btn').title = this.pinned ? 'Открепить' : 'Закрепить';
+                const pin = $('note-pin-btn');
+                pin.classList.toggle('active', this.pinned);
+                pin.title = this.pinned ? 'Открепить' : 'Закрепить';
                 $('note-close-btn').disabled = this.pinned;
                 store.set(KEYS.notePinned, this.pinned ? '1' : '0');
             },
         };
 
-        // ================= Python (Web Worker, Replay Input) =================
+        // ================= Python (Web Worker) =================
 
         const Py = {
-            worker: null, url: null, ready: false, running: false,
-            runTimer: 0, initTimer: 0, inputs: []
+            worker: null, url: null, ready: false, running: false, version: '',
+            runTimer: 0, killTimer: 0, initTimer: 0, guardTimer: 0,
+            stopReason: null,
+            // Данные текущего запуска (снимок на момент нажатия "Запустить")
+            code: '', filename: 'main.py', seed: 0, inputs: [],
+            // Состояние повторного запуска
+            replayReady: false, answered: false, replayOnReady: false, pendingClear: false,
+            sab: null,
         };
 
+        if (SAB_OK) {
+            Py.sab = {
+                ctl: new SharedArrayBuffer(8),
+                data: new SharedArrayBuffer(CONFIG.STDIN_BYTES),
+                interrupt: new SharedArrayBuffer(1),
+            };
+        }
+
         function setStatus(kind, text) {
-            const el = $('py-status');
             const icons = {
                 loading: 'ph ph-spinner-gap spin',
                 ready: 'ph-fill ph-check-circle',
                 error: 'ph ph-x-circle',
                 running: 'ph-fill ph-play-circle',
             };
+            const el = $('py-status');
             el.className = 'status-item ' + kind;
             el.replaceChildren(icon(icons[kind]), document.createTextNode(' ' + text));
+        }
+
+        function setReadyStatus() {
+            setStatus('ready', Py.version ? `Python готов · Pyodide ${Py.version}` : 'Python готов');
         }
 
         function updateRunButtons() {
@@ -1174,8 +1255,7 @@ self.onmessage = (e) => {
                 $('progress-text').textContent = Math.floor(this.progress) + '%';
             },
             show() {
-                const bar = $('progress-bar');
-                bar.classList.remove('failed');
+                $('progress-bar').classList.remove('failed');
                 $('loading-title').textContent = 'Загрузка Python';
                 $('retry-btn').hidden = true;
                 this.progress = 0;
@@ -1228,8 +1308,12 @@ self.onmessage = (e) => {
             setStatus('loading', overlay ? 'Загрузка Python...' : 'Перезапуск Python...');
             if (overlay) Overlay.show();
 
-            const src = $('py-worker-src').textContent;
-            Py.url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+            if (Py.sab) {
+                Atomics.store(new Int32Array(Py.sab.ctl), 0, 0);
+                new Uint8Array(Py.sab.interrupt)[0] = 0;
+            }
+
+            Py.url = URL.createObjectURL(new Blob([$('py-worker-src').textContent], { type: 'text/javascript' }));
 
             let w;
             try {
@@ -1240,6 +1324,7 @@ self.onmessage = (e) => {
             }
             Py.worker = w;
 
+            // Сообщения от уже убитого воркера игнорируем
             w.onmessage = (e) => { if (w === Py.worker) handleWorkerMessage(e.data); };
             w.onerror = (e) => {
                 if (w !== Py.worker) return;
@@ -1252,8 +1337,17 @@ self.onmessage = (e) => {
             w.postMessage({
                 type: 'init',
                 indexURL: CONFIG.PYODIDE_URL,
+                sab: Py.sab,
                 maxOutput: CONFIG.MAX_OUTPUT_CHARS,
             });
+        }
+
+        // В режиме повтора консоль очищается, только когда пришёл новый вывод (без мигания)
+        function takePendingClear() {
+            if (Py.pendingClear) {
+                Py.pendingClear = false;
+                Out.clear();
+            }
         }
 
         function handleWorkerMessage(m) {
@@ -1261,14 +1355,21 @@ self.onmessage = (e) => {
                 case 'ready':
                     clearTimeout(Py.initTimer);
                     Py.ready = true;
-                    setStatus('ready', `Python готов · Pyodide ${m.version}`);
+                    Py.version = m.version;
                     Overlay.done();
+                    if (Py.running && Py.replayOnReady) {
+                        Py.replayOnReady = false;
+                        sendReplay();
+                    } else {
+                        setReadyStatus();
+                    }
                     updateRunButtons();
                     break;
                 case 'init_error':
                     onInitFailed(m.text);
                     break;
                 case 'out': {
+                    takePendingClear();
                     const cls = m.kind === 'stderr' ? 'output-error' : m.kind === 'echo' ? 'output-input' : '';
                     Out.write(m.text, cls);
                     break;
@@ -1279,24 +1380,37 @@ self.onmessage = (e) => {
                 case 'started':
                     if (Py.running) startRunTimer();
                     break;
-                case 'need_input':
-                    clearTimeout(Py.runTimer); // Пауза таймаута, пока пользователь думает
-                    setTimeout(() => {
-                        const val = prompt(m.prompt || 'Введите данные:');
-                        if (val === null) {
-                            Py.inputs.push("\x00EOF\x00");
+                case 'input_request': // режим SharedArrayBuffer
+                    clearTimeout(Py.runTimer);
+                    askInput((val) => {
+                        answerSab(val);
+                        startRunTimer();
+                    });
+                    break;
+                case 'need_input': // режим повтора
+                    clearTimeout(Py.runTimer);
+                    askInput((val) => {
+                        Py.inputs.push(val);
+                        Py.answered = true;
+                        if (Py.replayReady) {
+                            sendReplay();
                         } else {
-                            Py.inputs.push(val);
+                            // Программа перехватила остановку (например, голым except:) и продолжает работать
+                            clearTimeout(Py.guardTimer);
+                            Py.guardTimer = setTimeout(restartForReplay, CONFIG.REPLAY_GUARD_MS);
                         }
-                        Out.clear(); // Очищаем консоль перед быстрым перезапуском
-                        Py.worker.postMessage({ type: 'run', code: editor.getValue(), inputs: Py.inputs, isReplay: true });
-                        startRunTimer(); // Возобновляем таймаут
-                    }, 50);
+                    });
+                    break;
+                case 'replay_ready':
+                    Py.replayReady = true;
+                    if (Py.answered) sendReplay();
                     break;
                 case 'done':
+                    takePendingClear();
                     onRunFinished(m.code);
                     break;
                 case 'run_error':
+                    takePendingClear();
                     Out.write('\n[Внутренняя ошибка]: ' + m.text + '\n', 'output-error', true);
                     finishRun();
                     startWorker();
@@ -1319,24 +1433,79 @@ self.onmessage = (e) => {
             startWorker();
         }
 
+        // ---- Ввод через prompt() ----
+
+        function askInput(cb) {
+            setStatus('running', 'Ожидание ввода...');
+            const text = Out.lastLine().slice(-200) || 'Введите данные:';
+            // Небольшая пауза, чтобы терминал успел отрисоваться до модального окна
+            setTimeout(() => {
+                if (!Py.running) return;
+                const val = window.prompt(text, '');
+                setStatus('running', 'Выполняется...');
+                cb(val); // null = "Отмена" -> EOFError в Python
+            }, 50);
+        }
+
+        function answerSab(val) {
+            const ctl = new Int32Array(Py.sab.ctl);
+            if (val === null) {
+                Atomics.store(ctl, 0, 2);
+            } else {
+                let bytes = new TextEncoder().encode(val);
+                if (bytes.length > CONFIG.STDIN_BYTES) bytes = bytes.subarray(0, CONFIG.STDIN_BYTES);
+                new Uint8Array(Py.sab.data).set(bytes);
+                Atomics.store(ctl, 1, bytes.length);
+                Atomics.store(ctl, 0, 1);
+            }
+            Atomics.notify(ctl, 0);
+        }
+
+        function sendReplay() {
+            if (!Py.running || !Py.worker) return;
+            clearTimeout(Py.guardTimer);
+            Py.replayReady = false;
+            Py.answered = false;
+            Py.pendingClear = true;
+            setStatus('running', 'Выполняется...');
+            Py.worker.postMessage({
+                type: 'run', code: Py.code, filename: Py.filename, seed: Py.seed, inputs: Py.inputs,
+            });
+        }
+
+        function restartForReplay() {
+            if (!Py.running) return;
+            Py.replayReady = false;
+            Py.replayOnReady = true;
+            startWorker(); // после 'ready' повтор отправится автоматически
+        }
+
         // ---- Запуск и остановка ----
 
         function startRunTimer() {
             clearTimeout(Py.runTimer);
             Py.runTimer = setTimeout(() => {
+                takePendingClear();
                 Out.write(
                     `\n[ОШИБКА]: Превышено время выполнения (${CONFIG.TIMEOUT_MS / 1000} с).\n` +
                     'Возможно, в коде бесконечный цикл. Измените его и попробуйте снова.\n',
                     'output-error', true
                 );
-                hardKill('timeout');
+                interruptRun('timeout');
             }, CONFIG.TIMEOUT_MS);
         }
 
         function finishRun() {
             clearTimeout(Py.runTimer);
+            clearTimeout(Py.killTimer);
+            clearTimeout(Py.guardTimer);
             Py.running = false;
-            if (Py.ready) setStatus('ready', 'Python готов');
+            Py.stopReason = null;
+            Py.replayReady = false;
+            Py.answered = false;
+            Py.replayOnReady = false;
+            Py.pendingClear = false;
+            if (Py.ready) setReadyStatus();
             updateRunButtons();
         }
 
@@ -1351,6 +1520,20 @@ self.onmessage = (e) => {
                 Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
             } else {
                 Out.write(`\n[Программа завершилась с кодом ${code}]\n`, 'output-error', true);
+            }
+        }
+
+        function interruptRun(reason) {
+            if (!Py.running) return;
+            Py.stopReason = reason;
+            clearTimeout(Py.runTimer);
+            if (Py.sab && Py.ready) {
+                // Мягкая остановка через KeyboardInterrupt, Python не перезагружается
+                new Uint8Array(Py.sab.interrupt)[0] = 2;
+                clearTimeout(Py.killTimer);
+                Py.killTimer = setTimeout(() => hardKill(reason), CONFIG.INTERRUPT_GRACE_MS);
+            } else {
+                hardKill(reason);
             }
         }
 
@@ -1371,7 +1554,6 @@ self.onmessage = (e) => {
             const code = editor.getValue();
             if (!code.trim()) return;
 
-            // Статический анализ на бесконечные циклы
             const problems = detectInfiniteLoops(code);
             if (problems.length) {
                 const list = problems.map(p => `  • строка ${p.line}:  ${p.code}`).join('\n');
@@ -1392,14 +1574,22 @@ self.onmessage = (e) => {
             }
 
             Out.clear();
+            const tab = Tabs.getActive();
+            Py.code = code;
+            Py.filename = (tab && tab.name) || 'main.py';
+            Py.seed = crypto.getRandomValues(new Uint32Array(1))[0];
+            Py.inputs = [];
             Py.running = true;
             Py.stopReason = null;
-            Py.inputs = []; // Сброс истории ввода
-            
+            Py.replayReady = false;
+            Py.answered = false;
+            Py.replayOnReady = false;
+            Py.pendingClear = false;
+
             setStatus('running', 'Выполняется...');
             updateRunButtons();
 
-            Py.worker.postMessage({ type: 'run', code, inputs: [] });
+            Py.worker.postMessage({ type: 'run', code, filename: Py.filename, seed: Py.seed, inputs: [] });
         }
 
         // ================= Статический анализ =================
@@ -1512,12 +1702,11 @@ self.onmessage = (e) => {
 
         function downloadCode() {
             const t = Tabs.getActive();
-            const name = (t && t.name) || 'main.py';
             const blob = new Blob([editor.getValue()], { type: 'text/x-python;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = name;
+            a.download = (t && t.name) || 'main.py';
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -1533,10 +1722,6 @@ self.onmessage = (e) => {
                 i.className = 'ph ph-x';
             }
             setTimeout(() => { i.className = 'ph ph-copy'; }, 1500);
-        }
-
-        function clearOutput() {
-            Out.clear();
         }
 
         function applyTheme(theme) {
@@ -1562,23 +1747,24 @@ self.onmessage = (e) => {
                 return;
             }
             const reader = new FileReader();
-            reader.onload = () => {
-                editor.setValue(String(reader.result));
-                editor.focus();
-            };
+            reader.onload = () => Tabs.add(file.name, String(reader.result));
             reader.onerror = () => Out.write('Не удалось прочитать файл.\n', 'output-error', true);
             reader.readAsText(file, 'utf-8');
+        }
+
+        function saveAll() {
+            Tabs.saveNow();
+            Note.save();
         }
 
         // ================= Инициализация =================
 
         function init() {
             Out.el = $('output');
-
             applyTheme(document.documentElement.getAttribute('data-theme'));
 
             editor = CodeMirror.fromTextArea($('code-editor'), {
-                mode: { name: 'python', version: 3 },
+                mode: MODE,
                 theme: 'custom',
                 lineNumbers: true,
                 autoCloseBrackets: true,
@@ -1606,31 +1792,18 @@ self.onmessage = (e) => {
             Tabs.init();
             $('tab-add-btn').addEventListener('click', () => Tabs.add());
 
-            editor.on('change', () => {
-                if (syncingEditor) return;
-                Tabs.setCode(editor.getValue());
-            });
-            window.addEventListener('pagehide', () => {
-                Tabs.saveCursor();
-                Tabs.saveNow();
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    Tabs.saveCursor();
-                    Tabs.saveNow();
-                }
-            });
+            window.addEventListener('pagehide', saveAll);
+            document.addEventListener('visibilitychange', () => { if (document.hidden) saveAll(); });
 
-            let typingTimer = 0;
+            // Подсветка при наборе и автоподсказки (вне строк и комментариев)
             const ec = $('editor-container');
-            editor.on('inputRead', () => {
+            let typingTimer = 0;
+            let hintTimeout = 0;
+            editor.on('inputRead', (cm, change) => {
                 ec.classList.add('typing');
                 clearTimeout(typingTimer);
                 typingTimer = setTimeout(() => ec.classList.remove('typing'), 700);
-            });
 
-            let hintTimeout = 0;
-            editor.on('inputRead', (cm, change) => {
                 if (!/^[A-Za-z_]/.test(change.text[0] || '')) return;
                 const type = cm.getTokenTypeAt(cm.getCursor()) || '';
                 if (/string|comment/.test(type)) return;
@@ -1657,9 +1830,9 @@ self.onmessage = (e) => {
                 e.target.value = '';
             });
             $('download-btn').addEventListener('click', downloadCode);
-            $('clear-btn').addEventListener('click', clearOutput);
+            $('clear-btn').addEventListener('click', () => Out.clear());
             $('run-btn').addEventListener('click', runPython);
-            $('stop-btn').addEventListener('click', () => hardKill('user'));
+            $('stop-btn').addEventListener('click', () => interruptRun('user'));
             $('copy-btn').addEventListener('click', copyOutput);
             $('retry-btn').addEventListener('click', () => startWorker({ overlay: true }));
 
@@ -1667,8 +1840,8 @@ self.onmessage = (e) => {
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !editor.hasFocus()) {
-                    const tag = e.target.tagName;
-                    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+                    const t = e.target;
+                    if (t.tagName !== 'INPUT' && t.tagName !== 'TEXTAREA' && !t.isContentEditable) {
                         e.preventDefault();
                         runPython();
                     }
@@ -1681,6 +1854,7 @@ self.onmessage = (e) => {
                 resizeRaf = requestAnimationFrame(() => editor.refresh());
             });
             setTimeout(() => editor.refresh(), 100);
+            editor.focus();
 
             startWorker({ overlay: true });
         }
