@@ -136,49 +136,54 @@
         #py-status.ready { color: var(--success); }
 
         /* =====================================================================
-           НОВЫЕ ПАНЕЛИ И КНОПКИ (FAB)
+           НОВЫЕ КНОПКИ (ПЛОСКИЕ, СНИЗУ)
            ===================================================================== */
         
-        /* Контейнер для кнопок справа снизу */
-        .fab-container {
+        .bottom-bar {
             position: fixed;
-            bottom: 40px;
-            right: 30px;
+            bottom: 40px; /* Чуть выше футера */
+            right: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 1500; /* Выше панелей, чтобы кнопки всегда были доступны */
+            gap: 12px;
+            z-index: 1500;
         }
 
-        .fab-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
+        .flat-btn {
+            height: 40px;
+            padding: 0 20px;
+            border-radius: 8px; /* Чуть скругленные */
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 28px;
+            gap: 8px;
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            transition: transform 0.2s, background 0.2s;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
-        .fab-btn:hover { transform: scale(1.05); }
+        .flat-btn i { font-size: 20px; }
 
-        .fab-ai {
-            background: var(--accent);
-            color: #111;
+        .flat-btn:hover {
+            transform: translateY(-2px);
+            background: var(--bg-surface-hover);
         }
-        .fab-ai:hover { background: var(--accent-hover); }
 
-        .fab-tasks {
-            background: var(--task-color);
-            color: #111;
+        .btn-ai:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
-        .fab-tasks:hover { background: #34d399; }
 
-        /* Затемнение фона (оверлей) */
+        .btn-tasks:hover {
+            border-color: var(--task-color);
+            color: var(--task-color);
+        }
+
+        /* Затемнение фона */
         .drawer-overlay {
             position: fixed;
             top: 0;
@@ -199,7 +204,7 @@
             visibility: visible;
         }
 
-        /* Сами панели, выезжающие сбоку */
+        /* Выезжающие панели */
         .side-panel {
             position: fixed;
             top: 0;
@@ -273,8 +278,12 @@
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
             .side-panel { width: 100%; }
-            .fab-container { bottom: 20px; right: 20px; }
-            .fab-btn { width: 50px; height: 50px; font-size: 24px; }
+            
+            /* На телефонах прячем текст у кнопок, оставляем только иконки */
+            .bottom-bar { bottom: 20px; right: 10px; left: 10px; justify-content: flex-end; }
+            .flat-btn { padding: 0 12px; font-size: 13px; }
+            .flat-btn span { display: none; }
+            .flat-btn i { font-size: 24px; }
         }
     </style>
 </head>
@@ -381,13 +390,13 @@ asyncio.ensure_future(get_currency())
         </div>
     </div>
 
-    <!-- Кнопки запуска панелей (FAB) -->
-    <div class="fab-container">
-        <button class="fab-btn fab-tasks" onclick="openPanel('tasks-panel')" title="Практика">
-            <i class="ph ph-notebook"></i>
+    <!-- Плоские кнопки внизу -->
+    <div class="bottom-bar">
+        <button class="flat-btn btn-tasks" onclick="openPanel('tasks-panel')" title="Практика">
+            <i class="ph ph-notebook"></i> <span>Практика</span>
         </button>
-        <button class="fab-btn fab-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
-            <i class="ph-fill ph-robot"></i>
+        <button class="flat-btn btn-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
+            <i class="ph-fill ph-robot"></i> <span>ИИ-Наставник</span>
         </button>
     </div>
 
@@ -426,14 +435,10 @@ asyncio.ensure_future(get_currency())
 
         // --- ЛОГИКА ПАНЕЛЕЙ ---
         function openPanel(panelId) {
-            // Закрываем все открытые панели сначала
             document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
-            
-            // Открываем нужную
             document.getElementById(panelId).classList.add('open');
             document.getElementById('drawer-overlay').classList.add('active');
             
-            // Фокус на поле ввода, если это ИИ
             if (panelId === 'ai-panel') {
                 setTimeout(() => document.getElementById('ai-input').focus(), 300);
                 scrollToAIBottom();
