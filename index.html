@@ -1024,12 +1024,13 @@ self.onmessage = (e) => {
             },
         };
 
-        // ================= Python (Web Worker) =================
+        // ================= Python (Web Worker или Main Thread) =================
 
         const Py = {
             worker: null, url: null, ready: false, running: false,
             waitingInput: false, stopReason: null, stdinEof: false,
             runTimer: 0, killTimer: 0, initTimer: 0, sab: null,
+            main: { pyodide: null }
         };
 
         if (SAB_OK) {
@@ -1056,7 +1057,7 @@ self.onmessage = (e) => {
             const runBtn = $('run-btn');
             runBtn.hidden = Py.running;
             runBtn.disabled = !Py.ready;
-            $('stop-btn').hidden = !Py.running;
+            $('stop-btn').hidden = !Py.running || !SAB_OK; // Скрываем стоп, если нет SAB
         }
 
         const Overlay = {
@@ -1156,6 +1157,58 @@ self.onmessage = (e) => {
             });
         }
 
+        async function startMainThreadPy({ overlay = false } = {}) {
+            if (Py.main.pyodide) {
+                Py.ready = true;
+                updateRunButtons();
+                setStatus('ready', 'Python готов');
+                if (overlay) Overlay.done();
+                return;
+            }
+
+            Py.ready = false;
+            updateRunButtons();
+            setStatus('loading', 'Загрузка Python...');
+            if (overlay) Overlay.show();
+
+            try {
+                if (!window.loadPyodide) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = CONFIG.PYODIDE_URL + 'pyodide.js';
+                        script.onload = resolve;
+                        script.onerror = () => reject(new Error('Ошибка загрузки скрипта Pyodide'));
+                        document.head.appendChild(script);
+                    });
+                }
+
+                const py = await loadPyodide({ indexURL: CONFIG.PYODIDE_URL });
+
+                py.setStdout({ batched: (msg) => Out.write(msg) });
+                py.setStderr({ batched: (msg) => Out.write(msg, 'output-error') });
+                py.setStdin({
+                    stdin: () => {
+                        const text = Out.el.textContent || '';
+                        const lastLine = text.split('\n').pop().trim();
+                        const promptText = lastLine || 'Введите данные:';
+                        const val = prompt(promptText);
+                        const eof = val === null;
+                        Out.write(eof ? '^D\n' : val + '\n', 'output-input', true);
+                        return eof ? undefined : val + '\n';
+                    }
+                });
+
+                Py.main.pyodide = py;
+                Py.ready = true;
+                setStatus('ready', 'Python готов');
+                Overlay.done();
+                updateRunButtons();
+            } catch (err) {
+                setStatus('error', 'Ошибка загрузки');
+                Overlay.fail('Не удалось загрузить Python: ' + err.message);
+            }
+        }
+
         function handleWorkerMessage(m) {
             switch (m.type) {
                 case 'ready':
@@ -1218,7 +1271,6 @@ self.onmessage = (e) => {
 
         function askInput() {
             Out.flush();
-
             const text = Out.el.textContent || '';
             const lastLine = text.split('\n').pop().trim();
             const promptText = lastLine || 'Введите данные:';
@@ -1311,7 +1363,19 @@ self.onmessage = (e) => {
             finishRun();
             if (reason === 'user') Out.write('\n[Выполнение прервано пользователем]\n', 'output-error', true);
             Out.write('[Python перезапускается...]\n', 'output-info', true);
-            startWorker();
+            if (SAB_OK) startWorker();
+            else startMainThreadPy();
+        }
+
+        async function runMainThread(code) {
+            try {
+                await Py.main.pyodide.runPythonAsync(code);
+                Out.write('\n[Программа успешно завершена]\n', 'output-success', true);
+            } catch (err) {
+                Out.write('\n[Ошибка выполнения]:\n' + (err.message || err) + '\n', 'output-error', true);
+            } finally {
+                finishRun();
+            }
         }
 
         function runPython() {
@@ -1329,7 +1393,9 @@ self.onmessage = (e) => {
                 const runAnyway = confirm(
                     '⚠️ Обнаружен бесконечный цикл!\n\n' + list + '\n\n' +
                     'В этом цикле нет break / return / raise / exit, поэтому он никогда не завершится.\n\n' +
-                    `OK — всё равно запустить (выполнение остановится через ${CONFIG.TIMEOUT_MS / 1000} с),\n` +
+                    (SAB_OK
+                        ? `OK — всё равно запустить (выполнение остановится через ${CONFIG.TIMEOUT_MS / 1000} с),\n`
+                        : 'OK — всё равно запустить (ВНИМАНИЕ: страница зависнет, так как сайт не поддерживает Worker!)\n') +
                     'Отмена — вернуться к редактированию.'
                 );
                 if (!runAnyway) {
@@ -1349,11 +1415,11 @@ self.onmessage = (e) => {
             setStatus('running', 'Выполняется...');
             updateRunButtons();
 
-            Py.worker.postMessage({
-                type: 'run',
-                code,
-                stdin: null,
-            });
+            if (SAB_OK) {
+                Py.worker.postMessage({ type: 'run', code, stdin: null });
+            } else {
+                runMainThread(code);
+            }
         }
 
         // ================= Статический анализ =================
@@ -1555,11 +1621,9 @@ self.onmessage = (e) => {
                 },
             });
 
-            // Вкладки
             Tabs.init();
             $('tab-add-btn').addEventListener('click', () => Tabs.add());
 
-            // Сохранение кода при изменении
             editor.on('change', () => {
                 if (syncingEditor) return;
                 Tabs.setCode(editor.getValue());
@@ -1575,7 +1639,6 @@ self.onmessage = (e) => {
                 }
             });
 
-            // Эффект свечения при наборе
             let typingTimer = 0;
             const ec = $('editor-container');
             editor.on('inputRead', () => {
@@ -1584,7 +1647,6 @@ self.onmessage = (e) => {
                 typingTimer = setTimeout(() => ec.classList.remove('typing'), 700);
             });
 
-            // Автоподсказки
             let hintTimeout = 0;
             editor.on('inputRead', (cm, change) => {
                 if (!/^[A-Za-z_]/.test(change.text[0] || '')) return;
@@ -1599,16 +1661,13 @@ self.onmessage = (e) => {
                 $('cursor-position').textContent = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
             });
 
-            // Размер шрифта
             applyFontSize(store.get(KEYS.font) || 15);
             $('font-size-slider').addEventListener('input', (e) => {
                 store.set(KEYS.font, String(applyFontSize(e.target.value)));
             });
 
-            // Заметка
             Note.init();
 
-            // Кнопки
             $('theme-select').addEventListener('change', (e) => applyTheme(e.target.value));
             $('open-btn').addEventListener('click', () => $('file-upload').click());
             $('file-upload').addEventListener('change', (e) => {
@@ -1620,17 +1679,19 @@ self.onmessage = (e) => {
             $('run-btn').addEventListener('click', runPython);
             $('stop-btn').addEventListener('click', () => interruptRun('user'));
             $('copy-btn').addEventListener('click', copyOutput);
-            $('retry-btn').addEventListener('click', () => startWorker({ overlay: true }));
+            $('retry-btn').addEventListener('click', () => {
+                if (SAB_OK) startWorker({ overlay: true });
+                else startMainThreadPy({ overlay: true });
+            });
 
-            // Ripple на кнопки
             document.querySelectorAll('button').forEach(attachRipple);
 
             if (SAB_OK) {
-                $('input-mode').textContent = 'input() через диалог';
-                $('input-mode').title = 'Ввод данных программы идёт через стандартное окно браузера';
+                $('input-mode').textContent = 'input() через диалог (Worker)';
+                $('input-mode').title = 'Быстрый режим с таймаутом и защитой от зависаний';
             } else {
-                $('input-mode').textContent = 'input() недоступен';
-                $('input-mode').title = 'Для интерактивного input() сайт должен отдаваться с заголовками COOP/COEP';
+                $('input-mode').textContent = 'input() через диалог (Медленный режим)';
+                $('input-mode').title = 'Сайт не поддерживает SharedArrayBuffer. Python работает прямо на странице. Вкладка может зависнуть.';
             }
 
             document.addEventListener('keydown', (e) => {
@@ -1650,7 +1711,11 @@ self.onmessage = (e) => {
             });
             setTimeout(() => editor.refresh(), 100);
 
-            startWorker({ overlay: true });
+            if (SAB_OK) {
+                startWorker({ overlay: true });
+            } else {
+                startMainThreadPy({ overlay: true });
+            }
         }
 
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
