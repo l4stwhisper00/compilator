@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Питон в браузере | Онлайн-компилятор Python</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
@@ -31,16 +31,16 @@
             --bg-panel: rgba(22, 22, 28, 0.75);
             --bg-surface: #18181f;
             --bg-surface-hover: #272732;
-            --text-primary: #a9b7c6; 
+            --text-primary: #a9b7c6;
             --text-secondary: #767e8c;
-            --accent: #ff9d5c; 
+            --accent: #ff9d5c;
             --accent-hover: #ffb07a;
             --border: rgba(255, 255, 255, 0.08);
             --console-bg: rgba(15, 15, 18, 0.85);
             --success: #6a8759;
             --error: #ff5252;
             --task-color: #10b981;
-            
+
             --syn-keyword: #ff9d5c;
             --syn-string: #98c379;
             --syn-number: #61afef;
@@ -48,8 +48,8 @@
             --syn-def: #e5c07b;
             --syn-builtin: #ff9d5c;
             --syn-variable: #a9b7c6;
-            --syn-property: #56b6c2; 
-            
+            --syn-property: #56b6c2;
+
             --editor-font-size: 15px;
         }
 
@@ -79,11 +79,11 @@
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .icon-btn { padding: 8px; }
         button.run-btn { background: var(--accent); color: #111; border: none; box-shadow: 0 0 10px rgba(255, 157, 92, 0.3); font-weight: 600; padding: 8px 16px; }
-        button.run-btn:hover { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
-        
+        button.run-btn:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 0 15px rgba(255, 157, 92, 0.5); }
+
         button.stop-btn { background: var(--error); color: #fff; border: none; box-shadow: 0 0 10px rgba(255, 82, 82, 0.3); font-weight: 600; padding: 8px 16px; display: none; }
         button.stop-btn:hover { background: #d32f2f; box-shadow: 0 0 15px rgba(255, 82, 82, 0.5); }
-        
+
         .font-size-control { display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 0 12px; border-radius: 8px; height: 35px; }
         .font-size-control span { font-size: 13px; font-weight: 600; color: var(--text-secondary); min-width: 35px; text-align: center; }
         input[type=range] { -webkit-appearance: none; width: 80px; background: transparent; cursor: pointer; }
@@ -195,10 +195,11 @@
         .panel-topbar .close-btn:hover { color: var(--error); }
 
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; word-break: break-word; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
         .message.ai { align-self: flex-start; background: rgba(255, 157, 92, 0.1); border: 1px solid rgba(255, 157, 92, 0.3); color: var(--text-primary); border-bottom-left-radius: 4px; }
         .message.ai strong { color: var(--accent); }
+        .message code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 13px; }
 
         .ai-input-area { padding: 15px; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; gap: 10px; }
         .ai-input-area input { flex: 1; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; color: var(--text-primary); outline: none; font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -212,6 +213,7 @@
         .task-search-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); outline: none; }
         .task-search-area input:focus { border-color: var(--task-color); }
         .task-search-area button { background: var(--task-color); color: #111; border: none; border-radius: 8px; padding: 0 15px; font-weight: 600; cursor: pointer; }
+        .task-search-area button:disabled { opacity: 0.5; cursor: not-allowed; }
         .task-item { background: var(--bg-surface-hover); padding: 15px; border-radius: 8px; border-left: 3px solid var(--task-color); font-size: 14px; line-height: 1.4; }
         .task-item strong { color: var(--task-color); }
 
@@ -241,7 +243,7 @@
             <button class="icon-btn" onclick="document.getElementById('file-upload').click()" title="Открыть файл .py"><i class="ph ph-folder-open"></i></button>
             <button class="icon-btn" onclick="downloadCode()" title="Скачать код"><i class="ph ph-download-simple"></i></button>
             <button onclick="clearOutput()" title="Очистить консоль"><i class="ph ph-trash"></i> Очистить</button>
-            
+
             <button id="run-btn" class="run-btn" onclick="runPython()" disabled><i class="ph-fill ph-play"></i> Запустить</button>
             <button id="stop-btn" class="stop-btn" onclick="stopExecution()"><i class="ph-fill ph-stop"></i> Стоп</button>
         </div>
@@ -275,7 +277,7 @@ else:
     </main>
 
     <footer>
-        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></span></div>
+        <div class="status-left"><span class="status-item" id="py-status"><i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...</span></div>
         <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
@@ -334,27 +336,88 @@ else:
         let worker = null;
         let executionTimer = null;
         let pyodideReady = false;
+        let progressInterval = null;
         const TIMEOUT_MS = 5000;
 
-        const PROXY_URL = "https://text.pollinations.ai/openai"; 
+        const PROXY_URL = "https://text.pollinations.ai/openai";
         const AI_MODEL = "openai";
 
-        // Код для Web Worker (загружаем Pyodide с unpkg)
+        // ---- Утилиты ----
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        // ---- Статический анализ на бесконечные циклы ----
+
+        function detectInfiniteLoops(code) {
+            // Убираем строки и комментарии, чтобы не ловить слова в них
+            const stripped = code
+                .replace(/"""[\s\S]*?"""/g, '""')
+                .replace(/'''[\s\S]*?'''/g, "''")
+                .replace(/"[^"\n]*"/g, '""')
+                .replace(/'[^'\n]*'/g, "''")
+                .replace(/#[^\n]*/g, '');
+
+            const strippedLines = stripped.split('\n');
+            const originalLines = code.split('\n');
+            const problems = [];
+
+            for (let i = 0; i < strippedLines.length; i++) {
+                const line = strippedLines[i];
+                const match = line.match(/^(\s*)while\s+(True|1|[1-9]\d*)\s*:/);
+                if (!match) continue;
+
+                const baseIndent = match[1].length;
+                let bodyEnd = strippedLines.length;
+                for (let j = i + 1; j < strippedLines.length; j++) {
+                    const l = strippedLines[j];
+                    if (l.trim() === '') continue;
+                    const indent = l.match(/^(\s*)/)[1].length;
+                    if (indent <= baseIndent) { bodyEnd = j; break; }
+                }
+
+                let hasExit = false;
+                for (let j = i + 1; j < bodyEnd; j++) {
+                    const t = strippedLines[j];
+                    if (/\b(break|return|raise|exit\s*\(|quit\s*\(|sys\.exit\s*\()/.test(t)) {
+                        hasExit = true;
+                        break;
+                    }
+                }
+
+                if (!hasExit) {
+                    problems.push({
+                        line: i + 1,
+                        code: (originalLines[i] || '').trim()
+                    });
+                }
+            }
+
+            return problems;
+        }
+
+        // ---- Web Worker ----
+
         const workerCode = `
+            self.pyodide = null;
+            self._resolveInput = null;
+
             self.onmessage = async (e) => {
                 if (e.data.type === 'init') {
                     try {
-                        // Используем unpkg, так как jsdelivr в РФ часто блочат
                         importScripts("https://unpkg.com/pyodide@0.26.1/pyodide.js");
-                        
-                        let pyodide = await loadPyodide({
+
+                        self.pyodide = await loadPyodide({
                             indexURL: "https://unpkg.com/pyodide@0.26.1/"
                         });
-                        
-                        pyodide.setStdout({ batched: (msg) => self.postMessage({ type: 'stdout', msg }) });
-                        pyodide.setStderr({ batched: (msg) => self.postMessage({ type: 'stderr', msg }) });
-                        
-                        pyodide.setStdin({
+
+                        self.pyodide.setStdout({ batched: (msg) => self.postMessage({ type: 'stdout', msg }) });
+                        self.pyodide.setStderr({ batched: (msg) => self.postMessage({ type: 'stderr', msg }) });
+
+                        self.pyodide.setStdin({
                             stdin: () => {
                                 return new Promise((resolve) => {
                                     self.postMessage({ type: 'input_request' });
@@ -362,14 +425,13 @@ else:
                                 });
                             }
                         });
-                        
+
                         self.postMessage({ type: 'ready' });
                     } catch (err) {
                         self.postMessage({ type: 'init_error', msg: err.message || "Не удалось загрузить Pyodide" });
                     }
                 } else if (e.data.type === 'run') {
                     try {
-                        // Запускаем код
                         await self.pyodide.runPythonAsync(e.data.code);
                         self.postMessage({ type: 'done' });
                     } catch (err) {
@@ -384,12 +446,14 @@ else:
             };
         `;
 
+        // ---- CodeMirror hints ----
+
         const pyKeywords = [
-            "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue", 
-            "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", 
+            "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
+            "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
             "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
-            "print", "input", "int", "float", "str", "list", "dict", "set", "tuple", "len", "range", "type", 
-            "sum", "max", "min", "abs", "round", "open", "enumerate", "zip", "map", "filter", "lower", "upper", 
+            "print", "input", "int", "float", "str", "list", "dict", "set", "tuple", "len", "range", "type",
+            "sum", "max", "min", "abs", "round", "open", "enumerate", "zip", "map", "filter", "lower", "upper",
             "append", "split", "join", "strip", "replace"
         ];
 
@@ -407,11 +471,13 @@ else:
             return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
+        // ---- Боковые панели ----
+
         function openPanel(panelId) {
             document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
             document.getElementById(panelId).classList.add('open');
             document.getElementById('drawer-overlay').classList.add('active');
-            
+
             if (panelId === 'ai-panel') {
                 setTimeout(() => document.getElementById('ai-input').focus(), 300);
                 scrollToAIBottom();
@@ -423,13 +489,15 @@ else:
             document.getElementById('drawer-overlay').classList.remove('active');
         }
 
+        // ---- Задания ----
+
         async function generateTasks() {
             const topic = document.getElementById('topic-input').value.trim();
             if (!topic) return;
 
             const listContainer = document.getElementById('task-list');
             const genBtn = document.getElementById('gen-btn');
-            
+
             listContainer.innerHTML = '<div style="text-align: center; color: var(--task-color);"><i class="ph ph-spinner-gap ph-spin"></i> Генерируем...</div>';
             genBtn.disabled = true;
 
@@ -456,30 +524,38 @@ else:
                 if (!data.choices || data.choices.length === 0) throw new Error("Нейросеть тупит");
 
                 const text = data.choices[0].message.content;
-                
-                listContainer.innerHTML = ''; 
+                const escaped = escapeHtml(text);
+
+                listContainer.innerHTML = '';
                 const taskDiv = document.createElement('div');
                 taskDiv.className = 'task-item';
-                taskDiv.innerHTML = text.replace(/\n/g, '<br><br>').replace(/(Задание \d+:?)/g, '<strong>$1</strong>');
+                taskDiv.innerHTML = escaped
+                    .replace(/\n/g, '<br><br>')
+                    .replace(/(Задание\s+\d+:?)/g, '<strong>$1</strong>');
                 listContainer.appendChild(taskDiv);
 
             } catch (err) {
-                listContainer.innerHTML = `<div style="color: var(--error);">Ошибка: ${err.message}</div>`;
+                listContainer.innerHTML = `<div style="color: var(--error);">Ошибка: ${escapeHtml(err.message)}</div>`;
             } finally {
                 genBtn.disabled = false;
             }
         }
+
+        // ---- ИИ-чат ----
 
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
         }
 
-        function addMessage(text, sender) {
+        function addMessage(text, sender, isHtml = false) {
             const msgs = document.getElementById('ai-messages');
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            div.innerHTML = text.replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>');
+            const content = isHtml ? text : escapeHtml(text);
+            div.innerHTML = content
+                .replace(/\n/g, '<br>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>');
             msgs.appendChild(div);
             scrollToAIBottom();
             return div;
@@ -494,8 +570,8 @@ else:
             addMessage(text, 'user');
 
             const currentCode = editor.getValue();
-            
-            const systemPrompt = `Ты — учитель информатики. Твой ответ должен быть коротким, понятным и написаным ТОЛЬКО обычным текстом. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать таблицы (символ |), сложный Markdown или списки с палками. 
+
+            const systemPrompt = `Ты — учитель информатики. Твой ответ должен быть коротким, понятным и написан ТОЛЬКО обычным текстом. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО использовать таблицы (символ |), сложный Markdown или списки с палками.
 Если у ученика есть ошибка в коде, объясни в чем она и как ее исправить. Если код правильный, просто скажи ему об этом. НЕ пиши готовый код за ученика.
 
 Код ученика:
@@ -505,7 +581,7 @@ ${currentCode}
 
             const sendBtn = document.getElementById('ai-send-btn');
             sendBtn.disabled = true;
-            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai');
+            const loadingDiv = addMessage('<i class="ph ph-spinner-gap ph-spin"></i> Думает...', 'ai', true);
 
             try {
                 const response = await fetch(PROXY_URL, {
@@ -530,74 +606,142 @@ ${currentCode}
                 addMessage(aiResponse, 'ai');
             } catch (err) {
                 loadingDiv.remove();
-                addMessage(`<span class="output-error">Ошибка: ${err.message}</span>`, 'ai');
+                addMessage(`Ошибка: ${err.message}`, 'ai');
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
             }
         }
 
-        function createWorker() {
+        // ---- Прогресс загрузки ----
+
+        function startProgressAnimation() {
+            if (progressInterval) clearInterval(progressInterval);
+            let progress = 0;
+            const bar = document.getElementById('progress-bar');
+            const txt = document.getElementById('progress-text');
+            progressInterval = setInterval(() => {
+                if (pyodideReady) { clearInterval(progressInterval); progressInterval = null; return; }
+                progress = Math.min(progress + Math.random() * 4 + 1, 92);
+                if (bar) bar.style.width = progress + '%';
+                if (txt) txt.innerText = Math.floor(progress) + '%';
+            }, 300);
+        }
+
+        // ---- Worker ----
+
+        function createWorker(showOverlay = false) {
             if (worker) worker.terminate();
-            
+
+            pyodideReady = false;
+            const runBtn = document.getElementById('run-btn');
+            if (runBtn) runBtn.disabled = true;
+            const statusEl = document.getElementById('py-status');
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> Загрузка Python...';
+                statusEl.className = 'status-item loading';
+            }
+
+            if (showOverlay) {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.classList.remove('hidden');
+                    const lt = document.querySelector('.loading-text');
+                    const ls = document.querySelector('.loading-subtext');
+                    const pb = document.getElementById('progress-bar');
+                    if (lt) lt.innerText = 'Загрузка Python';
+                    if (ls) ls.innerText = '0%';
+                    if (pb) { pb.style.background = ''; pb.style.width = '0%'; }
+                }
+                startProgressAnimation();
+            }
+
             const blob = new Blob([workerCode], { type: 'application/javascript' });
             worker = new Worker(URL.createObjectURL(blob));
-            
-            // Таймаут загрузки страницы (если воркер не ответит за 15 сек)
-            setTimeout(() => {
-                if (!pyodideReady) {
+
+            const overlayTimeout = setTimeout(() => {
+                if (!pyodideReady && showOverlay) {
                     const overlay = document.getElementById('loading-overlay');
-                    document.querySelector('.loading-text').innerText = "Ошибка загрузки";
-                    document.querySelector('.loading-subtext').innerText = "Не удалось загрузить Python. Проверьте интернет или VPN.";
-                    document.querySelector('.progress-bar').style.background = "var(--error)";
-                    overlay.classList.add('hidden'); // Убираем экран, чтобы можно было читать ошибку
+                    if (overlay && !overlay.classList.contains('hidden')) {
+                        const lt = document.querySelector('.loading-text');
+                        const ls = document.querySelector('.loading-subtext');
+                        const pb = document.getElementById('progress-bar');
+                        if (lt) lt.innerText = 'Ошибка загрузки';
+                        if (ls) ls.innerText = 'Не удалось загрузить Python. Проверьте интернет или VPN.';
+                        if (pb) pb.style.background = 'var(--error)';
+                    }
                 }
-            }, 15000);
+            }, 20000);
 
             worker.onmessage = function(e) {
                 const data = e.data;
                 const outputDiv = document.getElementById('output');
-                
+
                 if (data.type === 'ready') {
+                    clearTimeout(overlayTimeout);
                     pyodideReady = true;
-                    document.getElementById('py-status').innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
-                    document.getElementById('py-status').className = "status-item ready";
+
+                    if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+                    const pb = document.getElementById('progress-bar');
+                    const txt = document.getElementById('progress-text');
+                    if (pb) pb.style.width = '100%';
+                    if (txt) txt.innerText = '100%';
+
+                    const statusEl2 = document.getElementById('py-status');
+                    statusEl2.innerHTML = '<i class="ph-fill ph-check-circle"></i> Python готов';
+                    statusEl2.className = 'status-item ready';
                     document.getElementById('run-btn').disabled = false;
-                    
+
+                    const overlay = document.getElementById('loading-overlay');
+                    if (overlay) setTimeout(() => overlay.classList.add('hidden'), 250);
+
+                } else if (data.type === 'init_error') {
+                    clearTimeout(overlayTimeout);
+                    outputDiv.appendChild(createSpan("Ошибка инициализации: " + data.msg, true));
+                    scrollToBottom();
+
                     const overlay = document.getElementById('loading-overlay');
                     if (overlay) overlay.classList.add('hidden');
-                } else if (data.type === 'init_error') {
-                    outputDiv.appendChild(createSpan("Ошибка инициализации: " + data.msg, true));
-                    document.querySelector('.loading-text').innerText = "Ошибка загрузки";
-                    document.querySelector('.spinner').style.borderTopColor = "var(--error)";
+                    const lt = document.querySelector('.loading-text');
+                    if (lt) lt.innerText = 'Ошибка загрузки';
+
+                    const statusEl2 = document.getElementById('py-status');
+                    statusEl2.innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
+                    statusEl2.className = 'status-item';
+                    document.getElementById('run-btn').disabled = true;
+
                 } else if (data.type === 'stdout') {
                     outputDiv.appendChild(createSpan(data.msg, false));
                     scrollToBottom();
+
                 } else if (data.type === 'stderr') {
                     outputDiv.appendChild(createSpan(data.msg, true));
                     scrollToBottom();
+
                 } else if (data.type === 'input_request') {
                     clearTimeout(executionTimer);
-                    
-                    let lines = outputDiv.innerText.split('\n');
+
+                    const lines = outputDiv.innerText.split('\n');
                     let promptText = lines[lines.length - 1].trim();
                     if (!promptText) promptText = "Введите данные:";
-                    
+
                     setTimeout(() => {
                         let val = prompt(promptText);
                         if (val === null) val = "";
-                        
+
                         outputDiv.appendChild(createSpan(val + '\n', false));
                         scrollToBottom();
-                        
+
                         worker.postMessage({ type: 'input_response', value: val + '\n' });
                         startTimer();
                     }, 50);
+
                 } else if (data.type === 'done') {
                     clearTimeout(executionTimer);
                     finishExecution();
                     outputDiv.appendChild(createSpan('\n[Успешно завершено]', false, 'output-success'));
                     scrollToBottom();
+
                 } else if (data.type === 'error') {
                     clearTimeout(executionTimer);
                     finishExecution();
@@ -608,10 +752,17 @@ ${currentCode}
 
             worker.onerror = function(err) {
                 const outputDiv = document.getElementById('output');
-                outputDiv.appendChild(createSpan("Критическая ошибка воркера: " + err.message, true));
-                document.getElementById('py-status').innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
-                document.querySelector('.loading-text').innerText = "Ошибка загрузки";
-                document.querySelector('.progress-bar').style.background = "var(--error)";
+                outputDiv.appendChild(createSpan("Критическая ошибка воркера: " + (err.message || 'unknown'), true));
+
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.classList.add('hidden');
+
+                const statusEl2 = document.getElementById('py-status');
+                statusEl2.innerHTML = '<i class="ph ph-x-circle"></i> Ошибка загрузки';
+                statusEl2.className = 'status-item';
+                document.getElementById('run-btn').disabled = true;
+
+                finishExecution();
             };
 
             worker.postMessage({ type: 'init' });
@@ -628,44 +779,84 @@ ${currentCode}
         function startTimer() {
             clearTimeout(executionTimer);
             executionTimer = setTimeout(() => {
-                worker.terminate();
+                if (worker) worker.terminate();
                 finishExecution();
-                
+
                 const outputDiv = document.getElementById('output');
                 outputDiv.appendChild(createSpan(`\n\n[ОШИБКА]: Превышено время выполнения (${TIMEOUT_MS / 1000} секунд).\nВозможно, ваш код содержит бесконечный цикл. Пожалуйста, измените его.`, true));
                 scrollToBottom();
-                createWorker();
+
+                createWorker(false);
             }, TIMEOUT_MS);
         }
 
         function finishExecution() {
-            document.getElementById('run-btn').disabled = false;
+            clearTimeout(executionTimer);
             document.getElementById('run-btn').style.display = 'flex';
             document.getElementById('stop-btn').style.display = 'none';
         }
 
         function runPython() {
+            if (!pyodideReady) {
+                alert("Python ещё не загружен. Подождите немного и попробуйте снова.");
+                return;
+            }
+
             const code = editor.getValue();
+
+            // === Проверка на бесконечный цикл ===
+            const problems = detectInfiniteLoops(code);
+            if (problems.length > 0) {
+                const list = problems
+                    .map(p => `  • строка ${p.line}:  ${p.code}`)
+                    .join('\n');
+
+                const userSaidRunAnyway = confirm(
+                    `⚠️  Обнаружен бесконечный цикл!\n\n` +
+                    `${list}\n\n` +
+                    `В этом цикле нет break / return / exit, поэтому он никогда не завершится.\n\n` +
+                    `Пожалуйста, измените код.\n\n` +
+                    `Нажмите OK, чтобы всё равно запустить (на свой страх и риск),\n` +
+                    `или Отмена — чтобы вернуться к редактированию.`
+                );
+
+                if (!userSaidRunAnyway) {
+                    const outputDiv = document.getElementById('output');
+                    outputDiv.innerHTML = '';
+                    outputDiv.appendChild(createSpan(
+                        '⚠️  Запуск отменён: обнаружен бесконечный цикл\n', true
+                    ));
+                    outputDiv.appendChild(createSpan(
+                        `Строки: ${problems.map(p => p.line).join(', ')}\nИзмените код и попробуйте снова.\n`,
+                        false
+                    ));
+                    scrollToBottom();
+                    return;
+                }
+            }
+
             const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = "";
-            
+            outputDiv.innerHTML = '';
+
             document.getElementById('run-btn').style.display = 'none';
             document.getElementById('stop-btn').style.display = 'flex';
-            
+
             worker.postMessage({ type: 'run', code: code });
             startTimer();
         }
 
         function stopExecution() {
             if (worker) {
+                clearTimeout(executionTimer);
+                pyodideReady = false;
                 worker.terminate();
-                createWorker();
-                
+
                 const outputDiv = document.getElementById('output');
                 outputDiv.appendChild(createSpan('\n[ВЫПОЛНЕНИЕ ПРЕРВАНО ПОЛЬЗОВАТЕЛЕМ]', true));
                 scrollToBottom();
-                
+
                 finishExecution();
+                createWorker(false);
             }
         }
 
@@ -696,10 +887,30 @@ ${currentCode}
             });
         }
 
+        function changeTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('python_ide_theme', theme);
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = "";
+        }
+
+        // ---- Инициализация ----
+
         window.onload = function() {
+            // Тема
+            const savedTheme = localStorage.getItem('python_ide_theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                const sel = document.getElementById('theme-select');
+                if (sel) sel.value = savedTheme;
+            }
+
+            // Редактор
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "python",
-                theme: "custom", 
+                theme: "custom",
                 lineNumbers: true,
                 autoCloseBrackets: true,
                 matchBrackets: true,
@@ -728,6 +939,7 @@ ${currentCode}
                 }
             });
 
+            // Сохранённый код
             const savedCode = localStorage.getItem('python_ide_code');
             if (savedCode) editor.setValue(savedCode);
 
@@ -739,17 +951,19 @@ ${currentCode}
                 }, 500);
             });
 
+            // Загрузка файла
             document.getElementById('file-upload').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    editor.setValue(e.target.result);
-                    this.value = '';
+                reader.onload = function(ev) {
+                    editor.setValue(ev.target.result);
                 };
                 reader.readAsText(file);
+                e.target.value = '';
             });
 
+            // Размер шрифта
             const slider = document.getElementById('font-size-slider');
             const valDisplay = document.getElementById('font-size-val');
             const savedFontSize = localStorage.getItem('python_ide_font_size');
@@ -758,7 +972,6 @@ ${currentCode}
                 valDisplay.innerText = savedFontSize + 'px';
                 document.documentElement.style.setProperty('--editor-font-size', savedFontSize + 'px');
             }
-
             slider.addEventListener('input', function() {
                 const size = this.value;
                 valDisplay.innerText = size + 'px';
@@ -767,34 +980,34 @@ ${currentCode}
                 editor.refresh();
             });
 
-            let timeout;
+            // Автоподсказки
+            let hintTimeout;
             editor.on("inputRead", function(cm, change) {
                 if (change.text[0] && change.text[0].match(/[a-zA-Z_]/)) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
+                    clearTimeout(hintTimeout);
+                    hintTimeout = setTimeout(() => {
                         cm.showHint({ hint: smartHint, completeSingle: false });
                     }, 300);
                 }
             });
 
+            // Позиция курсора
             editor.on("cursorActivity", function(cm) {
-                let pos = cm.getCursor();
+                const pos = cm.getCursor();
                 document.getElementById("cursor-position").innerText = `Стр ${pos.line + 1}, Стлб ${pos.ch + 1}`;
+            });
+
+            // Escape закрывает панели
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeAllPanels();
             });
 
             setTimeout(() => editor.refresh(), 100);
             window.addEventListener('resize', () => editor.refresh());
-            
-            createWorker();
+
+            // Старт воркера с показом overlay
+            createWorker(true);
         };
-
-        function changeTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-        }
-
-        function clearOutput() {
-            document.getElementById('output').innerHTML = "";
-        }
     </script>
 </body>
 </html>
