@@ -136,81 +136,116 @@
         #py-status.ready { color: var(--success); }
 
         /* =====================================================================
-           НОВЫЕ ВКЛАДКИ (УЗКИЕ, КАК ЗАКЛАДКИ)
+           НОВЫЕ ПАНЕЛИ И КНОПКИ (FAB)
            ===================================================================== */
         
-        .drawer-wrapper {
+        /* Контейнер для кнопок справа снизу */
+        .fab-container {
             position: fixed;
-            right: 0;
+            bottom: 40px;
+            right: 30px;
             display: flex;
-            flex-direction: row-reverse; /* Вкладка справа, контент слева */
-            z-index: 1000;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1500; /* Выше панелей, чтобы кнопки всегда были доступны */
         }
 
-        .drawer-ai { top: 15vh; }
-        .drawer-tasks { bottom: 15vh; align-items: flex-end; }
-
-        /* Узкая вкладка, которая торчит */
-        .drawer-tab {
-            width: 24px; /* Узкая полоска */
-            height: 110px;
+        .fab-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
-            border-radius: 12px 0 0 12px;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.3);
-            transition: width 0.2s, background 0.2s;
-            z-index: 2;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-size: 18px;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background 0.2s;
         }
 
-        .drawer-ai .drawer-tab { background: var(--accent); color: #111; }
-        .drawer-ai .drawer-tab:hover { background: var(--accent-hover); width: 30px; }
-        
-        .drawer-tasks .drawer-tab { background: var(--task-color); color: #111; }
-        .drawer-tasks .drawer-tab:hover { background: #34d399; width: 30px; }
+        .fab-btn:hover { transform: scale(1.05); }
 
-        /* Сама панель, которая выезжает */
-        .drawer-content {
-            width: 380px;
-            height: 600px;
-            max-height: 70vh;
+        .fab-ai {
+            background: var(--accent);
+            color: #111;
+        }
+        .fab-ai:hover { background: var(--accent-hover); }
+
+        .fab-tasks {
+            background: var(--task-color);
+            color: #111;
+        }
+        .fab-tasks:hover { background: #34d399; }
+
+        /* Затемнение фона (оверлей) */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Сами панели, выезжающие сбоку */
+        .side-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
             background: var(--bg-panel);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-right: none;
-            border-radius: 12px 0 0 12px;
+            border-left: 1px solid var(--border);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            z-index: 1200;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1;
         }
 
-        /* При наведении на вкладку или на саму панель - выезжаем */
-        .drawer-wrapper:hover .drawer-content,
-        .drawer-content:hover {
+        .side-panel.open {
             transform: translateX(0);
         }
 
-        /* Мобильная логика (класс open добавляется по клику) */
-        .drawer-wrapper.open .drawer-content {
-            transform: translateX(0);
+        .panel-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
         }
 
-        /* Внутренности панелей */
-        .ai-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-surface); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-primary); }
-        .ai-header-left { display: flex; align-items: center; gap: 10px; }
-        .ai-header-left i { color: var(--accent); font-size: 20px; }
-        .ai-header .settings-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.2s; }
-        .ai-header .settings-btn:hover { color: var(--text-primary); }
+        .panel-topbar .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 24px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .panel-topbar .close-btn:hover { color: var(--error); }
 
+        /* Внутренности чата */
         .ai-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .message.user { align-self: flex-end; background: var(--bg-surface-hover); color: var(--text-primary); border-bottom-right-radius: 4px; }
@@ -224,7 +259,7 @@
         .ai-input-area button:hover { background: var(--accent-hover); }
         .ai-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* === ЗАДАНИЯ === */
+        /* Внутренности заданий */
         .tasks-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         .task-search-area { display: flex; gap: 10px; margin-bottom: 10px; }
         .task-search-area input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-primary); outline: none; }
@@ -237,11 +272,9 @@
             header { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
             .controls { flex-wrap: wrap; justify-content: center; }
             main { flex-direction: column; padding: 10px; gap: 10px; height: calc(100vh - 150px); }
-            
-            .drawer-content { width: calc(100vw - 50px); height: 70vh; }
-            .drawer-ai { top: 10vh; }
-            .drawer-tasks { bottom: 10vh; }
-            .drawer-tab { width: 30px; }
+            .side-panel { width: 100%; }
+            .fab-container { bottom: 20px; right: 20px; }
+            .fab-btn { width: 50px; height: 50px; font-size: 24px; }
         }
     </style>
 </head>
@@ -304,52 +337,58 @@ asyncio.ensure_future(get_currency())
         <div class="status-right"><span class="status-item" id="cursor-position">Стр 1, Стлб 1</span><span class="status-item">UTF-8</span><span class="status-item">Python 3</span></div>
     </footer>
 
-    <!-- Панель ИИ (Вкладка + Содержимое) -->
-    <div class="drawer-wrapper drawer-ai" id="ai-drawer">
-        <div class="drawer-tab" onclick="toggleMobilePanel('ai-drawer')">
-            <i class="ph-fill ph-robot"></i>
+    <!-- Оверлей (затемнение) -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeAllPanels()"></div>
+
+    <!-- Панель ИИ -->
+    <div class="side-panel" id="ai-panel">
+        <div class="panel-topbar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="ph-fill ph-robot" style="color: var(--accent);"></i> ИИ-Наставник
+            </div>
+            <button class="close-btn" onclick="closeAllPanels()"><i class="ph ph-x"></i></button>
         </div>
-        <div class="drawer-content">
-            <div class="ai-header">
-                <div class="ai-header-left"><i class="ph-fill ph-robot"></i> ИИ-Наставник</div>
-                <div id="ai-header-buttons" style="display: flex;">
-                    <button class="settings-btn" onclick="clearAIChat()" title="Очистить историю чата"><i class="ph ph-trash"></i></button>
-                </div>
+        <div class="ai-messages" id="ai-messages">
+            <div class="message ai" id="ai-welcome-message">
+                Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
+                <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
             </div>
-            <div class="ai-messages" id="ai-messages">
-                <div class="message ai" id="ai-welcome-message">
-                    Привет! Я твой ИИ-наставник по Python. Я вижу твой код и могу подсказать, где ошибка.<br><br>
-                    <strong>Важно:</strong> Я не даю готовых решений, а только объясняю, как надо. Напиши, что не получается!
-                </div>
+        </div>
+        <div class="ai-input-area">
+            <input type="text" id="ai-input" placeholder="В чем проблема?" onkeydown="if(event.key==='Enter') sendToAI()">
+            <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Панель Практики -->
+    <div class="side-panel" id="tasks-panel">
+        <div class="panel-topbar">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="ph ph-notebook" style="color: var(--task-color);"></i> Практика
             </div>
-            <div class="ai-input-area" id="ai-input-area">
-                <input type="text" id="ai-input" placeholder="В чем проблема?" onkeydown="if(event.key==='Enter') sendToAI()">
-                <button onclick="sendToAI()" id="ai-send-btn"><i class="ph ph-paper-plane-right"></i></button>
+            <button class="close-btn" onclick="closeAllPanels()"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="tasks-content">
+            <div class="task-search-area">
+                <input type="text" id="topic-input" placeholder="Например: словари, рекурсия" onkeydown="if(event.key==='Enter') generateTasks()">
+                <button onclick="generateTasks()" id="gen-btn">Найти</button>
+            </div>
+            <div id="task-list">
+                <div style="color: var(--text-secondary); text-align: center; margin-top: 20px;">
+                    Введи тему выше, и ИИ придумает 3 задания для практики.
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Панель Практики (Вкладка + Содержимое) -->
-    <div class="drawer-wrapper drawer-tasks" id="tasks-drawer">
-        <div class="drawer-tab" onclick="toggleMobilePanel('tasks-drawer')">
+    <!-- Кнопки запуска панелей (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-tasks" onclick="openPanel('tasks-panel')" title="Практика">
             <i class="ph ph-notebook"></i>
-        </div>
-        <div class="drawer-content">
-            <div class="ai-header">
-                <div class="ai-header-left"><i class="ph ph-notebook"></i> Практика</div>
-            </div>
-            <div class="tasks-content">
-                <div class="task-search-area">
-                    <input type="text" id="topic-input" placeholder="Например: словари, рекурсия" onkeydown="if(event.key==='Enter') generateTasks()">
-                    <button onclick="generateTasks()" id="gen-btn">Найти</button>
-                </div>
-                <div id="task-list">
-                    <div style="color: var(--text-secondary); text-align: center; margin-top: 20px;">
-                        Введи тему выше, и ИИ придумает 3 задания для практики.
-                    </div>
-                </div>
-            </div>
-        </div>
+        </button>
+        <button class="fab-btn fab-ai" onclick="openPanel('ai-panel')" title="ИИ-Наставник">
+            <i class="ph-fill ph-robot"></i>
+        </button>
     </div>
 
     <script>
@@ -385,12 +424,25 @@ asyncio.ensure_future(get_currency())
             return { list: filtered.sort(), from: CodeMirror.Pos(line, start), to: CodeMirror.Pos(line, end) };
         }
 
-        // --- ЛОГИКА МОБИЛЬНЫХ ПАНЕЛЕЙ ---
-        function toggleMobilePanel(drawerId) {
-            if (window.innerWidth <= 900) {
-                const drawer = document.getElementById(drawerId);
-                drawer.classList.toggle('open');
+        // --- ЛОГИКА ПАНЕЛЕЙ ---
+        function openPanel(panelId) {
+            // Закрываем все открытые панели сначала
+            document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+            
+            // Открываем нужную
+            document.getElementById(panelId).classList.add('open');
+            document.getElementById('drawer-overlay').classList.add('active');
+            
+            // Фокус на поле ввода, если это ИИ
+            if (panelId === 'ai-panel') {
+                setTimeout(() => document.getElementById('ai-input').focus(), 300);
+                scrollToAIBottom();
             }
+        }
+
+        function closeAllPanels() {
+            document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+            document.getElementById('drawer-overlay').classList.remove('active');
         }
 
         // --- ЛОГИКА ЗАДАНИЙ ---
@@ -442,12 +494,6 @@ asyncio.ensure_future(get_currency())
         }
 
         // --- ЛОГИКА ЧАТА ---
-        function clearAIChat() {
-            const msgs = document.getElementById('ai-messages');
-            msgs.innerHTML = document.getElementById('ai-welcome-message').outerHTML;
-            scrollToAIBottom();
-        }
-
         function scrollToAIBottom() {
             const msgs = document.getElementById('ai-messages');
             msgs.scrollTop = msgs.scrollHeight;
